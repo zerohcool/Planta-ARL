@@ -6,14 +6,12 @@ const [petroleo,setPetroleo]=useState("")
 const [mezcla,setMezcla]=useState("")
 const [aceite,setAceite]=useState("")
 
-
 const [modo,setModo]=useState("fabricar")
 
 const [mezclaObjetivo,setMezclaObjetivo]=useState("")
 
 const [calcPetroleo,setCalcPetroleo]=useState("")
 const [calcAceite,setCalcAceite]=useState("")
-
 
 const [porcPetroleo,setPorcPetroleo]=useState(70)
 const [porcAceite,setPorcAceite]=useState(30)
@@ -26,24 +24,17 @@ const dispPetroleo=capPetroleo-(Number(petroleo)||0)
 const dispMezcla=capMezcla-(Number(mezcla)||0)
 const dispAceite=capAceite-(Number(aceite)||0)
 
-const nivelPetroleo = ((Number(petroleo)||0)/capPetroleo)*100
-const nivelMezcla = ((Number(mezcla)||0)/capMezcla)*100
-const nivelAceite = ((Number(aceite)||0)/capAceite)*100
+const nivelPetroleo=((Number(petroleo)||0)/capPetroleo)*100
+const nivelMezcla=((Number(mezcla)||0)/capMezcla)*100
+const nivelAceite=((Number(aceite)||0)/capAceite)*100
 
-
-const petroleoNecesarioCalc = (Number(mezclaObjetivo)||0)*(porcPetroleo/100)
-const aceiteNecesarioCalc = (Number(mezclaObjetivo)||0)*(porcAceite/100)
+const petroleoNecesarioCalc=(Number(mezclaObjetivo)||0)*(porcPetroleo/100)
+const aceiteNecesarioCalc=(Number(mezclaObjetivo)||0)*(porcAceite/100)
 
 const totalCalc=(Number(calcPetroleo)||0)+(Number(calcAceite)||0)
 
-const porcPetroleoCalc = totalCalc?((calcPetroleo/totalCalc)*100):0
-const porcAceiteCalc = totalCalc?((calcAceite/totalCalc)*100):0
-
-
-const faltanteMezcla=capMezcla-(Number(mezcla)||0)
-
-const petroleoNecesario=faltanteMezcla*(porcPetroleo/100)
-const aceiteNecesario=faltanteMezcla*(porcAceite/100)
+const porcPetroleoCalc=totalCalc?((Number(calcPetroleo)/totalCalc)*100):0
+const porcAceiteCalc=totalCalc?((Number(calcAceite)/totalCalc)*100):0
 
 return (
 
@@ -59,8 +50,13 @@ Planta ARL
 
 <div className="grid md:grid-cols-3 gap-6">
 
+{/* PETROLEO */}
+
 <div className="bg-white p-6 rounded-xl shadow">
-<h2 className="font-semibold mb-3">Stock Petróleo</h2>
+
+<h2 className="font-semibold mb-3">
+Stock Petróleo
+</h2>
 
 <input
 type="number"
@@ -75,21 +71,27 @@ Disponible: {dispPetroleo.toFixed(2)} m³
 </p>
 
 <div className="w-full bg-gray-200 rounded-full h-4 mt-3">
-  <div
-    className="bg-green-500 h-4 rounded-full"
-    style={{ width: `${nivelPetroleo}%` }}
-  ></div>
+
+<div
+className="bg-green-500 h-4 rounded-full"
+style={{width:`${nivelPetroleo}%`}}
+></div>
+
 </div>
 
 <p className="text-sm mt-1">
-  {nivelPetroleo.toFixed(0)} %
+{nivelPetroleo.toFixed(0)} %
 </p>
 
 </div>
 
+{/* MEZCLA */}
+
 <div className="bg-white p-6 rounded-xl shadow">
 
-<h2 className="font-semibold mb-3">Stock Mezcla</h2>
+<h2 className="font-semibold mb-3">
+Stock Mezcla
+</h2>
 
 <input
 type="number"
@@ -104,21 +106,27 @@ Disponible: {dispMezcla.toFixed(2)} m³
 </p>
 
 <div className="w-full bg-gray-200 rounded-full h-4 mt-3">
-  <div
-    className="bg-blue-500 h-4 rounded-full"
-    style={{ width: `${nivelMezcla}%` }}
-  ></div>
+
+<div
+className="bg-blue-500 h-4 rounded-full"
+style={{width:`${nivelMezcla}%`}}
+></div>
+
 </div>
 
 <p className="text-sm mt-1">
-  {nivelMezcla.toFixed(0)} %
+{nivelMezcla.toFixed(0)} %
 </p>
 
 </div>
 
+{/* ACEITE */}
+
 <div className="bg-white p-6 rounded-xl shadow">
 
-<h2 className="font-semibold mb-3">Stock Aceite Residual</h2>
+<h2 className="font-semibold mb-3">
+Stock Aceite Residual
+</h2>
 
 <input
 type="number"
@@ -133,21 +141,24 @@ Disponible: {dispAceite.toFixed(2)} m³
 </p>
 
 <div className="w-full bg-gray-200 rounded-full h-4 mt-3">
-  <div
-    className="bg-yellow-500 h-4 rounded-full"
-    style={{ width: `${nivelAceite}%` }}
-  ></div>
+
+<div
+className="bg-yellow-500 h-4 rounded-full"
+style={{width:`${nivelAceite}%`}}
+></div>
+
 </div>
 
 <p className="text-sm mt-1">
-  {nivelAceite.toFixed(0)} %
+{nivelAceite.toFixed(0)} %
 </p>
 
 </div>
 
 </div>
 
-{/* PORCENTAJES */}
+{/* CALCULADORA */}
+
 <div className="bg-white p-6 rounded-xl shadow mt-8">
 
 <h2 className="text-lg font-semibold mb-4">
@@ -274,10 +285,6 @@ className="border rounded p-2"
 
 </div>
 
-</div>
-
-</div>
-
 {/* TABLA */}
 
 <div className="bg-white p-6 rounded-xl shadow mt-8">
@@ -289,11 +296,13 @@ Resumen
 <table className="w-full">
 
 <thead>
+
 <tr className="text-left border-b">
 <th className="pb-2">Estanque</th>
 <th className="pb-2">Stock</th>
 <th className="pb-2">Disponible</th>
 </tr>
+
 </thead>
 
 <tbody>
