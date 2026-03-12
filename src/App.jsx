@@ -43,7 +43,7 @@ Planta ARL
 <div className="grid md:grid-cols-3 gap-6">
 
 <div className="bg-white p-6 rounded-xl shadow">
-<h2 className="font-semibold mb-3">Petróleo</h2>
+<h2 className="font-semibold mb-3">Stock Petróleo</h2>
 
 <input
 type="number"
@@ -72,7 +72,7 @@ Disponible: {dispPetroleo.toFixed(2)} m³
 
 <div className="bg-white p-6 rounded-xl shadow">
 
-<h2 className="font-semibold mb-3">Mezcla</h2>
+<h2 className="font-semibold mb-3">Stock Mezcla</h2>
 
 <input
 type="number"
@@ -101,7 +101,7 @@ Disponible: {dispMezcla.toFixed(2)} m³
 
 <div className="bg-white p-6 rounded-xl shadow">
 
-<h2 className="font-semibold mb-3">Aceite Residual</h2>
+<h2 className="font-semibold mb-3">Stock Aceite Residual</h2>
 
 <input
 type="number"
