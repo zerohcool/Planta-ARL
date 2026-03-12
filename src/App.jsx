@@ -6,6 +6,15 @@ const [petroleo,setPetroleo]=useState("")
 const [mezcla,setMezcla]=useState("")
 const [aceite,setAceite]=useState("")
 
+
+const [modo,setModo]=useState("fabricar")
+
+const [mezclaObjetivo,setMezclaObjetivo]=useState("")
+
+const [calcPetroleo,setCalcPetroleo]=useState("")
+const [calcAceite,setCalcAceite]=useState("")
+
+
 const [porcPetroleo,setPorcPetroleo]=useState(70)
 const [porcAceite,setPorcAceite]=useState(30)
 
@@ -21,6 +30,14 @@ const nivelPetroleo = ((Number(petroleo)||0)/capPetroleo)*100
 const nivelMezcla = ((Number(mezcla)||0)/capMezcla)*100
 const nivelAceite = ((Number(aceite)||0)/capAceite)*100
 
+
+const petroleoNecesarioCalc = (Number(mezclaObjetivo)||0)*(porcPetroleo/100)
+const aceiteNecesarioCalc = (Number(mezclaObjetivo)||0)*(porcAceite/100)
+
+const totalCalc=(Number(calcPetroleo)||0)+(Number(calcAceite)||0)
+
+const porcPetroleoCalc = totalCalc?((calcPetroleo/totalCalc)*100):0
+const porcAceiteCalc = totalCalc?((calcAceite/totalCalc)*100):0
 
 
 const faltanteMezcla=capMezcla-(Number(mezcla)||0)
@@ -131,12 +148,41 @@ Disponible: {dispAceite.toFixed(2)} m³
 </div>
 
 {/* PORCENTAJES */}
-
 <div className="bg-white p-6 rounded-xl shadow mt-8">
 
 <h2 className="text-lg font-semibold mb-4">
-Porcentaje de Mezcla
+Calculadora de Mezcla
 </h2>
+
+<div className="flex gap-4 mb-6">
+
+<button
+onClick={()=>setModo("fabricar")}
+className={`px-4 py-2 rounded ${modo==="fabricar"?"bg-blue-500 text-white":"bg-gray-200"}`}
+>
+Fabricar mezcla
+</button>
+
+<button
+onClick={()=>setModo("analizar")}
+className={`px-4 py-2 rounded ${modo==="analizar"?"bg-blue-500 text-white":"bg-gray-200"}`}
+>
+Analizar mezcla
+</button>
+
+</div>
+
+{modo==="fabricar" && (
+
+<div className="space-y-4">
+
+<input
+type="number"
+placeholder="Cantidad de mezcla (m³)"
+value={mezclaObjetivo}
+onChange={e=>setMezclaObjetivo(e.target.value)}
+className="w-full border rounded p-2"
+/>
 
 <div className="grid grid-cols-2 gap-4">
 
@@ -145,6 +191,7 @@ type="number"
 value={porcPetroleo}
 onChange={e=>setPorcPetroleo(Number(e.target.value))}
 className="border rounded p-2"
+placeholder="% Petróleo"
 />
 
 <input
@@ -152,34 +199,79 @@ type="number"
 value={porcAceite}
 onChange={e=>setPorcAceite(Number(e.target.value))}
 className="border rounded p-2"
+placeholder="% Aceite"
 />
 
 </div>
 
-</div>
-
-{/* RESULTADO */}
-
-<div className="bg-white p-6 rounded-xl shadow mt-8">
-
-<h2 className="text-lg font-semibold mb-4">
-Para llenar estanque de mezcla
-</h2>
-
-<div className="grid md:grid-cols-2 gap-6">
+<div className="grid grid-cols-2 gap-6 mt-4">
 
 <div className="bg-blue-100 p-4 rounded-lg">
-<p className="text-sm text-gray-600">Petróleo necesario</p>
+<p className="text-sm">Petróleo necesario</p>
 <p className="text-2xl font-bold">
-{petroleoNecesario.toFixed(2)} m³
+{petroleoNecesarioCalc.toFixed(2)} m³
 </p>
 </div>
 
 <div className="bg-yellow-100 p-4 rounded-lg">
-<p className="text-sm text-gray-600">Aceite necesario</p>
+<p className="text-sm">Aceite necesario</p>
 <p className="text-2xl font-bold">
-{aceiteNecesario.toFixed(2)} m³
+{aceiteNecesarioCalc.toFixed(2)} m³
 </p>
+</div>
+
+</div>
+
+</div>
+
+)}
+
+{modo==="analizar" && (
+
+<div className="space-y-4">
+
+<div className="grid grid-cols-2 gap-4">
+
+<input
+type="number"
+placeholder="Petróleo m³"
+value={calcPetroleo}
+onChange={e=>setCalcPetroleo(e.target.value)}
+className="border rounded p-2"
+/>
+
+<input
+type="number"
+placeholder="Aceite m³"
+value={calcAceite}
+onChange={e=>setCalcAceite(e.target.value)}
+className="border rounded p-2"
+/>
+
+</div>
+
+<div className="grid grid-cols-2 gap-6 mt-4">
+
+<div className="bg-blue-100 p-4 rounded-lg">
+<p className="text-sm">% Petróleo</p>
+<p className="text-2xl font-bold">
+{porcPetroleoCalc.toFixed(1)} %
+</p>
+</div>
+
+<div className="bg-yellow-100 p-4 rounded-lg">
+<p className="text-sm">% Aceite</p>
+<p className="text-2xl font-bold">
+{porcAceiteCalc.toFixed(1)} %
+</p>
+</div>
+
+</div>
+
+</div>
+
+)}
+
 </div>
 
 </div>
