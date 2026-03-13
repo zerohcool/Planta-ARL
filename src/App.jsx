@@ -8,6 +8,8 @@ const [aceite,setAceite]=useState("")
 
 const [modo,setModo]=useState("fabricar")
 
+const [movimientos,setMovimientos]=useState([])
+
 const [mezclaObjetivo,setMezclaObjetivo]=useState("")
 
 const [calcPetroleo,setCalcPetroleo]=useState("")
@@ -35,6 +37,26 @@ const totalCalc=(Number(calcPetroleo)||0)+(Number(calcAceite)||0)
 
 const porcPetroleoCalc=totalCalc?((Number(calcPetroleo)/totalCalc)*100):0
 const porcAceiteCalc=totalCalc?((Number(calcAceite)/totalCalc)*100):0
+
+const fabricarMezcla = () => {
+
+const pet = petroleoNecesarioCalc
+const ace = aceiteNecesarioCalc
+const mez = Number(mezclaObjetivo)
+
+if(!mez || mez<=0) return
+
+const nuevosMovimientos = [
+
+{tipo:"Petróleo", valor:-pet},
+{tipo:"Aceite", valor:-ace},
+{tipo:"Mezcla", valor:+mez}
+
+]
+
+setMovimientos([...movimientos,...nuevosMovimientos])
+
+}
 
 return (
 
@@ -161,29 +183,15 @@ style={{width:`${nivelAceite}%`}}
 
 <div className="bg-white p-6 rounded-xl shadow mt-8">
 
-<h2 className="text-lg font-semibold mb-4">
+<h2 className="text-lg font-semibold mb-6">
 Calculadora de Mezcla
 </h2>
 
-<div className="flex gap-4 mb-6">
+<div className="grid md:grid-cols-2 gap-8">
 
-<button
-onClick={()=>setModo("fabricar")}
-className={`px-4 py-2 rounded ${modo==="fabricar"?"bg-blue-500 text-white":"bg-gray-200"}`}
->
-Fabricar mezcla
-</button>
+{/* COLUMNA CALCULADORA */}
 
-<button
-onClick={()=>setModo("analizar")}
-className={`px-4 py-2 rounded ${modo==="analizar"?"bg-blue-500 text-white":"bg-gray-200"}`}
->
-Analizar mezcla
-</button>
-
-</div>
-
-{modo==="fabricar" && (
+<div>
 
 <div className="space-y-4">
 
@@ -250,63 +258,53 @@ className="w-full border rounded p-2"
 
 </div>
 
-)}
+</div>
 
-{modo==="analizar" && (
+{/* COLUMNA FABRICAR */}
 
-<div className="space-y-4">
+<div className="bg-gray-50 p-6 rounded-xl border">
 
-<div className="grid grid-cols-2 gap-4">
+<h3 className="font-semibold mb-4">
+Fabricar
+</h3>
 
-<div>
-<p className="text-sm font-medium mb-1">
-Petróleo (m³)
+<div className="space-y-3 text-sm">
+
+<p>
+Petróleo a usar:
+<strong className="ml-2">
+{petroleoNecesarioCalc.toFixed(2)} m³
+</strong>
 </p>
 
-<input
-type="number"
-value={calcPetroleo}
-onChange={e=>setCalcPetroleo(e.target.value)}
-className="w-full border rounded p-2"
-/>
-</div>
-
-<div>
-<p className="text-sm font-medium mb-1">
-Aceite (m³)
+<p>
+Aceite a usar:
+<strong className="ml-2">
+{aceiteNecesarioCalc.toFixed(2)} m³
+</strong>
 </p>
 
-<input
-type="number"
-value={calcAceite}
-onChange={e=>setCalcAceite(e.target.value)}
-className="w-full border rounded p-2"
-/>
-</div>
-
-</div>
-
-<div className="grid grid-cols-2 gap-6 mt-4">
-
-<div className="bg-blue-100 p-4 rounded-lg">
-<p className="text-sm">% Petróleo</p>
-<p className="text-2xl font-bold">
-{porcPetroleoCalc.toFixed(1)} %
+<p>
+Mezcla generada:
+<strong className="ml-2">
+{Number(mezclaObjetivo||0).toFixed(2)} m³
+</strong>
 </p>
-</div>
-
-<div className="bg-yellow-100 p-4 rounded-lg">
-<p className="text-sm">% Aceite</p>
-<p className="text-2xl font-bold">
-{porcAceiteCalc.toFixed(1)} %
-</p>
-</div>
 
 </div>
 
+<button
+onClick={fabricarMezcla}
+className="mt-6 w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700"
+>
+
+Fabricar
+
+</button>
+
 </div>
 
-)}
+</div>
 
 </div>
 
@@ -353,6 +351,48 @@ Resumen
 </tbody>
 
 </table>
+
+<div className="bg-white p-6 rounded-xl shadow mt-8">
+
+<h2 className="text-lg font-semibold mb-4">
+Informe de movimientos
+</h2>
+
+<table className="w-full">
+
+<thead>
+
+<tr className="border-b text-left">
+<th>Producto</th>
+<th>Cambio</th>
+</tr>
+
+</thead>
+
+<tbody>
+
+{movimientos.map((m,i)=>(
+
+<tr key={i} className="border-b">
+
+<td className="py-2">
+{m.tipo}
+</td>
+
+<td className={`py-2 ${m.valor<0?"text-red-600":"text-green-600"}`}>
+{m.valor>0?"+":""}{m.valor.toFixed(2)} m³
+</td>
+
+</tr>
+
+))}
+
+</tbody>
+
+</table>
+
+</div>
+
 
 </div>
 
