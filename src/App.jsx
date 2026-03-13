@@ -264,10 +264,10 @@ function App() {
             <thead>
               <tr className="border-b text-left">
                 <th className="pb-2">Estanque</th>
-                <th className="pb-2">Stock</th>
+                <th className="pb-2">Stock Final</th>
                 <th className="pb-2">Utilizado</th>
                 <th className="pb-2">Fabricado</th>
-                <th className="pb-2">Disponible</th>
+                <th className="pb-2">Capacidad Disponible</th>
               </tr>
             </thead>
 
