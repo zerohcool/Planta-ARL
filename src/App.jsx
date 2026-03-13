@@ -10,6 +10,7 @@ const [modo,setModo]=useState("fabricar")
 
 const [movimientos,setMovimientos]=useState([])
 
+
 const [mezclaObjetivo,setMezclaObjetivo]=useState("")
 
 const [calcPetroleo,setCalcPetroleo]=useState("")
@@ -67,6 +68,30 @@ const nuevosMovimientos = [
 ]
 
 setMovimientos([...movimientos,...nuevosMovimientos])
+
+const fabricarMezcla = () => {
+
+const pet = Number(petroleoUsar)||0
+const ace = Number(aceiteUsar)||0
+const mez = pet+ace
+
+if(mez===0) return
+
+const nuevosMovimientos=[
+
+{producto:"Petróleo",cantidad:-pet},
+{producto:"Aceite",cantidad:-ace},
+{producto:"Mezcla",cantidad:mez}
+
+]
+
+setMovimientos([...movimientos,...nuevosMovimientos])
+
+setPetroleoUsar("")
+setAceiteUsar("")
+
+}
+
 
 }
 
@@ -393,8 +418,6 @@ Resumen
 
 </tbody>
 
-</table>
-
 <div className="bg-white p-6 rounded-xl shadow mt-8">
 
 <h2 className="text-lg font-semibold mb-4">
@@ -404,36 +427,33 @@ Informe de movimientos
 <table className="w-full">
 
 <thead>
-
 <tr className="border-b text-left">
-<th>Producto</th>
-<th>Cambio</th>
+<th className="pb-2">Producto</th>
+<th className="pb-2">Cantidad</th>
 </tr>
-
 </thead>
 
 <tbody>
 
-{movimientos.map((m,i)=>(
-
+{movimientos.map((mov,i)=>(
 <tr key={i} className="border-b">
 
 <td className="py-2">
-{m.tipo}
+{mov.producto}
 </td>
 
-<td className={`py-2 ${m.valor<0?"text-red-600":"text-green-600"}`}>
-{m.valor>0?"+":""}{m.valor.toFixed(2)} m³
+<td className={`py-2 font-semibold ${mov.cantidad>0?"text-green-600":"text-red-600"}`}>
+{mov.cantidad>0?"+":""}{mov.cantidad} m³
 </td>
 
 </tr>
-
 ))}
 
 </tbody>
 
 </table>
 
+</div>
 </div>
 
 
