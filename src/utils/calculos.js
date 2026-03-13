@@ -19,3 +19,28 @@ export function obtenerLitrosDesdeAltura(tabla, alturaIngresada) {
 
   return filaMenor ? filaMenor.litros : 0;
 }
+
+
+export function parsearCSVCalibracion(textoCSV) {
+  const lineas = textoCSV.trim().split("\n");
+
+  if (lineas.length < 2) return [];
+
+  const filas = lineas.slice(1);
+
+  return filas
+    .map((linea) => {
+      const [altura, litros] = linea.split(",");
+
+      return {
+        altura: Number(String(altura).trim()),
+        litros: Number(String(litros).trim()),
+      };
+    })
+    .filter(
+      (item) =>
+        !isNaN(item.altura) &&
+        !isNaN(item.litros)
+    )
+    .sort((a, b) => a.altura - b.altura);
+}

@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { calibracionesIniciales } from "./data/calibraciones";
-import { obtenerLitrosDesdeAltura } from "./utils/calculos";
+import {
+  obtenerLitrosDesdeAltura,
+  parsearCSVCalibracion,
+} from "./utils/calculos";
+
 
 function App() {
   const [petroleo, setPetroleo] = useState("");
@@ -19,6 +23,8 @@ function App() {
   const [alturaMezcla, setAlturaMezcla] = useState("");
   const [alturaAceite, setAlturaAceite] = useState("");
 
+  const [calibraciones, setCalibraciones] = useState(calibracionesIniciales);
+
   // Capacidades nominales en litros
   const capPetroleo = 20000;
   const capMezcla = 30000;
@@ -33,22 +39,55 @@ function App() {
   const utilizadoPetroleo = Number(petroleoUsar) || 0;
   const utilizadoAceite = Number(aceiteUsar) || 0;
 
+
+
+
+  /*Funcion para cargar archivo */ 
+    const cargarCSVCalibracion = (tipoEstanque, archivo) => {
+      if (!archivo) return;
+
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        const texto = e.target.result;
+        const datos = parsearCSVCalibracion(texto);
+
+        if (datos.length === 0) {
+          alert("El archivo no contiene datos válidos.");
+          return;
+        }
+
+        setCalibraciones((prev) => ({
+          ...prev,
+          [tipoEstanque]: datos,
+        }));
+      };
+
+      reader.readAsText(archivo);
+    };
+
+
+
+
+
+
+
+
   /*Variables segun medicion */
-  const litrosPetroleoDesdeAltura = obtenerLitrosDesdeAltura(
-  calibracionesIniciales.petroleo,
-  alturaPetroleo
-  );
+    const litrosPetroleoDesdeAltura = obtenerLitrosDesdeAltura(
+      calibraciones.petroleo,
+      alturaPetroleo
+    );
 
-const litrosMezclaDesdeAltura = obtenerLitrosDesdeAltura(
-  calibracionesIniciales.mezcla,
-  alturaMezcla
-  );
+    const litrosMezclaDesdeAltura = obtenerLitrosDesdeAltura(
+      calibraciones.mezcla,
+      alturaMezcla
+    );
 
-const litrosAceiteDesdeAltura = obtenerLitrosDesdeAltura(
-  calibracionesIniciales.aceite,
-  alturaAceite
-  );
-
+    const litrosAceiteDesdeAltura = obtenerLitrosDesdeAltura(
+      calibraciones.aceite,
+      alturaAceite
+    );
 
   /* VALIDACIONES STOCK */
   const errorPetroleo = stockPetroleo < 0 || stockPetroleo > capPetroleo;
@@ -181,10 +220,33 @@ const litrosAceiteDesdeAltura = obtenerLitrosDesdeAltura(
                   className="w-full border rounded-lg p-3"
                   placeholder="Ingrese altura"
                 />
+
+                <p className="text-sm text-slate-600 mt-4 mb-1">
+                  Cargar calibración CSV
+                </p>
+                <input
+                  type="file"
+                  accept=".csv"
+                  onChange={(e) => cargarCSVCalibracion("petroleo", e.target.files[0])}
+                  className="w-full border rounded-lg p-2"
+                />
+
+
+
+
+
                 <p className="mt-3 text-slate-700">
                   Litros calculados:{" "}
                   <strong>{litrosPetroleoDesdeAltura.toLocaleString("es-CL")} L</strong>
                 </p>
+
+
+                <p className="mt-2 text-xs text-slate-500">
+                  Puntos cargados: {calibraciones.petroleo.length}
+                </p>
+
+
+
               </div>
 
               <div className="bg-white p-6 rounded-2xl shadow border border-slate-200">
@@ -197,10 +259,32 @@ const litrosAceiteDesdeAltura = obtenerLitrosDesdeAltura(
                   className="w-full border rounded-lg p-3"
                   placeholder="Ingrese altura"
                 />
+
+                <p className="text-sm text-slate-600 mt-4 mb-1">
+                  Cargar calibración CSV
+                </p>
+                <input
+                  type="file"
+                  accept=".csv"
+                  onChange={(e) => cargarCSVCalibracion("mezcla", e.target.files[0])}
+                  className="w-full border rounded-lg p-2"
+                />
+
+
+
+
                 <p className="mt-3 text-slate-700">
                   Litros calculados:{" "}
                   <strong>{litrosMezclaDesdeAltura.toLocaleString("es-CL")} L</strong>
                 </p>
+
+                <p className="mt-2 text-xs text-slate-500">
+                  Puntos cargados: {calibraciones.mezcla.length}
+                </p>  
+
+
+
+
               </div>
 
               <div className="bg-white p-6 rounded-2xl shadow border border-slate-200">
@@ -213,10 +297,33 @@ const litrosAceiteDesdeAltura = obtenerLitrosDesdeAltura(
                   className="w-full border rounded-lg p-3"
                   placeholder="Ingrese altura"
                 />
+
+
+                <p className="text-sm text-slate-600 mt-4 mb-1">
+                  Cargar calibración CSV
+                </p>
+                <input
+                  type="file"
+                  accept=".csv"
+                  onChange={(e) => cargarCSVCalibracion("aceite", e.target.files[0])}
+                  className="w-full border rounded-lg p-2"
+                />
+
+
+
+
                 <p className="mt-3 text-slate-700">
                   Litros calculados:{" "}
                   <strong>{litrosAceiteDesdeAltura.toLocaleString("es-CL")} L</strong>
                 </p>
+
+
+                <p className="mt-2 text-xs text-slate-500">
+                  Puntos cargados: {calibraciones.aceite.length}
+                </p>
+
+
+
               </div>
             </div>
           </section>
