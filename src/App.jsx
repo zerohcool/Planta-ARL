@@ -1,7 +1,5 @@
 import { useState } from "react";
 
-import { useState } from "react";
-
 function App() {
   const [petroleo, setPetroleo] = useState("");
   const [mezcla, setMezcla] = useState("");
