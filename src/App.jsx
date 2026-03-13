@@ -18,6 +18,9 @@ const [calcAceite,setCalcAceite]=useState("")
 const [porcPetroleo,setPorcPetroleo]=useState(70)
 const [porcAceite,setPorcAceite]=useState(30)
 
+const [petroleoUsar,setPetroleoUsar]=useState("")
+const [aceiteUsar,setAceiteUsar]=useState("")
+
 const capPetroleo=20
 const capMezcla=30
 const capAceite=20
@@ -37,6 +40,15 @@ const totalCalc=(Number(calcPetroleo)||0)+(Number(calcAceite)||0)
 
 const porcPetroleoCalc=totalCalc?((Number(calcPetroleo)/totalCalc)*100):0
 const porcAceiteCalc=totalCalc?((Number(calcAceite)/totalCalc)*100):0
+
+const mezclaFabricada =
+(Number(petroleoUsar)||0)+(Number(aceiteUsar)||0)
+
+const porcPetroleoFabricado =
+mezclaFabricada?((Number(petroleoUsar)/mezclaFabricada)*100):0
+
+const porcAceiteFabricado =
+mezclaFabricada?((Number(aceiteUsar)/mezclaFabricada)*100):0
 
 const fabricarMezcla = () => {
 
@@ -70,243 +82,274 @@ Planta ARL
 
 {/* MEDICIONES */}
 
-<div className="grid md:grid-cols-3 gap-6">
+    <div className="grid md:grid-cols-3 gap-6">
 
-{/* PETROLEO */}
+    {/* PETROLEO */}
 
-<div className="bg-white p-6 rounded-xl shadow">
+    <div className="bg-white p-6 rounded-xl shadow">
 
-<h2 className="font-semibold mb-3">
-Stock Petróleo
-</h2>
+    <h2 className="font-semibold mb-3">
+    Stock Petróleo
+    </h2>
 
-<input
-type="number"
-placeholder="m³"
-value={petroleo}
-onChange={e=>setPetroleo(e.target.value)}
-className="w-full border rounded p-2"
-/>
+    <input
+    type="number"
+    placeholder="m³"
+    value={petroleo}
+    onChange={e=>setPetroleo(e.target.value)}
+    className="w-full border rounded p-2"
+    />
 
-<p className="mt-3 text-sm text-gray-500">
-Disponible: {dispPetroleo.toFixed(2)} m³
-</p>
+    <p className="mt-3 text-sm text-gray-500">
+    Disponible: {dispPetroleo.toFixed(2)} m³
+    </p>
 
-<div className="w-full bg-gray-200 rounded-full h-4 mt-3">
+    <div className="w-full bg-gray-200 rounded-full h-4 mt-3">
 
-<div
-className="bg-green-500 h-4 rounded-full"
-style={{width:`${nivelPetroleo}%`}}
-></div>
+    <div
+    className="bg-green-500 h-4 rounded-full"
+    style={{width:`${nivelPetroleo}%`}}
+    ></div>
 
-</div>
+    </div>
 
-<p className="text-sm mt-1">
-{nivelPetroleo.toFixed(0)} %
-</p>
+    <p className="text-sm mt-1">
+    {nivelPetroleo.toFixed(0)} %
+    </p>
 
-</div>
+    </div>
 
-{/* MEZCLA */}
+    {/* MEZCLA */}
 
-<div className="bg-white p-6 rounded-xl shadow">
+    <div className="bg-white p-6 rounded-xl shadow">
 
-<h2 className="font-semibold mb-3">
-Stock Mezcla
-</h2>
+    <h2 className="font-semibold mb-3">
+    Stock Mezcla
+    </h2>
 
-<input
-type="number"
-placeholder="m³"
-value={mezcla}
-onChange={e=>setMezcla(e.target.value)}
-className="w-full border rounded p-2"
-/>
+    <input
+    type="number"
+    placeholder="m³"
+    value={mezcla}
+    onChange={e=>setMezcla(e.target.value)}
+    className="w-full border rounded p-2"
+    />
 
-<p className="mt-3 text-sm text-gray-500">
-Disponible: {dispMezcla.toFixed(2)} m³
-</p>
+    <p className="mt-3 text-sm text-gray-500">
+    Disponible: {dispMezcla.toFixed(2)} m³
+    </p>
 
-<div className="w-full bg-gray-200 rounded-full h-4 mt-3">
+    <div className="w-full bg-gray-200 rounded-full h-4 mt-3">
 
-<div
-className="bg-blue-500 h-4 rounded-full"
-style={{width:`${nivelMezcla}%`}}
-></div>
+    <div
+    className="bg-blue-500 h-4 rounded-full"
+    style={{width:`${nivelMezcla}%`}}
+    ></div>
 
-</div>
+    </div>
 
-<p className="text-sm mt-1">
-{nivelMezcla.toFixed(0)} %
-</p>
+    <p className="text-sm mt-1">
+    {nivelMezcla.toFixed(0)} %
+    </p>
 
-</div>
+    </div>
 
-{/* ACEITE */}
+    {/* ACEITE */}
 
-<div className="bg-white p-6 rounded-xl shadow">
+    <div className="bg-white p-6 rounded-xl shadow">
 
-<h2 className="font-semibold mb-3">
-Stock Aceite Residual
-</h2>
+    <h2 className="font-semibold mb-3">
+    Stock Aceite Residual
+    </h2>
 
-<input
-type="number"
-placeholder="m³"
-value={aceite}
-onChange={e=>setAceite(e.target.value)}
-className="w-full border rounded p-2"
-/>
+    <input
+    type="number"
+    placeholder="m³"
+    value={aceite}
+    onChange={e=>setAceite(e.target.value)}
+    className="w-full border rounded p-2"
+    />
 
-<p className="mt-3 text-sm text-gray-500">
-Disponible: {dispAceite.toFixed(2)} m³
-</p>
+    <p className="mt-3 text-sm text-gray-500">
+    Disponible: {dispAceite.toFixed(2)} m³
+    </p>
 
-<div className="w-full bg-gray-200 rounded-full h-4 mt-3">
+    <div className="w-full bg-gray-200 rounded-full h-4 mt-3">
 
-<div
-className="bg-yellow-500 h-4 rounded-full"
-style={{width:`${nivelAceite}%`}}
-></div>
+    <div
+    className="bg-yellow-500 h-4 rounded-full"
+    style={{width:`${nivelAceite}%`}}
+    ></div>
 
-</div>
+    </div>
 
-<p className="text-sm mt-1">
-{nivelAceite.toFixed(0)} %
-</p>
+    <p className="text-sm mt-1">
+    {nivelAceite.toFixed(0)} %
+    </p>
 
-</div>
+    </div>
 
-</div>
+    </div>
 
 {/* CALCULADORA */}
 
-<div className="bg-white p-6 rounded-xl shadow mt-8">
+    <div className="grid md:grid-cols-2 gap-6 mt-8">
 
-<h2 className="text-lg font-semibold mb-6">
-Calculadora de Mezcla
-</h2>
+    {/* TARJETA CALCULADORA */}
 
-<div className="grid md:grid-cols-2 gap-8">
+    <div className="bg-white p-6 rounded-xl shadow">
 
-{/* COLUMNA CALCULADORA */}
+    <h2 className="text-lg font-semibold mb-4">
+    Calculadora de Mezcla
+    </h2>
 
-<div>
+    <div className="space-y-4">
 
-<div className="space-y-4">
+    <div>
+    <p className="text-sm font-medium mb-1">
+    Cantidad de mezcla a fabricar (m³)
+    </p>
 
-<div>
-<p className="text-sm font-medium mb-1">
-Cantidad de mezcla a fabricar (m³)
-</p>
+    <input
+    type="number"
+    value={mezclaObjetivo}
+    onChange={e=>setMezclaObjetivo(e.target.value)}
+    className="w-full border rounded p-2"
+    />
+    </div>
 
-<input
-type="number"
-value={mezclaObjetivo}
-onChange={e=>setMezclaObjetivo(e.target.value)}
-className="w-full border rounded p-2"
-/>
-</div>
+    <div className="grid grid-cols-2 gap-4">
 
-<div className="grid grid-cols-2 gap-4">
+    <div>
+    <p className="text-sm font-medium mb-1">
+    % Petróleo
+    </p>
 
-<div>
-<p className="text-sm font-medium mb-1">
-% Petróleo
-</p>
+    <input
+    type="number"
+    value={porcPetroleo}
+    onChange={e=>setPorcPetroleo(Number(e.target.value))}
+    className="w-full border rounded p-2"
+    />
+    </div>
 
-<input
-type="number"
-value={porcPetroleo}
-onChange={e=>setPorcPetroleo(Number(e.target.value))}
-className="w-full border rounded p-2"
-/>
-</div>
+    <div>
+    <p className="text-sm font-medium mb-1">
+    % Aceite
+    </p>
 
-<div>
-<p className="text-sm font-medium mb-1">
-% Aceite
-</p>
+    <input
+    type="number"
+    value={porcAceite}
+    onChange={e=>setPorcAceite(Number(e.target.value))}
+    className="w-full border rounded p-2"
+    />
+    </div>
 
-<input
-type="number"
-value={porcAceite}
-onChange={e=>setPorcAceite(Number(e.target.value))}
-className="w-full border rounded p-2"
-/>
-</div>
+    </div>
 
-</div>
+    <div className="grid grid-cols-2 gap-4 mt-4">
 
-<div className="grid grid-cols-2 gap-6 mt-4">
+    <div className="bg-blue-100 p-4 rounded-lg">
+    <p className="text-sm">Petróleo necesario</p>
+    <p className="text-2xl font-bold">
+    {petroleoNecesarioCalc.toFixed(2)} m³
+    </p>
+    </div>
 
-<div className="bg-blue-100 p-4 rounded-lg">
-<p className="text-sm">Petróleo necesario</p>
-<p className="text-2xl font-bold">
-{petroleoNecesarioCalc.toFixed(2)} m³
-</p>
-</div>
+    <div className="bg-yellow-100 p-4 rounded-lg">
+    <p className="text-sm">Aceite necesario</p>
+    <p className="text-2xl font-bold">
+    {aceiteNecesarioCalc.toFixed(2)} m³
+    </p>
+    </div>
 
-<div className="bg-yellow-100 p-4 rounded-lg">
-<p className="text-sm">Aceite necesario</p>
-<p className="text-2xl font-bold">
-{aceiteNecesarioCalc.toFixed(2)} m³
-</p>
-</div>
+    </div>
 
-</div>
+    </div>
 
-</div>
+    </div>
 
-</div>
 
-{/* COLUMNA FABRICAR */}
+    {/* TARJETA FABRICAR */}
 
-<div className="bg-gray-50 p-6 rounded-xl border">
+    <div className="bg-white p-6 rounded-xl shadow">
 
-<h3 className="font-semibold mb-4">
-Fabricar
-</h3>
+    <h2 className="text-lg font-semibold mb-4">
+    Fabricar Mezcla
+    </h2>
 
-<div className="space-y-3 text-sm">
+    <div className="space-y-4">
 
-<p>
-Petróleo a usar:
-<strong className="ml-2">
-{petroleoNecesarioCalc.toFixed(2)} m³
-</strong>
-</p>
+    <div>
 
-<p>
-Aceite a usar:
-<strong className="ml-2">
-{aceiteNecesarioCalc.toFixed(2)} m³
-</strong>
-</p>
+    <p className="text-sm font-medium mb-1">
+    Petróleo a usar (m³)
+    </p>
 
-<p>
-Mezcla generada:
-<strong className="ml-2">
-{Number(mezclaObjetivo||0).toFixed(2)} m³
-</strong>
-</p>
+    <input
+    type="number"
+    value={petroleoUsar}
+    onChange={e=>setPetroleoUsar(e.target.value)}
+    className="w-full border rounded p-2"
+    />
 
-</div>
+    </div>
 
-<button
-onClick={fabricarMezcla}
-className="mt-6 w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700"
->
+    <div>
 
-Fabricar
+    <p className="text-sm font-medium mb-1">
+    Aceite a usar (m³)
+    </p>
 
-</button>
+    <input
+    type="number"
+    value={aceiteUsar}
+    onChange={e=>setAceiteUsar(e.target.value)}
+    className="w-full border rounded p-2"
+    />
 
-</div>
+    </div>
 
-</div>
+    <div className="bg-gray-100 p-4 rounded-lg">
 
-</div>
+    <p>
+    Mezcla total generada:
+    <strong className="ml-2">
+    {mezclaFabricada.toFixed(2)} m³
+    </strong>
+    </p>
+
+    <p>
+    % Petróleo:
+    <strong className="ml-2">
+    {porcPetroleoFabricado.toFixed(1)} %
+    </strong>
+    </p>
+
+    <p>
+    % Aceite:
+    <strong className="ml-2">
+    {porcAceiteFabricado.toFixed(1)} %
+    </strong>
+    </p>
+
+    </div>
+
+    <button
+    onClick={fabricarMezcla}
+    className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700"
+    >
+
+    Fabricar
+
+    </button>
+
+    </div>
+
+    </div>
+
+    </div>
 
 {/* TABLA */}
 
