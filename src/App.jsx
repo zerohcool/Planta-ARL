@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { calibracionesIniciales } from "./data/calibraciones";
+import { obtenerLitrosDesdeAltura } from "./utils/calculos";
 
 function App() {
   const [petroleo, setPetroleo] = useState("");
@@ -13,6 +15,10 @@ function App() {
   const [petroleoUsar, setPetroleoUsar] = useState("");
   const [aceiteUsar, setAceiteUsar] = useState("");
 
+  const [alturaPetroleo, setAlturaPetroleo] = useState("");
+  const [alturaMezcla, setAlturaMezcla] = useState("");
+  const [alturaAceite, setAlturaAceite] = useState("");
+
   // Capacidades nominales en litros
   const capPetroleo = 20000;
   const capMezcla = 30000;
@@ -26,6 +32,23 @@ function App() {
 
   const utilizadoPetroleo = Number(petroleoUsar) || 0;
   const utilizadoAceite = Number(aceiteUsar) || 0;
+
+  /*Variables segun medicion */
+  const litrosPetroleoDesdeAltura = obtenerLitrosDesdeAltura(
+  calibracionesIniciales.petroleo,
+  alturaPetroleo
+  );
+
+const litrosMezclaDesdeAltura = obtenerLitrosDesdeAltura(
+  calibracionesIniciales.mezcla,
+  alturaMezcla
+  );
+
+const litrosAceiteDesdeAltura = obtenerLitrosDesdeAltura(
+  calibracionesIniciales.aceite,
+  alturaAceite
+  );
+
 
   /* VALIDACIONES STOCK */
   const errorPetroleo = stockPetroleo < 0 || stockPetroleo > capPetroleo;
@@ -140,6 +163,70 @@ function App() {
               de fabricación.
             </p>
           </div>
+
+          {/*seccion de prueba visual*/}
+          <section className="mb-10">
+            <h3 className="text-2xl font-bold text-slate-800 mb-4">
+              Cálculo por Altura
+            </h3>
+
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="bg-white p-6 rounded-2xl shadow border border-slate-200">
+                <h4 className="font-semibold mb-3">Petróleo</h4>
+                <p className="text-sm text-slate-600 mb-1">Altura medida</p>
+                <input
+                  type="number"
+                  value={alturaPetroleo}
+                  onChange={(e) => setAlturaPetroleo(e.target.value)}
+                  className="w-full border rounded-lg p-3"
+                  placeholder="Ingrese altura"
+                />
+                <p className="mt-3 text-slate-700">
+                  Litros calculados:{" "}
+                  <strong>{litrosPetroleoDesdeAltura.toLocaleString("es-CL")} L</strong>
+                </p>
+              </div>
+
+              <div className="bg-white p-6 rounded-2xl shadow border border-slate-200">
+                <h4 className="font-semibold mb-3">Mezcla</h4>
+                <p className="text-sm text-slate-600 mb-1">Altura medida</p>
+                <input
+                  type="number"
+                  value={alturaMezcla}
+                  onChange={(e) => setAlturaMezcla(e.target.value)}
+                  className="w-full border rounded-lg p-3"
+                  placeholder="Ingrese altura"
+                />
+                <p className="mt-3 text-slate-700">
+                  Litros calculados:{" "}
+                  <strong>{litrosMezclaDesdeAltura.toLocaleString("es-CL")} L</strong>
+                </p>
+              </div>
+
+              <div className="bg-white p-6 rounded-2xl shadow border border-slate-200">
+                <h4 className="font-semibold mb-3">Aceite</h4>
+                <p className="text-sm text-slate-600 mb-1">Altura medida</p>
+                <input
+                  type="number"
+                  value={alturaAceite}
+                  onChange={(e) => setAlturaAceite(e.target.value)}
+                  className="w-full border rounded-lg p-3"
+                  placeholder="Ingrese altura"
+                />
+                <p className="mt-3 text-slate-700">
+                  Litros calculados:{" "}
+                  <strong>{litrosAceiteDesdeAltura.toLocaleString("es-CL")} L</strong>
+                </p>
+              </div>
+            </div>
+          </section>
+
+
+
+
+
+
+
 
           {/* TARJETAS RESUMEN */}
           <div className="grid md:grid-cols-3 gap-6 mb-8">
