@@ -48,6 +48,12 @@ function App() {
     );
   }, [calibraciones]);
 
+  const formatearFecha = (fecha) => {
+    if (!fecha) return "";
+    const [anio, mes, dia] = fecha.split("-");
+    return `${dia}-${mes}-${anio}`;
+  };
+
   const cargarExcelCalibracion = (tipoEstanque, archivo) => {
     if (!archivo) return;
 
@@ -162,6 +168,252 @@ function App() {
     pdf.save(`reporte_planta_arl_${fechaInforme}.pdf`);
   };
 
+  const exportarPDFA4 = () => {
+    const pdf = new jsPDF("p", "mm", "a4");
+    const pageWidth = 210;
+    const margin = 10;
+    let y = 12;
+
+    pdf.addImage(logo, "PNG", margin, y, 24, 14);
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(16);
+    pdf.text("Reporte Operacional - Planta ARL", 40, 18);
+
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(10);
+    pdf.text(`Fecha informe: ${formatearFecha(fechaInforme)}`, pageWidth - 60, 18);
+
+    y += 20;
+
+    pdf.setDrawColor(220, 220, 220);
+    pdf.line(margin, y, pageWidth - margin, y);
+    y += 8;
+
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(12);
+    pdf.text("Datos del Informe", margin, y);
+    y += 7;
+
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(10);
+    pdf.text(`Operador: ${operador || "-"}`, margin, y);
+    pdf.text(`Fecha: ${formatearFecha(fechaInforme)}`, 110, y);
+    y += 10;
+
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(12);
+    pdf.text("Stock", margin, y);
+    y += 8;
+
+    const card = (titulo, altura, stock, disponible, porcentaje, color) => {
+      pdf.setFillColor(248, 250, 252);
+      pdf.setDrawColor(220, 220, 220);
+      pdf.roundedRect(margin, y, 190, 18, 2, 2, "FD");
+
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(10);
+      pdf.text(titulo, margin + 4, y + 6);
+
+      pdf.setFont("helvetica", "normal");
+      pdf.text(`Altura: ${altura || 0} cm`, margin + 45, y + 6);
+      pdf.text(`Stock: ${stock.toLocaleString("es-CL")} L`, margin + 85, y + 6);
+      pdf.text(
+        `Disponible: ${disponible.toLocaleString("es-CL")} L`,
+        margin + 130,
+        y + 6
+      );
+
+      pdf.setFillColor(230, 230, 230);
+      pdf.roundedRect(margin + 4, y + 10, 80, 4, 1, 1, "F");
+
+      pdf.setFillColor(...color);
+      pdf.roundedRect(
+        margin + 4,
+        y + 10,
+        Math.max(2, 80 * (porcentaje / 100)),
+        4,
+        1,
+        1,
+        "F"
+      );
+
+      pdf.setFontSize(9);
+      pdf.text(`${porcentaje.toFixed(0)} %`, margin + 88, y + 13.5);
+
+      y += 22;
+    };
+
+    card("Petróleo", alturaPetroleo, stockPetroleo, dispPetroleo, nivelPetroleo, [
+      34, 197, 94,
+    ]);
+    card("Mezcla", alturaMezcla, stockMezcla, dispMezcla, nivelMezcla, [
+      59, 130, 246,
+    ]);
+    card("Aceite Residual", alturaAceite, stockAceite, dispAceite, nivelAceite, [
+      234, 179, 8,
+    ]);
+
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(12);
+    pdf.text("Calculadora y Registro de Fabricación", margin, y);
+    y += 8;
+
+    pdf.setFillColor(248, 250, 252);
+    pdf.setDrawColor(220, 220, 220);
+    pdf.roundedRect(margin, y, 92, 30, 2, 2, "FD");
+
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(10);
+    pdf.text("Calculadora de Mezcla", margin + 4, y + 6);
+
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(9);
+    pdf.text(`Cantidad objetivo: ${objetivoLitros.toLocaleString("es-CL")} L`, margin + 4, y + 12);
+    pdf.text(`% Petróleo: ${porcPetroleo}%`, margin + 4, y + 17);
+    pdf.text(`% Aceite: ${porcAceite}%`, margin + 4, y + 22);
+    pdf.text(
+      `Petróleo necesario: ${petroleoNecesarioCalc.toLocaleString("es-CL", {
+        maximumFractionDigits: 2,
+      })} L`,
+      margin + 42,
+      y + 17
+    );
+    pdf.text(
+      `Aceite necesario: ${aceiteNecesarioCalc.toLocaleString("es-CL", {
+        maximumFractionDigits: 2,
+      })} L`,
+      margin + 42,
+      y + 22
+    );
+
+    pdf.roundedRect(108, y, 92, 30, 2, 2, "FD");
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(10);
+    pdf.text("Registro de Fabricación", 112, y + 6);
+
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(9);
+    pdf.text(
+      `Petróleo utilizado: ${utilizadoPetroleo.toLocaleString("es-CL", {
+        maximumFractionDigits: 2,
+      })} L`,
+      112,
+      y + 12
+    );
+    pdf.text(
+      `Aceite utilizado: ${utilizadoAceite.toLocaleString("es-CL", {
+        maximumFractionDigits: 2,
+      })} L`,
+      112,
+      y + 17
+    );
+    pdf.text(
+      `Mezcla fabricada: ${mezclaFabricada.toLocaleString("es-CL", {
+        maximumFractionDigits: 2,
+      })} L`,
+      112,
+      y + 22
+    );
+    pdf.text(`% Petróleo: ${porcPetroleoFabricado.toFixed(1)} %`, 112, y + 27);
+    pdf.text(`% Aceite: ${porcAceiteFabricado.toFixed(1)} %`, 155, y + 27);
+
+    y += 40;
+
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(12);
+    pdf.text("Resumen", margin, y);
+    y += 8;
+
+    pdf.setFillColor(241, 245, 249);
+    pdf.rect(margin, y, 190, 8, "F");
+
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(9);
+    pdf.text("Estanque", margin + 2, y + 5.5);
+    pdf.text("Altura", margin + 35, y + 5.5);
+    pdf.text("Stock", margin + 58, y + 5.5);
+    pdf.text("Utilizado", margin + 90, y + 5.5);
+    pdf.text("Fabricado", margin + 125, y + 5.5);
+    pdf.text("Disponible", margin + 160, y + 5.5);
+
+    y += 8;
+
+    const filaResumen = (nombre, altura, stock, utilizado, fabricado, disponible) => {
+      pdf.setDrawColor(230, 230, 230);
+      pdf.line(margin, y, pageWidth - margin, y);
+
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(9);
+      pdf.setTextColor(30, 41, 59);
+      pdf.text(nombre, margin + 2, y + 5.5);
+      pdf.text(String(altura || 0), margin + 35, y + 5.5);
+
+      pdf.setFont("helvetica", "bold");
+      pdf.setTextColor(15, 23, 42);
+      pdf.text(stock.toLocaleString("es-CL"), margin + 58, y + 5.5);
+
+      pdf.setFont("helvetica", "normal");
+      pdf.setTextColor(220, 38, 38);
+      pdf.text(utilizado, margin + 90, y + 5.5);
+
+      pdf.setTextColor(22, 163, 74);
+      pdf.text(fabricado, margin + 125, y + 5.5);
+
+      pdf.setTextColor(37, 99, 235);
+      pdf.text(disponible, margin + 160, y + 5.5);
+
+      pdf.setTextColor(0, 0, 0);
+      y += 8;
+    };
+
+    filaResumen(
+      "Petróleo",
+      alturaPetroleo,
+      stockPetroleo,
+      utilizadoPetroleo.toLocaleString("es-CL", { maximumFractionDigits: 2 }),
+      "-",
+      dispPetroleo.toLocaleString("es-CL")
+    );
+
+    filaResumen(
+      "Mezcla",
+      alturaMezcla,
+      stockMezcla,
+      "-",
+      mezclaFabricada.toLocaleString("es-CL", { maximumFractionDigits: 2 }),
+      dispMezcla.toLocaleString("es-CL")
+    );
+
+    filaResumen(
+      "Aceite",
+      alturaAceite,
+      stockAceite,
+      utilizadoAceite.toLocaleString("es-CL", { maximumFractionDigits: 2 }),
+      "-",
+      dispAceite.toLocaleString("es-CL")
+    );
+
+    y += 18;
+
+    pdf.setFont("helvetica", "normal");
+    pdf.setTextColor(100, 116, 139);
+    pdf.text("Operador", margin, y);
+    pdf.text("Firma del operador", 120, y);
+
+    y += 16;
+
+    pdf.setDrawColor(120, 120, 120);
+    pdf.line(margin, y, 90, y);
+    pdf.line(120, y, 200, y);
+
+    y += 6;
+
+    pdf.setTextColor(30, 41, 59);
+    pdf.text(operador || "", margin, y);
+
+    pdf.save(`reporte_a4_planta_arl_${fechaInforme}.pdf`);
+  };
+
   const stockPetroleo = obtenerLitrosDesdeAltura(
     calibraciones.petroleo,
     alturaPetroleo
@@ -261,7 +513,7 @@ function App() {
             onClick={() => setSeccionActiva("inicio")}
             className={navButtonClass("inicio")}
           >
-            Inicio
+            Planta ARL
           </button>
 
           <button
@@ -295,12 +547,21 @@ function App() {
             </div>
 
             {seccionActiva === "inicio" && (
-              <button
-                onClick={exportarPDF}
-                className="bg-red-600 hover:bg-red-700 text-white px-5 py-3 rounded-xl shadow transition whitespace-nowrap"
-              >
-                Exportar PDF
-              </button>
+              <div className="flex gap-3">
+                <button
+                  onClick={exportarPDF}
+                  className="bg-red-600 hover:bg-red-700 text-white px-5 py-3 rounded-xl shadow transition whitespace-nowrap"
+                >
+                  Exportar PDF
+                </button>
+
+                <button
+                  onClick={exportarPDFA4}
+                  className="bg-slate-800 hover:bg-slate-900 text-white px-5 py-3 rounded-xl shadow transition whitespace-nowrap"
+                >
+                  Exportar PDF A4
+                </button>
+              </div>
             )}
           </div>
 
@@ -326,7 +587,9 @@ function App() {
 
                 <div className="text-right">
                   <p className="text-sm text-slate-500">Fecha informe</p>
-                  <p className="font-semibold text-slate-800">{fechaInforme}</p>
+                  <p className="font-semibold text-slate-800">
+                    {formatearFecha(fechaInforme)}
+                  </p>
                 </div>
               </div>
 
@@ -681,9 +944,10 @@ function App() {
                     <p className="text-sm text-slate-500 mb-10">
                       Nombre del operador responsable
                     </p>
-                    <div className="border-t border-slate-400 pt-2">
-                      <p className="text-slate-800 font-medium">
-                        {operador || "____________________________"}
+                    <div className="pt-2">
+                      <div className="border-t border-slate-400"></div>
+                      <p className="text-slate-800 font-medium mt-2">
+                        {operador || ""}
                       </p>
                       <p className="text-sm text-slate-500">Operador</p>
                     </div>
@@ -693,10 +957,9 @@ function App() {
                     <p className="text-sm text-slate-500 mb-10">
                       Firma del operador
                     </p>
-                    <div className="border-t border-slate-400 pt-2">
-                      <p className="text-slate-800 font-medium">
-                        .
-                      </p>
+                    <div className="pt-2">
+                      <div className="border-t border-slate-400"></div>
+                      <p className="text-slate-800 font-medium mt-2"></p>
                       <p className="text-sm text-slate-500">Firma</p>
                     </div>
                   </div>
