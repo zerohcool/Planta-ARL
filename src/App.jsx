@@ -1,5 +1,7 @@
 import { useState } from "react";
 
+import { useState } from "react";
+
 function App() {
   const [petroleo, setPetroleo] = useState("");
   const [mezcla, setMezcla] = useState("");
@@ -60,7 +62,7 @@ function App() {
     ? objetivoLitros * (porcAceite / 100)
     : 0;
 
-  /* FABRICACION */
+  /* FABRICACIÓN */
   const errorPetroleoUsar = utilizadoPetroleo < 0;
   const errorAceiteUsar = utilizadoAceite < 0;
 
@@ -75,368 +77,484 @@ function App() {
     ? (utilizadoAceite / mezclaFabricada) * 100
     : 0;
 
-  const inputBase =
-    "w-full border rounded p-2 outline-none transition";
+  const inputBase = "w-full border rounded-lg p-3 outline-none transition";
   const inputOk =
     "border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200";
   const inputError =
     "border-red-500 bg-red-50 focus:border-red-500 focus:ring-2 focus:ring-red-200";
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <div className="max-w-6xl mx-auto">
-        <h1 className="text-4xl font-bold text-blue-600 mb-8">Planta ARL</h1>
-
-        {/* STOCK */}
-
-        <div className="grid md:grid-cols-3 gap-6">
-          {/* PETRÓLEO */}
-          <div className="bg-white p-6 rounded-xl shadow">
-            <h2 className="font-semibold mb-3">Stock Petróleo</h2>
-
-            <p className="text-sm text-gray-600 mb-1">
-              Stock final medido (L)
-            </p>
-
-            <input
-              type="number"
-              min="0"
-              max={capPetroleo}
-              placeholder="Litros"
-              value={petroleo}
-              onChange={(e) => setPetroleo(e.target.value)}
-              className={`${inputBase} ${errorPetroleo ? inputError : inputOk}`}
-            />
-
-            <p className="mt-2 text-xs text-gray-500">
-              Capacidad máxima: {capPetroleo.toLocaleString("es-CL")} L
-            </p>
-
-            {errorPetroleo && (
-              <p className="mt-2 text-sm text-red-600 font-medium">
-                El valor debe estar entre 0 y {capPetroleo.toLocaleString("es-CL")} L.
-              </p>
-            )}
-
-            <p className="mt-3 text-sm text-gray-500">
-              Capacidad disponible: {dispPetroleo.toLocaleString("es-CL")} L
-            </p>
-
-            <div className="w-full bg-gray-200 rounded-full h-4 mt-3">
-              <div
-                className="bg-green-500 h-4 rounded-full transition-all"
-                style={{ width: `${nivelPetroleo}%` }}
-              ></div>
-            </div>
-
-            <p className="text-sm mt-1">{nivelPetroleo.toFixed(0)} %</p>
-          </div>
-
-          {/* MEZCLA */}
-          <div className="bg-white p-6 rounded-xl shadow">
-            <h2 className="font-semibold mb-3">Stock Mezcla</h2>
-
-            <p className="text-sm text-gray-600 mb-1">
-              Stock final medido (L)
-            </p>
-
-            <input
-              type="number"
-              min="0"
-              max={capMezcla}
-              placeholder="Litros"
-              value={mezcla}
-              onChange={(e) => setMezcla(e.target.value)}
-              className={`${inputBase} ${errorMezcla ? inputError : inputOk}`}
-            />
-
-            <p className="mt-2 text-xs text-gray-500">
-              Capacidad máxima: {capMezcla.toLocaleString("es-CL")} L
-            </p>
-
-            {errorMezcla && (
-              <p className="mt-2 text-sm text-red-600 font-medium">
-                El valor debe estar entre 0 y {capMezcla.toLocaleString("es-CL")} L.
-              </p>
-            )}
-
-            <p className="mt-3 text-sm text-gray-500">
-              Capacidad disponible: {dispMezcla.toLocaleString("es-CL")} L
-            </p>
-
-            <div className="w-full bg-gray-200 rounded-full h-4 mt-3">
-              <div
-                className="bg-blue-500 h-4 rounded-full transition-all"
-                style={{ width: `${nivelMezcla}%` }}
-              ></div>
-            </div>
-
-            <p className="text-sm mt-1">{nivelMezcla.toFixed(0)} %</p>
-          </div>
-
-          {/* ACEITE */}
-          <div className="bg-white p-6 rounded-xl shadow">
-            <h2 className="font-semibold mb-3">Stock Aceite Residual</h2>
-
-            <p className="text-sm text-gray-600 mb-1">
-              Stock final medido (L)
-            </p>
-
-            <input
-              type="number"
-              min="0"
-              max={capAceite}
-              placeholder="Litros"
-              value={aceite}
-              onChange={(e) => setAceite(e.target.value)}
-              className={`${inputBase} ${errorAceite ? inputError : inputOk}`}
-            />
-
-            <p className="mt-2 text-xs text-gray-500">
-              Capacidad máxima: {capAceite.toLocaleString("es-CL")} L
-            </p>
-
-            {errorAceite && (
-              <p className="mt-2 text-sm text-red-600 font-medium">
-                El valor debe estar entre 0 y {capAceite.toLocaleString("es-CL")} L.
-              </p>
-            )}
-
-            <p className="mt-3 text-sm text-gray-500">
-              Capacidad disponible: {dispAceite.toLocaleString("es-CL")} L
-            </p>
-
-            <div className="w-full bg-gray-200 rounded-full h-4 mt-3">
-              <div
-                className="bg-yellow-500 h-4 rounded-full transition-all"
-                style={{ width: `${nivelAceite}%` }}
-              ></div>
-            </div>
-
-            <p className="text-sm mt-1">{nivelAceite.toFixed(0)} %</p>
-          </div>
+    <div className="min-h-screen bg-slate-100 flex">
+      {/* SIDEBAR */}
+      <aside className="w-72 bg-slate-900 text-white flex flex-col shadow-2xl">
+        <div className="px-6 py-6 border-b border-slate-800">
+          <h1 className="text-2xl font-bold tracking-wide">Planta ARL</h1>
+          <p className="text-sm text-slate-400 mt-1">
+            Panel de operación y reporte
+          </p>
         </div>
 
-        {/* CALCULADORAS */}
+        <nav className="flex-1 px-4 py-6 space-y-2">
+          <div className="bg-blue-600 text-white rounded-xl px-4 py-3 font-medium shadow">
+            Inicio
+          </div>
 
-        <div className="grid md:grid-cols-2 gap-6 mt-8">
-          {/* CALCULADORA DE MEZCLA */}
-          <div className="bg-white p-6 rounded-xl shadow">
-            <h2 className="text-lg font-semibold mb-4">
-              Calculadora de Mezcla
+          <div className="hover:bg-slate-800 rounded-xl px-4 py-3 text-slate-200 transition cursor-pointer">
+            Stocks
+          </div>
+
+          <div className="hover:bg-slate-800 rounded-xl px-4 py-3 text-slate-200 transition cursor-pointer">
+            Calculadora
+          </div>
+
+          <div className="hover:bg-slate-800 rounded-xl px-4 py-3 text-slate-200 transition cursor-pointer">
+            Fabricado
+          </div>
+
+          <div className="hover:bg-slate-800 rounded-xl px-4 py-3 text-slate-200 transition cursor-pointer">
+            Resumen
+          </div>
+
+          <div className="hover:bg-slate-800 rounded-xl px-4 py-3 text-slate-200 transition cursor-pointer">
+            Calibraciones
+          </div>
+        </nav>
+
+        <div className="p-4 border-t border-slate-800">
+          <div className="bg-slate-800 rounded-xl p-4">
+            <p className="text-sm text-slate-400">Estado del sistema</p>
+            <p className="font-semibold text-green-400 mt-1">Operativo</p>
+          </div>
+        </div>
+      </aside>
+
+      {/* CONTENIDO */}
+      <main className="flex-1 p-8">
+        <div className="max-w-7xl mx-auto">
+          {/* HEADER */}
+          <div className="mb-8">
+            <p className="text-sm text-slate-500">Dashboard</p>
+            <h2 className="text-4xl font-bold text-slate-800">
+              Control diario de estanques
             </h2>
-
-            <p className="text-sm font-medium mb-1">
-              Cantidad de mezcla a fabricar (L)
+            <p className="text-slate-500 mt-2">
+              Registro de stock final, cálculo referencial de mezcla y reporte
+              de fabricación.
             </p>
+          </div>
 
-            <input
-              type="number"
-              min="0"
-              placeholder="Litros"
-              value={mezclaObjetivo}
-              onChange={(e) => setMezclaObjetivo(e.target.value)}
-              className={`${inputBase} ${inputOk} mb-4`}
-            />
+          {/* TARJETAS RESUMEN */}
+          <div className="grid md:grid-cols-3 gap-6 mb-8">
+            <div className="bg-white rounded-2xl shadow p-5 border border-slate-200">
+              <p className="text-sm text-slate-500">Capacidad Petróleo</p>
+              <p className="text-2xl font-bold text-slate-800">
+                {capPetroleo.toLocaleString("es-CL")} L
+              </p>
+            </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm mb-1">% Petróleo</p>
+            <div className="bg-white rounded-2xl shadow p-5 border border-slate-200">
+              <p className="text-sm text-slate-500">Capacidad Mezcla</p>
+              <p className="text-2xl font-bold text-slate-800">
+                {capMezcla.toLocaleString("es-CL")} L
+              </p>
+            </div>
+
+            <div className="bg-white rounded-2xl shadow p-5 border border-slate-200">
+              <p className="text-sm text-slate-500">Capacidad Aceite</p>
+              <p className="text-2xl font-bold text-slate-800">
+                {capAceite.toLocaleString("es-CL")} L
+              </p>
+            </div>
+          </div>
+
+          {/* STOCK */}
+          <section className="mb-10">
+            <h3 className="text-2xl font-bold text-slate-800 mb-4">Stocks</h3>
+
+            <div className="grid md:grid-cols-3 gap-6">
+              {/* PETRÓLEO */}
+              <div className="bg-white p-6 rounded-2xl shadow border border-slate-200">
+                <h2 className="font-semibold mb-3 text-slate-800">
+                  Stock Petróleo
+                </h2>
+
+                <p className="text-sm text-slate-600 mb-1">
+                  Stock final medido (L)
+                </p>
 
                 <input
                   type="number"
                   min="0"
-                  max="100"
-                  value={porcPetroleo}
-                  onChange={(e) => setPorcPetroleo(Number(e.target.value))}
+                  max={capPetroleo}
+                  placeholder="Litros"
+                  value={petroleo}
+                  onChange={(e) => setPetroleo(e.target.value)}
                   className={`${inputBase} ${
-                    porcentajesValidos ? inputOk : inputError
+                    errorPetroleo ? inputError : inputOk
                   }`}
                 />
+
+                <p className="mt-2 text-xs text-slate-500">
+                  Capacidad máxima: {capPetroleo.toLocaleString("es-CL")} L
+                </p>
+
+                {errorPetroleo && (
+                  <p className="mt-2 text-sm text-red-600 font-medium">
+                    El valor debe estar entre 0 y{" "}
+                    {capPetroleo.toLocaleString("es-CL")} L.
+                  </p>
+                )}
+
+                <p className="mt-3 text-sm text-slate-500">
+                  Capacidad disponible: {dispPetroleo.toLocaleString("es-CL")} L
+                </p>
+
+                <div className="w-full bg-slate-200 rounded-full h-4 mt-3 overflow-hidden">
+                  <div
+                    className="bg-green-500 h-4 rounded-full transition-all"
+                    style={{ width: `${nivelPetroleo}%` }}
+                  ></div>
+                </div>
+
+                <p className="text-sm mt-2 text-slate-700 font-medium">
+                  {nivelPetroleo.toFixed(0)} %
+                </p>
               </div>
 
-              <div>
-                <p className="text-sm mb-1">% Aceite</p>
+              {/* MEZCLA */}
+              <div className="bg-white p-6 rounded-2xl shadow border border-slate-200">
+                <h2 className="font-semibold mb-3 text-slate-800">
+                  Stock Mezcla
+                </h2>
+
+                <p className="text-sm text-slate-600 mb-1">
+                  Stock final medido (L)
+                </p>
 
                 <input
                   type="number"
                   min="0"
-                  max="100"
-                  value={porcAceite}
-                  onChange={(e) => setPorcAceite(Number(e.target.value))}
+                  max={capMezcla}
+                  placeholder="Litros"
+                  value={mezcla}
+                  onChange={(e) => setMezcla(e.target.value)}
                   className={`${inputBase} ${
-                    porcentajesValidos ? inputOk : inputError
+                    errorMezcla ? inputError : inputOk
                   }`}
                 />
-              </div>
-            </div>
 
-            <p className="mt-3 text-sm text-gray-600">
-              Suma de porcentajes:{" "}
-              <strong
-                className={porcentajesValidos ? "text-green-600" : "text-red-600"}
-              >
-                {sumaPorcentajes}%
-              </strong>
-            </p>
+                <p className="mt-2 text-xs text-slate-500">
+                  Capacidad máxima: {capMezcla.toLocaleString("es-CL")} L
+                </p>
 
-            {!porcentajesValidos && (
-              <p className="mt-2 text-sm text-red-600 font-medium">
-                Los porcentajes deben estar entre 0% y 100%, y sumar exactamente 100%.
-              </p>
-            )}
+                {errorMezcla && (
+                  <p className="mt-2 text-sm text-red-600 font-medium">
+                    El valor debe estar entre 0 y{" "}
+                    {capMezcla.toLocaleString("es-CL")} L.
+                  </p>
+                )}
 
-            <div className="grid grid-cols-2 gap-4 mt-4">
-              <div className="bg-blue-100 p-4 rounded-lg">
-                <p>Petróleo necesario</p>
+                <p className="mt-3 text-sm text-slate-500">
+                  Capacidad disponible: {dispMezcla.toLocaleString("es-CL")} L
+                </p>
 
-                <p className="text-2xl font-bold">
-                  {petroleoNecesarioCalc.toLocaleString("es-CL", {
-                    maximumFractionDigits: 2,
-                  })}{" "}
-                  L
+                <div className="w-full bg-slate-200 rounded-full h-4 mt-3 overflow-hidden">
+                  <div
+                    className="bg-blue-500 h-4 rounded-full transition-all"
+                    style={{ width: `${nivelMezcla}%` }}
+                  ></div>
+                </div>
+
+                <p className="text-sm mt-2 text-slate-700 font-medium">
+                  {nivelMezcla.toFixed(0)} %
                 </p>
               </div>
 
-              <div className="bg-yellow-100 p-4 rounded-lg">
-                <p>Aceite necesario</p>
+              {/* ACEITE */}
+              <div className="bg-white p-6 rounded-2xl shadow border border-slate-200">
+                <h2 className="font-semibold mb-3 text-slate-800">
+                  Stock Aceite Residual
+                </h2>
 
-                <p className="text-2xl font-bold">
-                  {aceiteNecesarioCalc.toLocaleString("es-CL", {
-                    maximumFractionDigits: 2,
-                  })}{" "}
-                  L
+                <p className="text-sm text-slate-600 mb-1">
+                  Stock final medido (L)
+                </p>
+
+                <input
+                  type="number"
+                  min="0"
+                  max={capAceite}
+                  placeholder="Litros"
+                  value={aceite}
+                  onChange={(e) => setAceite(e.target.value)}
+                  className={`${inputBase} ${
+                    errorAceite ? inputError : inputOk
+                  }`}
+                />
+
+                <p className="mt-2 text-xs text-slate-500">
+                  Capacidad máxima: {capAceite.toLocaleString("es-CL")} L
+                </p>
+
+                {errorAceite && (
+                  <p className="mt-2 text-sm text-red-600 font-medium">
+                    El valor debe estar entre 0 y{" "}
+                    {capAceite.toLocaleString("es-CL")} L.
+                  </p>
+                )}
+
+                <p className="mt-3 text-sm text-slate-500">
+                  Capacidad disponible: {dispAceite.toLocaleString("es-CL")} L
+                </p>
+
+                <div className="w-full bg-slate-200 rounded-full h-4 mt-3 overflow-hidden">
+                  <div
+                    className="bg-yellow-500 h-4 rounded-full transition-all"
+                    style={{ width: `${nivelAceite}%` }}
+                  ></div>
+                </div>
+
+                <p className="text-sm mt-2 text-slate-700 font-medium">
+                  {nivelAceite.toFixed(0)} %
                 </p>
               </div>
             </div>
-          </div>
+          </section>
 
-          {/* FABRICADO */}
-          <div className="bg-white p-6 rounded-xl shadow">
-            <h2 className="text-lg font-semibold mb-4">Fabricado</h2>
+          {/* CALCULADORAS */}
+          <section className="mb-10">
+            <h3 className="text-2xl font-bold text-slate-800 mb-4">
+              Operación
+            </h3>
 
-            <p className="text-sm mb-1">Petróleo utilizado (L)</p>
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* CALCULADORA */}
+              <div className="bg-white p-6 rounded-2xl shadow border border-slate-200">
+                <h2 className="text-lg font-semibold mb-4 text-slate-800">
+                  Calculadora de Mezcla
+                </h2>
 
-            <input
-              type="number"
-              min="0"
-              placeholder="Litros"
-              value={petroleoUsar}
-              onChange={(e) => setPetroleoUsar(e.target.value)}
-              className={`${inputBase} ${
-                errorPetroleoUsar ? inputError : inputOk
-              } mb-3`}
-            />
+                <p className="text-sm font-medium mb-1 text-slate-700">
+                  Cantidad de mezcla a fabricar (L)
+                </p>
 
-            {errorPetroleoUsar && (
-              <p className="mb-3 text-sm text-red-600 font-medium">
-                El valor no puede ser negativo.
-              </p>
-            )}
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="Litros"
+                  value={mezclaObjetivo}
+                  onChange={(e) => setMezclaObjetivo(e.target.value)}
+                  className={`${inputBase} ${inputOk} mb-4`}
+                />
 
-            <p className="text-sm mb-1">Aceite utilizado (L)</p>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm mb-1 text-slate-700">% Petróleo</p>
 
-            <input
-              type="number"
-              min="0"
-              placeholder="Litros"
-              value={aceiteUsar}
-              onChange={(e) => setAceiteUsar(e.target.value)}
-              className={`${inputBase} ${
-                errorAceiteUsar ? inputError : inputOk
-              }`}
-            />
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={porcPetroleo}
+                      onChange={(e) => setPorcPetroleo(Number(e.target.value))}
+                      className={`${inputBase} ${
+                        porcentajesValidos ? inputOk : inputError
+                      }`}
+                    />
+                  </div>
 
-            {errorAceiteUsar && (
-              <p className="mt-2 text-sm text-red-600 font-medium">
-                El valor no puede ser negativo.
-              </p>
-            )}
+                  <div>
+                    <p className="text-sm mb-1 text-slate-700">% Aceite</p>
 
-            <div className="bg-gray-100 p-4 rounded-lg mt-4">
-              <p>
-                Mezcla fabricada:
-                <strong className="ml-2">
-                  {mezclaFabricada.toLocaleString("es-CL", {
-                    maximumFractionDigits: 2,
-                  })}{" "}
-                  L
-                </strong>
-              </p>
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={porcAceite}
+                      onChange={(e) => setPorcAceite(Number(e.target.value))}
+                      className={`${inputBase} ${
+                        porcentajesValidos ? inputOk : inputError
+                      }`}
+                    />
+                  </div>
+                </div>
 
-              <p>
-                % Petróleo:
-                <strong className="ml-2">
-                  {porcPetroleoFabricado.toFixed(1)} %
-                </strong>
-              </p>
+                <p className="mt-3 text-sm text-slate-600">
+                  Suma de porcentajes:{" "}
+                  <strong
+                    className={
+                      porcentajesValidos ? "text-green-600" : "text-red-600"
+                    }
+                  >
+                    {sumaPorcentajes}%
+                  </strong>
+                </p>
 
-              <p>
-                % Aceite:
-                <strong className="ml-2">
-                  {porcAceiteFabricado.toFixed(1)} %
-                </strong>
-              </p>
+                {!porcentajesValidos && (
+                  <p className="mt-2 text-sm text-red-600 font-medium">
+                    Los porcentajes deben estar entre 0% y 100%, y sumar
+                    exactamente 100%.
+                  </p>
+                )}
+
+                <div className="grid grid-cols-2 gap-4 mt-4">
+                  <div className="bg-blue-50 border border-blue-100 p-4 rounded-xl">
+                    <p className="text-slate-600">Petróleo necesario</p>
+                    <p className="text-2xl font-bold text-slate-800">
+                      {petroleoNecesarioCalc.toLocaleString("es-CL", {
+                        maximumFractionDigits: 2,
+                      })}{" "}
+                      L
+                    </p>
+                  </div>
+
+                  <div className="bg-yellow-50 border border-yellow-100 p-4 rounded-xl">
+                    <p className="text-slate-600">Aceite necesario</p>
+                    <p className="text-2xl font-bold text-slate-800">
+                      {aceiteNecesarioCalc.toLocaleString("es-CL", {
+                        maximumFractionDigits: 2,
+                      })}{" "}
+                      L
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* FABRICADO */}
+              <div className="bg-white p-6 rounded-2xl shadow border border-slate-200">
+                <h2 className="text-lg font-semibold mb-4 text-slate-800">
+                  Fabricado
+                </h2>
+
+                <p className="text-sm mb-1 text-slate-700">
+                  Petróleo utilizado (L)
+                </p>
+
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="Litros"
+                  value={petroleoUsar}
+                  onChange={(e) => setPetroleoUsar(e.target.value)}
+                  className={`${inputBase} ${
+                    errorPetroleoUsar ? inputError : inputOk
+                  } mb-3`}
+                />
+
+                {errorPetroleoUsar && (
+                  <p className="mb-3 text-sm text-red-600 font-medium">
+                    El valor no puede ser negativo.
+                  </p>
+                )}
+
+                <p className="text-sm mb-1 text-slate-700">
+                  Aceite utilizado (L)
+                </p>
+
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="Litros"
+                  value={aceiteUsar}
+                  onChange={(e) => setAceiteUsar(e.target.value)}
+                  className={`${inputBase} ${
+                    errorAceiteUsar ? inputError : inputOk
+                  }`}
+                />
+
+                {errorAceiteUsar && (
+                  <p className="mt-2 text-sm text-red-600 font-medium">
+                    El valor no puede ser negativo.
+                  </p>
+                )}
+
+                <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl mt-4">
+                  <p className="text-slate-700">
+                    Mezcla fabricada:
+                    <strong className="ml-2 text-slate-900">
+                      {mezclaFabricada.toLocaleString("es-CL", {
+                        maximumFractionDigits: 2,
+                      })}{" "}
+                      L
+                    </strong>
+                  </p>
+
+                  <p className="text-slate-700">
+                    % Petróleo:
+                    <strong className="ml-2 text-slate-900">
+                      {porcPetroleoFabricado.toFixed(1)} %
+                    </strong>
+                  </p>
+
+                  <p className="text-slate-700">
+                    % Aceite:
+                    <strong className="ml-2 text-slate-900">
+                      {porcAceiteFabricado.toFixed(1)} %
+                    </strong>
+                  </p>
+                </div>
+              </div>
             </div>
-          </div>
+          </section>
+
+          {/* RESUMEN */}
+          <section>
+            <h3 className="text-2xl font-bold text-slate-800 mb-4">Resumen</h3>
+
+            <div className="bg-white p-6 rounded-2xl shadow border border-slate-200 overflow-x-auto">
+              <table className="w-full min-w-[700px]">
+                <thead>
+                  <tr className="border-b text-left text-slate-600">
+                    <th className="pb-3">Estanque</th>
+                    <th className="pb-3">Stock Final (L)</th>
+                    <th className="pb-3">Utilizado (L)</th>
+                    <th className="pb-3">Fabricado (L)</th>
+                    <th className="pb-3">Capacidad Disponible (L)</th>
+                  </tr>
+                </thead>
+
+                <tbody className="text-slate-800">
+                  <tr className="border-b">
+                    <td className="py-3">Petróleo</td>
+                    <td>{stockPetroleo.toLocaleString("es-CL")}</td>
+                    <td className="text-red-600">
+                      {utilizadoPetroleo.toLocaleString("es-CL", {
+                        maximumFractionDigits: 2,
+                      })}
+                    </td>
+                    <td>-</td>
+                    <td>{dispPetroleo.toLocaleString("es-CL")}</td>
+                  </tr>
+
+                  <tr className="border-b">
+                    <td className="py-3">Mezcla</td>
+                    <td>{stockMezcla.toLocaleString("es-CL")}</td>
+                    <td>-</td>
+                    <td className="text-green-600">
+                      {mezclaFabricada.toLocaleString("es-CL", {
+                        maximumFractionDigits: 2,
+                      })}
+                    </td>
+                    <td>{dispMezcla.toLocaleString("es-CL")}</td>
+                  </tr>
+
+                  <tr>
+                    <td className="py-3">Aceite</td>
+                    <td>{stockAceite.toLocaleString("es-CL")}</td>
+                    <td className="text-red-600">
+                      {utilizadoAceite.toLocaleString("es-CL", {
+                        maximumFractionDigits: 2,
+                      })}
+                    </td>
+                    <td>-</td>
+                    <td>{dispAceite.toLocaleString("es-CL")}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
         </div>
-
-        {/* RESUMEN */}
-
-        <div className="bg-white p-6 rounded-xl shadow mt-8">
-          <h2 className="text-lg font-semibold mb-4">Resumen</h2>
-
-          <table className="w-full">
-            <thead>
-              <tr className="border-b text-left">
-                <th className="pb-2">Estanque</th>
-                <th className="pb-2">Stock Final (L)</th>
-                <th className="pb-2">Utilizado (L)</th>
-                <th className="pb-2">Fabricado (L)</th>
-                <th className="pb-2">Capacidad Disponible (L)</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              <tr className="border-b">
-                <td className="py-2">Petróleo</td>
-                <td>{stockPetroleo.toLocaleString("es-CL")}</td>
-                <td className="text-red-600">
-                  {utilizadoPetroleo.toLocaleString("es-CL", {
-                    maximumFractionDigits: 2,
-                  })}
-                </td>
-                <td>-</td>
-                <td>{dispPetroleo.toLocaleString("es-CL")}</td>
-              </tr>
-
-              <tr className="border-b">
-                <td className="py-2">Mezcla</td>
-                <td>{stockMezcla.toLocaleString("es-CL")}</td>
-                <td>-</td>
-                <td className="text-green-600">
-                  {mezclaFabricada.toLocaleString("es-CL", {
-                    maximumFractionDigits: 2,
-                  })}
-                </td>
-                <td>{dispMezcla.toLocaleString("es-CL")}</td>
-              </tr>
-
-              <tr>
-                <td className="py-2">Aceite</td>
-                <td>{stockAceite.toLocaleString("es-CL")}</td>
-                <td className="text-red-600">
-                  {utilizadoAceite.toLocaleString("es-CL", {
-                    maximumFractionDigits: 2,
-                  })}
-                </td>
-                <td>-</td>
-                <td>{dispAceite.toLocaleString("es-CL")}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+      </main>
     </div>
   );
 }
