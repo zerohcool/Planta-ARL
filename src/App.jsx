@@ -1,10 +1,19 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as XLSX from "xlsx";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 import { calibracionesIniciales } from "./data/calibraciones";
 import { obtenerLitrosDesdeAltura } from "./utils/calculos";
 
 function App() {
+  const reporteRef = useRef(null);
+
+  const fechaHoy = new Date().toISOString().split("T")[0];
+
   const [seccionActiva, setSeccionActiva] = useState("inicio");
+
+  const [operador, setOperador] = useState("");
+  const [fechaInforme, setFechaInforme] = useState(fechaHoy);
 
   const [alturaPetroleo, setAlturaPetroleo] = useState("");
   const [alturaMezcla, setAlturaMezcla] = useState("");
@@ -114,6 +123,74 @@ function App() {
     XLSX.writeFile(libro, "plantilla_calibracion.xlsx");
   };
 
+  const exportarPDF = async () => {
+    const elemento = reporteRef.current;
+    if (!elemento) return;
+
+    const canvas = await html2canvas(elemento, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: "#ffffff",
+    });
+
+    const imgData = canvas.toDataURL("image/png");
+
+    const pdf = new jsPDF("p", "mm", "a4");
+    const pdfWidth = 210;
+    const pdfHeight = 297;
+
+    const margin = 8;
+    const imgWidth = pdfWidth - margin * 2;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    if (imgHeight <= pdfHeight - margin * 2) {
+      pdf.addImage(imgData, "PNG", margin, margin, imgWidth, imgHeight);
+    } else {
+      const pageCanvas = document.createElement("canvas");
+      const pageCtx = pageCanvas.getContext("2d");
+
+      const pxPerMm = canvas.width / imgWidth;
+      const pageHeightPx = (pdfHeight - margin * 2) * pxPerMm;
+
+      pageCanvas.width = canvas.width;
+      pageCanvas.height = pageHeightPx;
+
+      let renderedHeight = 0;
+      let pageIndex = 0;
+
+      while (renderedHeight < canvas.height) {
+        pageCtx.clearRect(0, 0, pageCanvas.width, pageCanvas.height);
+        pageCtx.fillStyle = "#ffffff";
+        pageCtx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
+
+        pageCtx.drawImage(
+          canvas,
+          0,
+          renderedHeight,
+          canvas.width,
+          pageHeightPx,
+          0,
+          0,
+          canvas.width,
+          pageHeightPx
+        );
+
+        const pageData = pageCanvas.toDataURL("image/png");
+
+        if (pageIndex > 0) {
+          pdf.addPage();
+        }
+
+        pdf.addImage(pageData, "PNG", margin, margin, imgWidth, pdfHeight - margin * 2);
+
+        renderedHeight += pageHeightPx;
+        pageIndex++;
+      }
+    }
+
+    pdf.save(`reporte_planta_arl_${fechaInforme}.pdf`);
+  };
+
   const stockPetroleo = obtenerLitrosDesdeAltura(
     calibraciones.petroleo,
     alturaPetroleo
@@ -162,6 +239,7 @@ function App() {
   const utilizadoAceite = Number(aceiteUsar) || 0;
 
   const sumaPorcentajes = Number(porcPetroleo) + Number(porcAceite);
+
   const porcentajesValidos =
     Number(porcPetroleo) >= 0 &&
     Number(porcAceite) >= 0 &&
@@ -233,19 +311,63 @@ function App() {
 
       <main className="flex-1 p-8">
         <div className="max-w-7xl mx-auto">
-          <div className="mb-8">
-            <p className="text-sm text-slate-500">Dashboard</p>
-            <h2 className="text-4xl font-bold text-slate-800">
-              Control diario de estanques
-            </h2>
-            <p className="text-slate-500 mt-2">
-              Medición por altura, cálculo de mezcla, registro de fabricación y
-              gestión de calibraciones.
-            </p>
+          <div className="mb-8 flex items-start justify-between gap-4">
+            <div>
+              <p className="text-sm text-slate-500">Dashboard</p>
+              <h2 className="text-4xl font-bold text-slate-800">
+                Control diario de estanques
+              </h2>
+              <p className="text-slate-500 mt-2">
+                Medición por altura, cálculo de mezcla, registro de fabricación y
+                gestión de calibraciones.
+              </p>
+            </div>
+
+            {seccionActiva === "inicio" && (
+              <button
+                onClick={exportarPDF}
+                className="bg-red-600 hover:bg-red-700 text-white px-5 py-3 rounded-xl shadow transition whitespace-nowrap"
+              >
+                Exportar PDF
+              </button>
+            )}
           </div>
 
           {seccionActiva === "inicio" && (
-            <section className="space-y-8">
+            <section ref={reporteRef} className="space-y-8 bg-white/0">
+              <div className="bg-white p-6 rounded-2xl shadow border border-slate-200">
+                <h3 className="text-2xl font-bold text-slate-800 mb-4">
+                  Datos del Informe
+                </h3>
+
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <p className="text-sm text-slate-600 mb-1">
+                      Nombre del operador
+                    </p>
+                    <input
+                      type="text"
+                      value={operador}
+                      onChange={(e) => setOperador(e.target.value)}
+                      placeholder="Ingrese nombre del operador"
+                      className={inputClass}
+                    />
+                  </div>
+
+                  <div>
+                    <p className="text-sm text-slate-600 mb-1">
+                      Fecha del informe
+                    </p>
+                    <input
+                      type="date"
+                      value={fechaInforme}
+                      onChange={(e) => setFechaInforme(e.target.value)}
+                      className={inputClass}
+                    />
+                  </div>
+                </div>
+              </div>
+
               <div>
                 <h3 className="text-2xl font-bold text-slate-800 mb-4">
                   Stock
@@ -257,9 +379,7 @@ function App() {
                       Petróleo
                     </h4>
 
-                    <p className="text-sm text-slate-600 mb-1">
-                      Medición en cm
-                    </p>
+                    <p className="text-sm text-slate-600 mb-1">Medición en cm</p>
 
                     <input
                       type="number"
@@ -269,16 +389,13 @@ function App() {
                       className={inputClass}
                     />
 
-                    <p className="mt-4 text-sm text-slate-500">
-                      Stock calculado
-                    </p>
+                    <p className="mt-4 text-sm text-slate-500">Stock calculado</p>
                     <p className="text-2xl font-bold text-slate-800">
                       {stockPetroleo.toLocaleString("es-CL")} L
                     </p>
 
                     <p className="mt-2 text-sm text-slate-500">
-                      Capacidad disponible:{" "}
-                      {dispPetroleo.toLocaleString("es-CL")} L
+                      Capacidad disponible: {dispPetroleo.toLocaleString("es-CL")} L
                     </p>
 
                     <div className="w-full bg-slate-200 rounded-full h-4 mt-3 overflow-hidden">
@@ -294,13 +411,9 @@ function App() {
                   </div>
 
                   <div className="bg-white p-6 rounded-2xl shadow border border-slate-200">
-                    <h4 className="font-semibold mb-3 text-slate-800">
-                      Mezcla
-                    </h4>
+                    <h4 className="font-semibold mb-3 text-slate-800">Mezcla</h4>
 
-                    <p className="text-sm text-slate-600 mb-1">
-                      Medición en cm
-                    </p>
+                    <p className="text-sm text-slate-600 mb-1">Medición en cm</p>
 
                     <input
                       type="number"
@@ -310,16 +423,13 @@ function App() {
                       className={inputClass}
                     />
 
-                    <p className="mt-4 text-sm text-slate-500">
-                      Stock calculado
-                    </p>
+                    <p className="mt-4 text-sm text-slate-500">Stock calculado</p>
                     <p className="text-2xl font-bold text-slate-800">
                       {stockMezcla.toLocaleString("es-CL")} L
                     </p>
 
                     <p className="mt-2 text-sm text-slate-500">
-                      Capacidad disponible:{" "}
-                      {dispMezcla.toLocaleString("es-CL")} L
+                      Capacidad disponible: {dispMezcla.toLocaleString("es-CL")} L
                     </p>
 
                     <div className="w-full bg-slate-200 rounded-full h-4 mt-3 overflow-hidden">
@@ -339,9 +449,7 @@ function App() {
                       Aceite Residual
                     </h4>
 
-                    <p className="text-sm text-slate-600 mb-1">
-                      Medición en cm
-                    </p>
+                    <p className="text-sm text-slate-600 mb-1">Medición en cm</p>
 
                     <input
                       type="number"
@@ -351,16 +459,13 @@ function App() {
                       className={inputClass}
                     />
 
-                    <p className="mt-4 text-sm text-slate-500">
-                      Stock calculado
-                    </p>
+                    <p className="mt-4 text-sm text-slate-500">Stock calculado</p>
                     <p className="text-2xl font-bold text-slate-800">
                       {stockAceite.toLocaleString("es-CL")} L
                     </p>
 
                     <p className="mt-2 text-sm text-slate-500">
-                      Capacidad disponible:{" "}
-                      {dispAceite.toLocaleString("es-CL")} L
+                      Capacidad disponible: {dispAceite.toLocaleString("es-CL")} L
                     </p>
 
                     <div className="w-full bg-slate-200 rounded-full h-4 mt-3 overflow-hidden">
@@ -403,17 +508,13 @@ function App() {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <p className="text-sm mb-1 text-slate-700">
-                          % Petróleo
-                        </p>
+                        <p className="text-sm mb-1 text-slate-700">% Petróleo</p>
                         <input
                           type="number"
                           min="0"
                           max="100"
                           value={porcPetroleo}
-                          onChange={(e) =>
-                            setPorcPetroleo(Number(e.target.value))
-                          }
+                          onChange={(e) => setPorcPetroleo(Number(e.target.value))}
                           className={inputClass}
                         />
                       </div>
@@ -425,9 +526,7 @@ function App() {
                           min="0"
                           max="100"
                           value={porcAceite}
-                          onChange={(e) =>
-                            setPorcAceite(Number(e.target.value))
-                          }
+                          onChange={(e) => setPorcAceite(Number(e.target.value))}
                           className={inputClass}
                         />
                       </div>
@@ -553,40 +652,52 @@ function App() {
                       <tr className="border-b">
                         <td className="py-3">Petróleo</td>
                         <td>{alturaPetroleo || 0}</td>
-                        <td>{stockPetroleo.toLocaleString("es-CL")}</td>
-                        <td>
+                        <td className="font-bold">
+                          {stockPetroleo.toLocaleString("es-CL")}
+                        </td>
+                        <td className="text-red-600 font-medium">
                           {utilizadoPetroleo.toLocaleString("es-CL", {
                             maximumFractionDigits: 2,
                           })}
                         </td>
-                        <td>-</td>
-                        <td>{dispPetroleo.toLocaleString("es-CL")}</td>
+                        <td className="text-green-600 font-medium">-</td>
+                        <td className="text-blue-600 font-medium">
+                          {dispPetroleo.toLocaleString("es-CL")}
+                        </td>
                       </tr>
 
                       <tr className="border-b">
                         <td className="py-3">Mezcla</td>
                         <td>{alturaMezcla || 0}</td>
-                        <td>{stockMezcla.toLocaleString("es-CL")}</td>
-                        <td>-</td>
-                        <td>
+                        <td className="font-bold">
+                          {stockMezcla.toLocaleString("es-CL")}
+                        </td>
+                        <td className="text-red-600 font-medium">-</td>
+                        <td className="text-green-600 font-medium">
                           {mezclaFabricada.toLocaleString("es-CL", {
                             maximumFractionDigits: 2,
                           })}
                         </td>
-                        <td>{dispMezcla.toLocaleString("es-CL")}</td>
+                        <td className="text-blue-600 font-medium">
+                          {dispMezcla.toLocaleString("es-CL")}
+                        </td>
                       </tr>
 
                       <tr>
                         <td className="py-3">Aceite</td>
                         <td>{alturaAceite || 0}</td>
-                        <td>{stockAceite.toLocaleString("es-CL")}</td>
-                        <td>
+                        <td className="font-bold">
+                          {stockAceite.toLocaleString("es-CL")}
+                        </td>
+                        <td className="text-red-600 font-medium">
                           {utilizadoAceite.toLocaleString("es-CL", {
                             maximumFractionDigits: 2,
                           })}
                         </td>
-                        <td>-</td>
-                        <td>{dispAceite.toLocaleString("es-CL")}</td>
+                        <td className="text-green-600 font-medium">-</td>
+                        <td className="text-blue-600 font-medium">
+                          {dispAceite.toLocaleString("es-CL")}
+                        </td>
                       </tr>
                     </tbody>
                   </table>
