@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import logo from "./assets/logo.png";
 import { calibracionesIniciales } from "./data/calibraciones";
 import { obtenerLitrosDesdeAltura } from "./utils/calculos";
 
@@ -138,7 +139,6 @@ function App() {
     const pdf = new jsPDF("p", "mm", "a4");
     const pdfWidth = 210;
     const pdfHeight = 297;
-
     const margin = 8;
     const imgWidth = pdfWidth - margin * 2;
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
@@ -146,46 +146,17 @@ function App() {
     if (imgHeight <= pdfHeight - margin * 2) {
       pdf.addImage(imgData, "PNG", margin, margin, imgWidth, imgHeight);
     } else {
-      const pageCanvas = document.createElement("canvas");
-      const pageCtx = pageCanvas.getContext("2d");
-
-      const pxPerMm = canvas.width / imgWidth;
-      const pageHeightPx = (pdfHeight - margin * 2) * pxPerMm;
-
-      pageCanvas.width = canvas.width;
-      pageCanvas.height = pageHeightPx;
-
-      let renderedHeight = 0;
-      let pageIndex = 0;
-
-      while (renderedHeight < canvas.height) {
-        pageCtx.clearRect(0, 0, pageCanvas.width, pageCanvas.height);
-        pageCtx.fillStyle = "#ffffff";
-        pageCtx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
-
-        pageCtx.drawImage(
-          canvas,
-          0,
-          renderedHeight,
-          canvas.width,
-          pageHeightPx,
-          0,
-          0,
-          canvas.width,
-          pageHeightPx
-        );
-
-        const pageData = pageCanvas.toDataURL("image/png");
-
-        if (pageIndex > 0) {
-          pdf.addPage();
-        }
-
-        pdf.addImage(pageData, "PNG", margin, margin, imgWidth, pdfHeight - margin * 2);
-
-        renderedHeight += pageHeightPx;
-        pageIndex++;
-      }
+      const escala = (pdfHeight - margin * 2) / imgHeight;
+      const ajustadoWidth = imgWidth * escala;
+      const xCentrado = (pdfWidth - ajustadoWidth) / 2;
+      pdf.addImage(
+        imgData,
+        "PNG",
+        xCentrado,
+        margin,
+        ajustadoWidth,
+        pdfHeight - margin * 2
+      );
     }
 
     pdf.save(`reporte_planta_arl_${fechaInforme}.pdf`);
@@ -334,8 +305,32 @@ function App() {
           </div>
 
           {seccionActiva === "inicio" && (
-            <section ref={reporteRef} className="space-y-8 bg-white/0">
-              <div className="bg-white p-6 rounded-2xl shadow border border-slate-200">
+            <section
+              ref={reporteRef}
+              className="space-y-8 bg-white p-6 rounded-2xl shadow border border-slate-200"
+            >
+              <div className="flex items-center justify-between gap-6 border-b border-slate-200 pb-6">
+                <div className="flex items-center gap-4">
+                  <img
+                    src={logo}
+                    alt="Logo empresa"
+                    className="h-16 w-auto object-contain"
+                  />
+                  <div>
+                    <h3 className="text-2xl font-bold text-slate-800">
+                      Reporte Operacional
+                    </h3>
+                    <p className="text-slate-500">Planta ARL</p>
+                  </div>
+                </div>
+
+                <div className="text-right">
+                  <p className="text-sm text-slate-500">Fecha informe</p>
+                  <p className="font-semibold text-slate-800">{fechaInforme}</p>
+                </div>
+              </div>
+
+              <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
                 <h3 className="text-2xl font-bold text-slate-800 mb-4">
                   Datos del Informe
                 </h3>
@@ -369,18 +364,12 @@ function App() {
               </div>
 
               <div>
-                <h3 className="text-2xl font-bold text-slate-800 mb-4">
-                  Stock
-                </h3>
+                <h3 className="text-2xl font-bold text-slate-800 mb-4">Stock</h3>
 
                 <div className="grid md:grid-cols-3 gap-6">
                   <div className="bg-white p-6 rounded-2xl shadow border border-slate-200">
-                    <h4 className="font-semibold mb-3 text-slate-800">
-                      Petróleo
-                    </h4>
-
+                    <h4 className="font-semibold mb-3 text-slate-800">Petróleo</h4>
                     <p className="text-sm text-slate-600 mb-1">Medición en cm</p>
-
                     <input
                       type="number"
                       value={alturaPetroleo}
@@ -388,23 +377,19 @@ function App() {
                       placeholder="Ingrese altura"
                       className={inputClass}
                     />
-
                     <p className="mt-4 text-sm text-slate-500">Stock calculado</p>
                     <p className="text-2xl font-bold text-slate-800">
                       {stockPetroleo.toLocaleString("es-CL")} L
                     </p>
-
                     <p className="mt-2 text-sm text-slate-500">
                       Capacidad disponible: {dispPetroleo.toLocaleString("es-CL")} L
                     </p>
-
                     <div className="w-full bg-slate-200 rounded-full h-4 mt-3 overflow-hidden">
                       <div
                         className="bg-green-500 h-4 rounded-full transition-all"
                         style={{ width: `${nivelPetroleo}%` }}
                       ></div>
                     </div>
-
                     <p className="text-sm mt-2 text-slate-700 font-medium">
                       {nivelPetroleo.toFixed(0)} %
                     </p>
@@ -412,9 +397,7 @@ function App() {
 
                   <div className="bg-white p-6 rounded-2xl shadow border border-slate-200">
                     <h4 className="font-semibold mb-3 text-slate-800">Mezcla</h4>
-
                     <p className="text-sm text-slate-600 mb-1">Medición en cm</p>
-
                     <input
                       type="number"
                       value={alturaMezcla}
@@ -422,23 +405,19 @@ function App() {
                       placeholder="Ingrese altura"
                       className={inputClass}
                     />
-
                     <p className="mt-4 text-sm text-slate-500">Stock calculado</p>
                     <p className="text-2xl font-bold text-slate-800">
                       {stockMezcla.toLocaleString("es-CL")} L
                     </p>
-
                     <p className="mt-2 text-sm text-slate-500">
                       Capacidad disponible: {dispMezcla.toLocaleString("es-CL")} L
                     </p>
-
                     <div className="w-full bg-slate-200 rounded-full h-4 mt-3 overflow-hidden">
                       <div
                         className="bg-blue-500 h-4 rounded-full transition-all"
                         style={{ width: `${nivelMezcla}%` }}
                       ></div>
                     </div>
-
                     <p className="text-sm mt-2 text-slate-700 font-medium">
                       {nivelMezcla.toFixed(0)} %
                     </p>
@@ -448,9 +427,7 @@ function App() {
                     <h4 className="font-semibold mb-3 text-slate-800">
                       Aceite Residual
                     </h4>
-
                     <p className="text-sm text-slate-600 mb-1">Medición en cm</p>
-
                     <input
                       type="number"
                       value={alturaAceite}
@@ -458,23 +435,19 @@ function App() {
                       placeholder="Ingrese altura"
                       className={inputClass}
                     />
-
                     <p className="mt-4 text-sm text-slate-500">Stock calculado</p>
                     <p className="text-2xl font-bold text-slate-800">
                       {stockAceite.toLocaleString("es-CL")} L
                     </p>
-
                     <p className="mt-2 text-sm text-slate-500">
                       Capacidad disponible: {dispAceite.toLocaleString("es-CL")} L
                     </p>
-
                     <div className="w-full bg-slate-200 rounded-full h-4 mt-3 overflow-hidden">
                       <div
                         className="bg-yellow-500 h-4 rounded-full transition-all"
                         style={{ width: `${nivelAceite}%` }}
                       ></div>
                     </div>
-
                     <p className="text-sm mt-2 text-slate-700 font-medium">
                       {nivelAceite.toFixed(0)} %
                     </p>
@@ -631,9 +604,7 @@ function App() {
               </div>
 
               <div>
-                <h3 className="text-2xl font-bold text-slate-800 mb-4">
-                  Resumen
-                </h3>
+                <h3 className="text-2xl font-bold text-slate-800 mb-4">Resumen</h3>
 
                 <div className="bg-white p-6 rounded-2xl shadow border border-slate-200 overflow-x-auto">
                   <table className="w-full min-w-[700px]">
@@ -703,6 +674,34 @@ function App() {
                   </table>
                 </div>
               </div>
+
+              <div className="pt-8">
+                <div className="grid md:grid-cols-2 gap-8">
+                  <div>
+                    <p className="text-sm text-slate-500 mb-10">
+                      Nombre del operador responsable
+                    </p>
+                    <div className="border-t border-slate-400 pt-2">
+                      <p className="text-slate-800 font-medium">
+                        {operador || "____________________________"}
+                      </p>
+                      <p className="text-sm text-slate-500">Operador</p>
+                    </div>
+                  </div>
+
+                  <div>
+                    <p className="text-sm text-slate-500 mb-10">
+                      Firma del operador
+                    </p>
+                    <div className="border-t border-slate-400 pt-2">
+                      <p className="text-slate-800 font-medium">
+                        ____________________________
+                      </p>
+                      <p className="text-sm text-slate-500">Firma</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </section>
           )}
 
@@ -735,11 +734,9 @@ function App() {
               <div className="grid md:grid-cols-3 gap-6">
                 <div className="bg-white p-6 rounded-2xl shadow border border-slate-200">
                   <h4 className="font-semibold mb-3">Calibración Petróleo</h4>
-
                   <p className="text-sm text-slate-600 mb-1">
                     Cargar archivo Excel (.xlsx / .xls)
                   </p>
-
                   <input
                     type="file"
                     accept=".xlsx,.xls"
@@ -748,20 +745,16 @@ function App() {
                     }
                     className="w-full border rounded-lg p-2"
                   />
-
                   <p className="mt-3 text-sm text-slate-700">
-                    Puntos cargados:{" "}
-                    <strong>{calibraciones.petroleo.length}</strong>
+                    Puntos cargados: <strong>{calibraciones.petroleo.length}</strong>
                   </p>
                 </div>
 
                 <div className="bg-white p-6 rounded-2xl shadow border border-slate-200">
                   <h4 className="font-semibold mb-3">Calibración Mezcla</h4>
-
                   <p className="text-sm text-slate-600 mb-1">
                     Cargar archivo Excel (.xlsx / .xls)
                   </p>
-
                   <input
                     type="file"
                     accept=".xlsx,.xls"
@@ -770,7 +763,6 @@ function App() {
                     }
                     className="w-full border rounded-lg p-2"
                   />
-
                   <p className="mt-3 text-sm text-slate-700">
                     Puntos cargados: <strong>{calibraciones.mezcla.length}</strong>
                   </p>
@@ -778,11 +770,9 @@ function App() {
 
                 <div className="bg-white p-6 rounded-2xl shadow border border-slate-200">
                   <h4 className="font-semibold mb-3">Calibración Aceite</h4>
-
                   <p className="text-sm text-slate-600 mb-1">
                     Cargar archivo Excel (.xlsx / .xls)
                   </p>
-
                   <input
                     type="file"
                     accept=".xlsx,.xls"
@@ -791,7 +781,6 @@ function App() {
                     }
                     className="w-full border rounded-lg p-2"
                   />
-
                   <p className="mt-3 text-sm text-slate-700">
                     Puntos cargados: <strong>{calibraciones.aceite.length}</strong>
                   </p>
