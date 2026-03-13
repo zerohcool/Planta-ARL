@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { calibracionesIniciales } from "./data/calibraciones";
 import {
   obtenerLitrosDesdeAltura,
@@ -23,7 +23,22 @@ function App() {
   const [alturaMezcla, setAlturaMezcla] = useState("");
   const [alturaAceite, setAlturaAceite] = useState("");
 
-  const [calibraciones, setCalibraciones] = useState(calibracionesIniciales);
+  
+  const [calibraciones, setCalibraciones] = useState(() => {
+  const guardadas = localStorage.getItem("calibracionesPlantaARL");
+
+  if (guardadas) {
+    try {
+      return JSON.parse(guardadas);
+    } catch (error) {
+      console.error("Error al leer calibraciones guardadas:", error);
+    }
+  }
+
+  return calibracionesIniciales;
+});
+
+
 
   // Capacidades nominales en litros
   const capPetroleo = 20000;
@@ -66,6 +81,21 @@ function App() {
       reader.readAsText(archivo);
     };
 
+
+    /* guardar automaticamente cada cambio*/ 
+    useEffect(() => {
+      localStorage.setItem(
+        "calibracionesPlantaARL",
+        JSON.stringify(calibraciones)
+      );
+    }, [calibraciones]);
+
+
+    /* botón para restaurar calibraciones iniciales*/ 
+    const restaurarCalibraciones = () => {
+      setCalibraciones(calibracionesIniciales);
+      localStorage.removeItem("calibracionesPlantaARL");
+    };
 
 
 
@@ -209,6 +239,19 @@ function App() {
               Cálculo por Altura
             </h3>
 
+              <div className="mb-4">
+                <button
+                  onClick={restaurarCalibraciones}
+                  className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition"
+                >
+                  Restaurar calibraciones iniciales
+                </button>
+              </div>
+                <p className="text-sm text-green-600 mt-2">
+                  Las calibraciones cargadas se guardan automáticamente en este navegador.
+                </p>
+
+
             <div className="grid md:grid-cols-3 gap-6">
               <div className="bg-white p-6 rounded-2xl shadow border border-slate-200">
                 <h4 className="font-semibold mb-3">Petróleo</h4>
@@ -230,6 +273,7 @@ function App() {
                   onChange={(e) => cargarCSVCalibracion("petroleo", e.target.files[0])}
                   className="w-full border rounded-lg p-2"
                 />
+                
 
 
 
