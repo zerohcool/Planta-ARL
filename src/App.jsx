@@ -205,6 +205,12 @@ className="border rounded p-2"
 placeholder="% Petróleo"
 />
 
+
+<h2 className="font-semibold mb-3">
+Porcentaje Aceite
+</h2>
+
+
 <input
 type="number"
 value={porcAceite}
