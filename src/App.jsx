@@ -695,7 +695,7 @@ function App() {
                     </p>
                     <div className="border-t border-slate-400 pt-2">
                       <p className="text-slate-800 font-medium">
-                        ____________________________
+                        .
                       </p>
                       <p className="text-sm text-slate-500">Firma</p>
                     </div>
