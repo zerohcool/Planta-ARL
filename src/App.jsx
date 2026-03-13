@@ -187,31 +187,46 @@ Analizar mezcla
 
 <div className="space-y-4">
 
+<div>
+<p className="text-sm font-medium mb-1">
+Cantidad de mezcla a fabricar (m³)
+</p>
+
 <input
 type="number"
-placeholder="Cantidad de mezcla (m³)"
 value={mezclaObjetivo}
 onChange={e=>setMezclaObjetivo(e.target.value)}
 className="w-full border rounded p-2"
 />
+</div>
 
 <div className="grid grid-cols-2 gap-4">
+
+<div>
+<p className="text-sm font-medium mb-1">
+% Petróleo
+</p>
 
 <input
 type="number"
 value={porcPetroleo}
 onChange={e=>setPorcPetroleo(Number(e.target.value))}
-className="border rounded p-2"
-placeholder="% Petróleo"
+className="w-full border rounded p-2"
 />
+</div>
+
+<div>
+<p className="text-sm font-medium mb-1">
+% Aceite
+</p>
 
 <input
 type="number"
 value={porcAceite}
 onChange={e=>setPorcAceite(Number(e.target.value))}
-className="border rounded p-2"
-placeholder="% Aceite"
+className="w-full border rounded p-2"
 />
+</div>
 
 </div>
 
@@ -243,21 +258,31 @@ placeholder="% Aceite"
 
 <div className="grid grid-cols-2 gap-4">
 
-<input
-type="number"
-placeholder="Petróleo m³"
-value={calcPetroleo}
-onChange={e=>setCalcPetroleo(e.target.value)}
-className="border rounded p-2"
-/>
+<div>
+<p className="text-sm font-medium mb-1">
+Petróleo (m³)
+</p>
 
 <input
 type="number"
-placeholder="Aceite m³"
+value={calcPetroleo}
+onChange={e=>setCalcPetroleo(e.target.value)}
+className="w-full border rounded p-2"
+/>
+</div>
+
+<div>
+<p className="text-sm font-medium mb-1">
+Aceite (m³)
+</p>
+
+<input
+type="number"
 value={calcAceite}
 onChange={e=>setCalcAceite(e.target.value)}
-className="border rounded p-2"
+className="w-full border rounded p-2"
 />
+</div>
 
 </div>
 
