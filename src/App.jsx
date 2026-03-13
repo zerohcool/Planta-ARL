@@ -11,8 +11,8 @@ function App() {
   const [alturaAceite, setAlturaAceite] = useState("");
 
   const [mezclaObjetivo, setMezclaObjetivo] = useState("");
-  const [porcPetroleo, setPorcPetroleo] = useState(70);
-  const [porcAceite, setPorcAceite] = useState(30);
+  const [porcPetroleo, setPorcPetroleo] = useState(30);
+  const [porcAceite, setPorcAceite] = useState(70);
 
   const [petroleoUsar, setPetroleoUsar] = useState("");
   const [aceiteUsar, setAceiteUsar] = useState("");
