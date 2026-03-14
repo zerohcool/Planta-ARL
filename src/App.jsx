@@ -196,10 +196,28 @@ function App() {
   };
 
   // ========================================
+  // FUNCIÓN: VALIDACION DE CAMPOS
+  // ========================================
+  // Valida si los campos nombre del operador y medicion de estanques estan llenos
+
+  const validarFormularioAntesDeExportar = () => {
+    if (!formularioValido) {
+      alert(
+        "Debes completar correctamente el nombre del operador y las mediciones de los estanques antes de exportar el PDF.",
+      );
+      return false;
+    }
+
+    return true;
+  };
+
+  // ========================================
   // FUNCIÓN: EXPORTAR PDF TIPO CAPTURA
   // ========================================
   // Captura la sección visual del reporte y la convierte a PDF
   const exportarPDF = async () => {
+    if (!validarFormularioAntesDeExportar()) return;
+
     const elemento = reporteRef.current;
     if (!elemento) return;
 
@@ -242,6 +260,8 @@ function App() {
   // ========================================
   // Genera un PDF estructurado manualmente con jsPDF
   const exportarPDFA4 = () => {
+    if (!validarFormularioAntesDeExportar()) return;
+
     const pdf = new jsPDF("p", "mm", "a4");
     const pageWidth = 210;
     const margin = 10;
@@ -626,6 +646,54 @@ function App() {
       ? calibraciones.aceite[calibraciones.aceite.length - 1].litros
       : 0;
 
+  // Alturas máximas permitidas según calibración
+  const maxAlturaPetroleo =
+    calibraciones.petroleo.length > 0
+      ? calibraciones.petroleo[calibraciones.petroleo.length - 1].altura
+      : 0;
+
+  const maxAlturaMezcla =
+    calibraciones.mezcla.length > 0
+      ? calibraciones.mezcla[calibraciones.mezcla.length - 1].altura
+      : 0;
+
+  const maxAlturaAceite =
+    calibraciones.aceite.length > 0
+      ? calibraciones.aceite[calibraciones.aceite.length - 1].altura
+      : 0;
+
+  // Validaciones
+  const errorOperador = !operador.trim()
+    ? "El nombre del operador es obligatorio."
+    : "";
+
+  const errorAlturaPetroleo =
+    alturaPetroleo === ""
+      ? "La medición de petróleo es obligatoria."
+      : Number(alturaPetroleo) > maxAlturaPetroleo
+        ? `La medición no puede superar ${maxAlturaPetroleo} cm.`
+        : "";
+
+  const errorAlturaMezcla =
+    alturaMezcla === ""
+      ? "La medición de mezcla es obligatoria."
+      : Number(alturaMezcla) > maxAlturaMezcla
+        ? `La medición no puede superar ${maxAlturaMezcla} cm.`
+        : "";
+
+  const errorAlturaAceite =
+    alturaAceite === ""
+      ? "La medición de aceite es obligatoria."
+      : Number(alturaAceite) > maxAlturaAceite
+        ? `La medición no puede superar ${maxAlturaAceite} cm.`
+        : "";
+
+  const formularioValido =
+    !errorOperador &&
+    !errorAlturaPetroleo &&
+    !errorAlturaMezcla &&
+    !errorAlturaAceite;
+
   // ========================================
   // CÁLCULO DE CAPACIDAD DISPONIBLE
   // ========================================
@@ -764,14 +832,24 @@ function App() {
               <div className="flex gap-3">
                 <button
                   onClick={exportarPDF}
-                  className="bg-red-600 hover:bg-red-700 text-white px-5 py-3 rounded-xl shadow transition whitespace-nowrap"
+                  disabled={!formularioValido}
+                  className={`px-5 py-3 rounded-xl shadow transition whitespace-nowrap text-white ${
+                    formularioValido
+                      ? "bg-red-600 hover:bg-red-700"
+                      : "bg-red-300 cursor-not-allowed"
+                  }`}
                 >
                   Exportar PDF
                 </button>
 
                 <button
                   onClick={exportarPDFA4}
-                  className="bg-slate-800 hover:bg-slate-900 text-white px-5 py-3 rounded-xl shadow transition whitespace-nowrap"
+                  disabled={!formularioValido}
+                  className={`px-5 py-3 rounded-xl shadow transition whitespace-nowrap text-white ${
+                    formularioValido
+                      ? "bg-slate-800 hover:bg-slate-900"
+                      : "bg-slate-400 cursor-not-allowed"
+                  }`}
                 >
                   Exportar PDF A4
                 </button>
@@ -827,8 +905,13 @@ function App() {
                       value={operador}
                       onChange={(e) => setOperador(e.target.value)}
                       placeholder="Ingrese nombre del operador"
-                      className={inputClass}
+                      className={`${inputClass} ${errorOperador ? "border-red-500 focus:ring-red-200 focus:border-red-500" : ""}`}
                     />
+                    {errorOperador && (
+                      <p className="mt-2 text-sm text-red-600 font-medium">
+                        {errorOperador}
+                      </p>
+                    )}
                   </div>
 
                   <div>
@@ -865,8 +948,16 @@ function App() {
                       value={alturaPetroleo}
                       onChange={(e) => setAlturaPetroleo(e.target.value)}
                       placeholder="Ingrese altura"
-                      className={inputClass}
+                      className={`${inputClass} ${errorAlturaPetroleo ? "border-red-500 focus:ring-red-200 focus:border-red-500" : ""}`}
                     />
+                    {errorAlturaPetroleo && (
+                      <p className="mt-2 text-sm text-red-600 font-medium">
+                        {errorAlturaPetroleo}
+                      </p>
+                    )}
+                    <p className="mt-2 text-xs text-slate-500">
+                      Altura máxima permitida: {maxAlturaPetroleo} cm
+                    </p>
                     <p className="mt-4 text-sm text-slate-500">
                       Stock calculado
                     </p>
@@ -901,8 +992,16 @@ function App() {
                       value={alturaMezcla}
                       onChange={(e) => setAlturaMezcla(e.target.value)}
                       placeholder="Ingrese altura"
-                      className={inputClass}
+                      className={`${inputClass} ${errorAlturaMezcla ? "border-red-500 focus:ring-red-200 focus:border-red-500" : ""}`}
                     />
+                    {errorAlturaMezcla && (
+                      <p className="mt-2 text-sm text-red-600 font-medium">
+                        {errorAlturaMezcla}
+                      </p>
+                    )}
+                    <p className="mt-2 text-xs text-slate-500">
+                      Altura máxima permitida: {maxAlturaMezcla} cm
+                    </p>
                     <p className="mt-4 text-sm text-slate-500">
                       Stock calculado
                     </p>
@@ -937,8 +1036,16 @@ function App() {
                       value={alturaAceite}
                       onChange={(e) => setAlturaAceite(e.target.value)}
                       placeholder="Ingrese altura"
-                      className={inputClass}
+                      className={`${inputClass} ${errorAlturaAceite ? "border-red-500 focus:ring-red-200 focus:border-red-500" : ""}`}
                     />
+                    {errorAlturaAceite && (
+                      <p className="mt-2 text-sm text-red-600 font-medium">
+                        {errorAlturaAceite}
+                      </p>
+                    )}
+                    <p className="mt-2 text-xs text-slate-500">
+                      Altura máxima permitida: {maxAlturaAceite} cm
+                    </p>
                     <p className="mt-4 text-sm text-slate-500">
                       Stock calculado
                     </p>
