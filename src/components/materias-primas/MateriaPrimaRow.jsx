@@ -29,7 +29,9 @@ function MateriaPrimaRow({
         <input
           type="text"
           value={item.patenteCamion}
-          onChange={(e) => onChange(index, "patenteCamion", e.target.value.toUpperCase())}
+          onChange={(e) =>
+            onChange(index, "patenteCamion", e.target.value.toUpperCase())
+          }
           className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
           placeholder="ABCD12"
         />
@@ -42,7 +44,9 @@ function MateriaPrimaRow({
         <input
           type="text"
           value={item.patenteEstanque}
-          onChange={(e) => onChange(index, "patenteEstanque", e.target.value.toUpperCase())}
+          onChange={(e) =>
+            onChange(index, "patenteEstanque", e.target.value.toUpperCase())
+          }
           className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
           placeholder="EFGH34"
         />
@@ -97,7 +101,7 @@ function MateriaPrimaRow({
         </select>
       </div>
 
-      <div className="md:col-span-1 flex flex-col justify-end">
+      <div className="md:col-span-2 flex flex-col justify-end">
         <label className="block text-xs font-medium text-slate-600 mb-1">
           Estado
         </label>
@@ -105,27 +109,31 @@ function MateriaPrimaRow({
         <button
           type="button"
           onClick={() => onToggleEstado(index)}
-          className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
+          className={`w-full rounded-lg px-3 py-2 text-sm font-medium transition whitespace-nowrap ${
             item.despachado
               ? "bg-emerald-100 text-emerald-700 border border-emerald-300"
               : "bg-amber-100 text-amber-700 border border-amber-300"
           }`}
         >
-          {item.despachado ? "Despachado" : "Pendiente"}
+          {item.despachado ? "Despachado" : "Pendiente descarga"}
         </button>
 
         <p className="text-[11px] text-slate-500 mt-1 min-h-[32px]">
           {item.despachadoFecha
-            ? `${item.despachadoFecha}`
+            ? item.despachadoFecha
             : "Sin fecha de despacho"}
         </p>
       </div>
 
-      <div className="md:col-span-1 flex items-end">
+      <div className="md:col-span-1 flex flex-col justify-end">
+        <label className="block text-xs font-medium text-transparent mb-1">
+          Acción
+        </label>
+
         <button
           type="button"
           onClick={() => onEliminar(index)}
-          className="w-full rounded-lg bg-red-100 text-red-700 border border-red-300 px-3 py-2 text-sm font-medium hover:bg-red-200 transition"
+          className="w-full rounded-lg bg-red-100 text-red-700 border border-red-300 px-3 py-2 text-sm font-medium hover:bg-red-200 transition whitespace-nowrap"
         >
           Eliminar
         </button>
