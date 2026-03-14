@@ -295,7 +295,7 @@ y += 6;
 
 pdf.setFillColor(248, 250, 252);
 pdf.setDrawColor(220, 220, 220);
-pdf.roundedRect(margin, y, 190, 30, 2, 2, "FD");
+pdf.roundedRect(margin, y, 190, 34, 2, 2, "FD");
 
 pdf.setFont("helvetica", "bold");
 pdf.setFontSize(10);
@@ -306,12 +306,13 @@ pdf.setFont("helvetica", "normal");
 pdf.setFontSize(9);
 pdf.setTextColor(51, 65, 85);
 
+// Columna izquierda
 pdf.text(
   `Petróleo utilizado: ${utilizadoPetroleo.toLocaleString("es-CL", {
     maximumFractionDigits: 2,
   })} L`,
   margin + 4,
-  y + 14
+  y + 15
 );
 
 pdf.text(
@@ -319,30 +320,31 @@ pdf.text(
     maximumFractionDigits: 2,
   })} L`,
   margin + 4,
-  y + 21
+  y + 23
 );
 
+// Columna derecha
 pdf.text(
   `Mezcla fabricada: ${mezclaFabricada.toLocaleString("es-CL", {
     maximumFractionDigits: 2,
   })} L`,
   105,
-  y + 14
+  y + 15
 );
 
 pdf.text(
   `% Petróleo: ${porcPetroleoFabricado.toFixed(1)} %`,
   105,
-  y + 21
+  y + 23
 );
 
 pdf.text(
   `% Aceite: ${porcAceiteFabricado.toFixed(1)} %`,
   150,
-  y + 21
+  y + 23
 );
 
-y += 38;
+y += 42;
 
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(12);
