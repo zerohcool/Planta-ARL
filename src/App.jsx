@@ -27,6 +27,9 @@ import matrizGuia from "./assets/matriz-guia.png";
 import SilosGrid from "./components/silos/SilosGrid";
 import SilosResumen from "./components/silos/SilosResumen";
 
+// Componentes Materias primas
+import IngresoMateriasPrimas from "./components/materias-primas/IngresoMateriasPrimas";
+
 function App() {
   // ========================================
   // REFERENCIAS
@@ -895,6 +898,13 @@ function App() {
             className={navButtonClass("silos")}
           >
             Silos
+          </button>
+
+          <button
+            onClick={() => setSeccionActiva("materias-primas")}
+            className={navButtonClass("materias-primas")}
+          >
+            Ingreso Materias Primas
           </button>
 
           <button
@@ -1908,6 +1918,7 @@ function App() {
               </div>
             </section>
           )}
+          {seccionActiva === "materias-primas" && <IngresoMateriasPrimas />}
         </div>
       </main>
     </div>
