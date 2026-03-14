@@ -286,7 +286,10 @@ function App() {
       y + 22
     );
 
+    pdf.setFillColor(248, 250, 252);
+    pdf.setDrawColor(220, 220, 220);
     pdf.roundedRect(108, y, 92, 30, 2, 2, "FD");
+    
     pdf.setFont("helvetica", "bold");
     pdf.setFontSize(10);
     pdf.text("Registro de Fabricación", 112, y + 6);
