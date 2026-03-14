@@ -280,7 +280,7 @@ const exportarPDFA4 = () => {
   card("Mezcla", alturaMezcla, stockMezcla, dispMezcla, nivelMezcla, [59, 130, 246]);
   card("Aceite Residual", alturaAceite, stockAceite, dispAceite, nivelAceite, [234, 179, 8]);
 
-  y += 2;
+  /*y += 2; */ 
 
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(12);
