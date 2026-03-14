@@ -287,62 +287,62 @@ const exportarPDFA4 = () => {
 
   y -= 2;
 
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(12);
-  pdf.setTextColor(30, 41, 59);
-  pdf.text("Registro de Fabricación", margin, y);
-  y += 6;
+pdf.setFont("helvetica", "bold");
+pdf.setFontSize(12);
+pdf.setTextColor(30, 41, 59);
+pdf.text("Registro de Fabricación", margin, y);
+y += 6;
 
-  pdf.setFillColor(248, 250, 252);
-  pdf.setDrawColor(220, 220, 220);
-  pdf.roundedRect(margin, y, 190, 26, 2, 2, "FD");
+pdf.setFillColor(248, 250, 252);
+pdf.setDrawColor(220, 220, 220);
+pdf.roundedRect(margin, y, 190, 30, 2, 2, "FD");
 
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(10);
-  pdf.setTextColor(30, 41, 59);
-  pdf.text("Detalle del Registro", margin + 4, y + 6);
+pdf.setFont("helvetica", "bold");
+pdf.setFontSize(10);
+pdf.setTextColor(30, 41, 59);
+pdf.text("Detalle del Registro", margin + 4, y + 6);
 
-  pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(9);
-  pdf.setTextColor(51, 65, 85);
+pdf.setFont("helvetica", "normal");
+pdf.setFontSize(9);
+pdf.setTextColor(51, 65, 85);
 
-  pdf.text(
-    `Petróleo utilizado: ${utilizadoPetroleo.toLocaleString("es-CL", {
-      maximumFractionDigits: 2,
-    })} L`,
-    margin + 4,
-    y + 13
-  );
+pdf.text(
+  `Petróleo utilizado: ${utilizadoPetroleo.toLocaleString("es-CL", {
+    maximumFractionDigits: 2,
+  })} L`,
+  margin + 4,
+  y + 14
+);
 
-  pdf.text(
-    `Aceite utilizado: ${utilizadoAceite.toLocaleString("es-CL", {
-      maximumFractionDigits: 2,
-    })} L`,
-    margin + 4,
-    y + 19
-  );
+pdf.text(
+  `Aceite utilizado: ${utilizadoAceite.toLocaleString("es-CL", {
+    maximumFractionDigits: 2,
+  })} L`,
+  margin + 4,
+  y + 21
+);
 
-  pdf.text(
-    `Mezcla fabricada: ${mezclaFabricada.toLocaleString("es-CL", {
-      maximumFractionDigits: 2,
-    })} L`,
-    105,
-    y + 13
-  );
+pdf.text(
+  `Mezcla fabricada: ${mezclaFabricada.toLocaleString("es-CL", {
+    maximumFractionDigits: 2,
+  })} L`,
+  105,
+  y + 14
+);
 
-  pdf.text(
-    `% Petróleo: ${porcPetroleoFabricado.toFixed(1)} %`,
-    105,
-    y + 19
-  );
+pdf.text(
+  `% Petróleo: ${porcPetroleoFabricado.toFixed(1)} %`,
+  105,
+  y + 21
+);
 
-  pdf.text(
-    `% Aceite: ${porcAceiteFabricado.toFixed(1)} %`,
-    150,
-    y + 19
-  );
+pdf.text(
+  `% Aceite: ${porcAceiteFabricado.toFixed(1)} %`,
+  150,
+  y + 21
+);
 
-  y += 34;
+y += 38;
 
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(12);
