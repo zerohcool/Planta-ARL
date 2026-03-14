@@ -17,15 +17,13 @@ import html2canvas from "html2canvas";
 import logo from "./assets/logo.png";
 import { calibracionesIniciales } from "./data/calibraciones";
 import { obtenerLitrosDesdeAltura } from "./utils/calculos";
+import EstanquesGrid from "./components/estanques/EstanquesGrid";
 
 // Imagenes de silos
 import nitratoGuia from "./assets/nitrato-guia.png";
 import matrizGuia from "./assets/matriz-guia.png";
 
 // Componentes card silos
-import SiloMatrizCard from "./components/silos/SiloMatrizCard";
-import SiloNitratoCard from "./components/silos/SiloNitratoCard";
-import EmptySiloCard from "./components/silos/EmptySiloCard";
 import SilosGrid from "./components/silos/SilosGrid";
 import SilosResumen from "./components/silos/SilosResumen";
 
@@ -79,29 +77,6 @@ function App() {
   const [aceiteUsar, setAceiteUsar] = useState("");
 
   // ========================================
-  // CONFIGURACIÓN VISUAL DE SILOS
-  // ========================================
-  // Esta estructura define el orden, nombre y tipo de cada silo
-  // para renderizar la grilla automáticamente.
-  const silosConfig = [
-    [
-      { id: "C1", tipo: "matriz" },
-      { id: "B1", tipo: "matriz" },
-      { id: "A1", tipo: "matriz" },
-    ],
-    [
-      { id: "C2", tipo: "matriz" },
-      { id: "B2", tipo: "nitrato" },
-      { id: "A2", tipo: "nitrato" },
-    ],
-    [
-      { id: "C3", tipo: "nitrato" },
-      { id: "B3", tipo: "blank" },
-      { id: "A3", tipo: "nitrato" },
-    ],
-  ];
-
-  // ========================================
   // ESTADO DE CALIBRACIONES
   // ========================================
   // Se intenta cargar desde localStorage; si falla, se usan las calibraciones iniciales
@@ -118,6 +93,17 @@ function App() {
 
     return calibracionesIniciales;
   });
+
+  const restablecerCalibraciones = () => {
+    const confirmar = window.confirm(
+      "¿Seguro que deseas restablecer las calibraciones por defecto?",
+    );
+
+    if (!confirmar) return;
+
+    localStorage.removeItem("calibracionesPlantaARL");
+    setCalibraciones(calibracionesIniciales);
+  };
 
   // ========================================
   // MEDICIONES DE TODOS LOS SILOS
@@ -146,13 +132,6 @@ function App() {
       [silo]: valor,
     }));
   };
-
-  // ========================================
-  // ESTADO DE mediciones silos
-  // ========================================
-  // Se intenta cargar desde localStorage; si falla, se usan las calibraciones iniciales
-  const [medicionSiloMatriz, setMedicionSiloMatriz] = useState("");
-  const [medicionSiloNitrato, setMedicionSiloNitrato] = useState("");
 
   // ========================================
   // PARÁMETROS EDITABLES DE SILOS
@@ -1073,139 +1052,30 @@ function App() {
                   Stock
                 </h3>
 
-                <div className="grid md:grid-cols-3 gap-6">
-                  {/* Tarjeta petróleo */}
-                  <div className="bg-white p-6 rounded-2xl shadow border border-slate-200">
-                    <h4 className="font-semibold mb-3 text-slate-800">
-                      Petróleo
-                    </h4>
-                    <p className="text-sm text-slate-600 mb-1">
-                      Medición en cm
-                    </p>
-                    <input
-                      type="number"
-                      value={alturaPetroleo}
-                      onChange={(e) => setAlturaPetroleo(e.target.value)}
-                      placeholder="Ingrese altura"
-                      className={`${inputClass} ${errorAlturaPetroleo ? "border-red-500 focus:ring-red-200 focus:border-red-500" : ""}`}
-                    />
-                    {errorAlturaPetroleo && (
-                      <p className="mt-2 text-sm text-red-600 font-medium">
-                        {errorAlturaPetroleo}
-                      </p>
-                    )}
-                    <p className="mt-2 text-xs text-slate-500">
-                      Altura máxima permitida: {maxAlturaPetroleo} cm
-                    </p>
-                    <p className="mt-4 text-sm text-slate-500">
-                      Stock calculado
-                    </p>
-                    <p className="text-2xl font-bold text-slate-800">
-                      {stockPetroleo.toLocaleString("es-CL")} L
-                    </p>
-                    <p className="mt-2 text-sm text-slate-500">
-                      Capacidad disponible:{" "}
-                      {dispPetroleo.toLocaleString("es-CL")} L
-                    </p>
-                    <div className="w-full bg-slate-200 rounded-full h-4 mt-3 overflow-hidden">
-                      <div
-                        className="bg-green-500 h-4 rounded-full transition-all"
-                        style={{ width: `${nivelPetroleo}%` }}
-                      ></div>
-                    </div>
-                    <p className="text-sm mt-2 text-slate-700 font-medium">
-                      {nivelPetroleo.toFixed(0)} %
-                    </p>
-                  </div>
-
-                  {/* Tarjeta mezcla */}
-                  <div className="bg-white p-6 rounded-2xl shadow border border-slate-200">
-                    <h4 className="font-semibold mb-3 text-slate-800">
-                      Mezcla
-                    </h4>
-                    <p className="text-sm text-slate-600 mb-1">
-                      Medición en cm
-                    </p>
-                    <input
-                      type="number"
-                      value={alturaMezcla}
-                      onChange={(e) => setAlturaMezcla(e.target.value)}
-                      placeholder="Ingrese altura"
-                      className={`${inputClass} ${errorAlturaMezcla ? "border-red-500 focus:ring-red-200 focus:border-red-500" : ""}`}
-                    />
-                    {errorAlturaMezcla && (
-                      <p className="mt-2 text-sm text-red-600 font-medium">
-                        {errorAlturaMezcla}
-                      </p>
-                    )}
-                    <p className="mt-2 text-xs text-slate-500">
-                      Altura máxima permitida: {maxAlturaMezcla} cm
-                    </p>
-                    <p className="mt-4 text-sm text-slate-500">
-                      Stock calculado
-                    </p>
-                    <p className="text-2xl font-bold text-slate-800">
-                      {stockMezcla.toLocaleString("es-CL")} L
-                    </p>
-                    <p className="mt-2 text-sm text-slate-500">
-                      Capacidad disponible: {dispMezcla.toLocaleString("es-CL")}{" "}
-                      L
-                    </p>
-                    <div className="w-full bg-slate-200 rounded-full h-4 mt-3 overflow-hidden">
-                      <div
-                        className="bg-blue-500 h-4 rounded-full transition-all"
-                        style={{ width: `${nivelMezcla}%` }}
-                      ></div>
-                    </div>
-                    <p className="text-sm mt-2 text-slate-700 font-medium">
-                      {nivelMezcla.toFixed(0)} %
-                    </p>
-                  </div>
-
-                  {/* Tarjeta aceite residual */}
-                  <div className="bg-white p-6 rounded-2xl shadow border border-slate-200">
-                    <h4 className="font-semibold mb-3 text-slate-800">
-                      Aceite Residual
-                    </h4>
-                    <p className="text-sm text-slate-600 mb-1">
-                      Medición en cm
-                    </p>
-                    <input
-                      type="number"
-                      value={alturaAceite}
-                      onChange={(e) => setAlturaAceite(e.target.value)}
-                      placeholder="Ingrese altura"
-                      className={`${inputClass} ${errorAlturaAceite ? "border-red-500 focus:ring-red-200 focus:border-red-500" : ""}`}
-                    />
-                    {errorAlturaAceite && (
-                      <p className="mt-2 text-sm text-red-600 font-medium">
-                        {errorAlturaAceite}
-                      </p>
-                    )}
-                    <p className="mt-2 text-xs text-slate-500">
-                      Altura máxima permitida: {maxAlturaAceite} cm
-                    </p>
-                    <p className="mt-4 text-sm text-slate-500">
-                      Stock calculado
-                    </p>
-                    <p className="text-2xl font-bold text-slate-800">
-                      {stockAceite.toLocaleString("es-CL")} L
-                    </p>
-                    <p className="mt-2 text-sm text-slate-500">
-                      Capacidad disponible: {dispAceite.toLocaleString("es-CL")}{" "}
-                      L
-                    </p>
-                    <div className="w-full bg-slate-200 rounded-full h-4 mt-3 overflow-hidden">
-                      <div
-                        className="bg-yellow-500 h-4 rounded-full transition-all"
-                        style={{ width: `${nivelAceite}%` }}
-                      ></div>
-                    </div>
-                    <p className="text-sm mt-2 text-slate-700 font-medium">
-                      {nivelAceite.toFixed(0)} %
-                    </p>
-                  </div>
-                </div>
+                <EstanquesGrid
+                  alturaPetroleo={alturaPetroleo}
+                  setAlturaPetroleo={setAlturaPetroleo}
+                  alturaMezcla={alturaMezcla}
+                  setAlturaMezcla={setAlturaMezcla}
+                  alturaAceite={alturaAceite}
+                  setAlturaAceite={setAlturaAceite}
+                  errorAlturaPetroleo={errorAlturaPetroleo}
+                  errorAlturaMezcla={errorAlturaMezcla}
+                  errorAlturaAceite={errorAlturaAceite}
+                  maxAlturaPetroleo={maxAlturaPetroleo}
+                  maxAlturaMezcla={maxAlturaMezcla}
+                  maxAlturaAceite={maxAlturaAceite}
+                  stockPetroleo={stockPetroleo}
+                  stockMezcla={stockMezcla}
+                  stockAceite={stockAceite}
+                  dispPetroleo={dispPetroleo}
+                  dispMezcla={dispMezcla}
+                  dispAceite={dispAceite}
+                  nivelPetroleo={nivelPetroleo}
+                  nivelMezcla={nivelMezcla}
+                  nivelAceite={nivelAceite}
+                  inputClass={inputClass}
+                />
               </div>
 
               {/* Calculadora teórica + registro real de fabricación */}
@@ -1492,6 +1362,12 @@ function App() {
                   className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg transition"
                 >
                   Descargar plantilla Excel
+                </button>
+                <button
+                  onClick={restablecerCalibraciones}
+                  className="bg-slate-700 hover:bg-slate-800 text-white px-4 py-2 rounded-lg transition"
+                >
+                  Restablecer calibraciones por defecto
                 </button>
               </div>
 
