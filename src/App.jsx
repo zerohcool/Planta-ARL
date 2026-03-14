@@ -288,8 +288,40 @@ function App() {
 
     pdf.setFillColor(248, 250, 252);
     pdf.setDrawColor(220, 220, 220);
+    pdf.roundedRect(margin, y, 92, 30, 2, 2, "FD");
+
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(10);
+    pdf.text("Calculadora de Mezcla", margin + 4, y + 6);
+
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(9);
+    pdf.text(
+      `Cantidad objetivo: ${objetivoLitros.toLocaleString("es-CL")} L`,
+      margin + 4,
+      y + 12
+    );
+    pdf.text(`% Petróleo: ${porcPetroleo}%`, margin + 4, y + 17);
+    pdf.text(`% Aceite: ${porcAceite}%`, margin + 4, y + 22);
+    pdf.text(
+      `Petróleo necesario: ${petroleoNecesarioCalc.toLocaleString("es-CL", {
+        maximumFractionDigits: 2,
+      })} L`,
+      margin + 42,
+      y + 17
+    );
+    pdf.text(
+      `Aceite necesario: ${aceiteNecesarioCalc.toLocaleString("es-CL", {
+        maximumFractionDigits: 2,
+      })} L`,
+      margin + 42,
+      y + 22
+    );
+
+    pdf.setFillColor(248, 250, 252);
+    pdf.setDrawColor(220, 220, 220);
     pdf.roundedRect(108, y, 92, 30, 2, 2, "FD");
-    
+
     pdf.setFont("helvetica", "bold");
     pdf.setFontSize(10);
     pdf.text("Registro de Fabricación", 112, y + 6);
