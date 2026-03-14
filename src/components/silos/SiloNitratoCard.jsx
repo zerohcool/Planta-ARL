@@ -4,7 +4,7 @@
 // Función utilitaria que realiza todos los cálculos geométricos del silo nitrato
 import { calcularSiloNitrato } from "../../utils/silos/nitrato";
 
-function SiloNitratoCard({ medicion, setMedicion, parametros }) {
+function SiloNitratoCard({ titulo = "Silo Nitrato", medicion, setMedicion, parametros }) {
   // ========================================
   // CÁLCULO PRINCIPAL DEL SILO
   // ========================================
@@ -58,7 +58,7 @@ function SiloNitratoCard({ medicion, setMedicion, parametros }) {
   return (
     <div className="bg-white p-6 rounded-2xl shadow border border-slate-200">
       {/* Título del módulo */}
-      <h4 className="text-xl font-bold text-slate-800 mb-4">Silo Nitrato</h4>
+      <h4 className="text-xl font-bold text-slate-800 mb-4">{titulo}</h4>
 
       {/* Entrada de la medición */}
       <p className="text-sm text-slate-600 mb-1">Distancia vacía medida (m)</p>
