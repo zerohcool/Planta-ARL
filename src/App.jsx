@@ -1,32 +1,76 @@
+// ========================================
+// IMPORTACIONES
+// ========================================
+// Hooks de React para manejar estado, efectos y referencias al DOM
 import { useEffect, useRef, useState } from "react";
+
+// Librería para leer y generar archivos Excel
 import * as XLSX from "xlsx";
+
+// Librería para generar PDFs
 import jsPDF from "jspdf";
+
+// Librería para capturar una sección HTML como imagen
 import html2canvas from "html2canvas";
+
+// Recursos y datos del proyecto
 import logo from "./assets/logo.png";
 import { calibracionesIniciales } from "./data/calibraciones";
 import { obtenerLitrosDesdeAltura } from "./utils/calculos";
 
 function App() {
+  // ========================================
+  // REFERENCIAS
+  // ========================================
+  // Referencia al bloque visual del reporte para exportarlo como PDF tipo captura
   const reporteRef = useRef(null);
 
+  // ========================================
+  // VALORES INICIALES
+  // ========================================
+  // Fecha actual en formato YYYY-MM-DD para usarla por defecto
   const fechaHoy = new Date().toISOString().split("T")[0];
 
+  // ========================================
+  // ESTADOS DE NAVEGACIÓN
+  // ========================================
+  // Controla qué sección del panel está visible: "inicio" o "calibraciones"
   const [seccionActiva, setSeccionActiva] = useState("inicio");
 
+  // ========================================
+  // ESTADOS DEL INFORME
+  // ========================================
+  // Datos generales del reporte
   const [operador, setOperador] = useState("");
   const [fechaInforme, setFechaInforme] = useState(fechaHoy);
 
+  // ========================================
+  // ESTADOS DE ALTURA DE ESTANQUES
+  // ========================================
+  // Alturas ingresadas manualmente por el usuario para cada estanque
   const [alturaPetroleo, setAlturaPetroleo] = useState("");
   const [alturaMezcla, setAlturaMezcla] = useState("");
   const [alturaAceite, setAlturaAceite] = useState("");
 
+  // ========================================
+  // ESTADOS DE CALCULADORA DE MEZCLA
+  // ========================================
+  // Litros objetivo a fabricar y porcentajes teóricos de mezcla
   const [mezclaObjetivo, setMezclaObjetivo] = useState("");
   const [porcPetroleo, setPorcPetroleo] = useState(30);
   const [porcAceite, setPorcAceite] = useState(70);
 
+  // ========================================
+  // ESTADOS DE REGISTRO DE FABRICACIÓN
+  // ========================================
+  // Litros realmente usados en la fabricación
   const [petroleoUsar, setPetroleoUsar] = useState("");
   const [aceiteUsar, setAceiteUsar] = useState("");
 
+  // ========================================
+  // ESTADO DE CALIBRACIONES
+  // ========================================
+  // Se intenta cargar desde localStorage; si falla, se usan las calibraciones iniciales
   const [calibraciones, setCalibraciones] = useState(() => {
     const guardadas = localStorage.getItem("calibracionesPlantaARL");
 
@@ -41,6 +85,10 @@ function App() {
     return calibracionesIniciales;
   });
 
+  // ========================================
+  // EFECTO: GUARDAR CALIBRACIONES EN LOCALSTORAGE
+  // ========================================
+  // Cada vez que cambian las calibraciones, se guardan automáticamente
   useEffect(() => {
     localStorage.setItem(
       "calibracionesPlantaARL",
@@ -48,12 +96,21 @@ function App() {
     );
   }, [calibraciones]);
 
+  // ========================================
+  // FUNCIÓN AUXILIAR: FORMATEAR FECHA
+  // ========================================
+  // Convierte fecha YYYY-MM-DD a formato DD-MM-AAAA
   const formatearFecha = (fecha) => {
     if (!fecha) return "";
     const [anio, mes, dia] = fecha.split("-");
     return `${dia}-${mes}-${anio}`;
   };
 
+  // ========================================
+  // FUNCIÓN: CARGAR EXCEL DE CALIBRACIÓN
+  // ========================================
+  // Lee un archivo Excel, valida que tenga columnas "Altura" y "Litros",
+  // transforma los datos y los guarda en el estado de calibraciones
   const cargarExcelCalibracion = (tipoEstanque, archivo) => {
     if (!archivo) return;
 
@@ -117,6 +174,10 @@ function App() {
     reader.readAsArrayBuffer(archivo);
   };
 
+  // ========================================
+  // FUNCIÓN: DESCARGAR PLANTILLA DE CALIBRACIÓN
+  // ========================================
+  // Genera un archivo Excel base con columnas Altura y Litros
   const descargarPlantillaCalibracion = () => {
     const datos = [];
 
@@ -134,6 +195,10 @@ function App() {
     XLSX.writeFile(libro, "plantilla_calibracion.xlsx");
   };
 
+  // ========================================
+  // FUNCIÓN: EXPORTAR PDF TIPO CAPTURA
+  // ========================================
+  // Captura la sección visual del reporte y la convierte a PDF
   const exportarPDF = async () => {
     const elemento = reporteRef.current;
     if (!elemento) return;
@@ -172,273 +237,361 @@ function App() {
     pdf.save(`reporte_planta_arl_${fechaInforme}.pdf`);
   };
 
+  // ========================================
+  // FUNCIÓN: EXPORTAR PDF A4 MAQUETADO
+  // ========================================
+  // Genera un PDF estructurado manualmente con jsPDF
+  const exportarPDFA4 = () => {
+    const pdf = new jsPDF("p", "mm", "a4");
+    const pageWidth = 210;
+    const margin = 10;
+    let y = 12;
 
+    // ----------------------------------------
+    // CABECERA DEL REPORTE
+    // ----------------------------------------
+    const logoX = margin;
+    const logoY = y;
+    const logoW = 36;
+    const logoH = 10;
+    const textX = logoX + logoW + 6;
 
+    pdf.addImage(logo, "PNG", logoX, logoY, logoW, logoH);
 
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(16);
+    pdf.setTextColor(30, 41, 59);
+    pdf.text("Reporte Operacional", textX, y + 3.5);
 
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(11);
+    pdf.setTextColor(100, 116, 139);
+    pdf.text("Planta ARL", textX, y + 9);
 
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(10);
+    pdf.setTextColor(71, 85, 105);
+    pdf.text(
+      `Fecha informe: ${formatearFecha(fechaInforme)}`,
+      pageWidth - 58,
+      y + 6,
+    );
 
-const exportarPDFA4 = () => {
-  const pdf = new jsPDF("p", "mm", "a4");
-  const pageWidth = 210;
-  const margin = 10;
-  let y = 12;
+    y += 16;
 
-  const logoX = margin;
-  const logoY = y;
-  const logoW = 36;
-  const logoH = 10;
-  const textX = logoX + logoW + 6;
+    // Línea separadora bajo el encabezado
+    pdf.setDrawColor(220, 220, 220);
+    pdf.line(margin, y, pageWidth - margin, y);
+    y += 7;
 
-  pdf.addImage(logo, "PNG", logoX, logoY, logoW, logoH);
+    // ----------------------------------------
+    // DATOS DEL INFORME
+    // ----------------------------------------
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(12);
+    pdf.setTextColor(30, 41, 59);
+    pdf.text("Datos del Informe", margin, y);
+    y += 7;
 
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(16);
-  pdf.setTextColor(30, 41, 59);
-  pdf.text("Reporte Operacional", textX, y + 3.5);
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(10);
+    pdf.setTextColor(51, 65, 85);
+    pdf.text(`Operador: ${operador || "-"}`, margin, y);
+    pdf.text(`Fecha: ${formatearFecha(fechaInforme)}`, 110, y);
 
-  pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(11);
-  pdf.setTextColor(100, 116, 139);
-  pdf.text("Planta ARL", textX, y + 9);
+    y += 11;
 
-  pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(10);
-  pdf.setTextColor(71, 85, 105);
-  pdf.text(`Fecha informe: ${formatearFecha(fechaInforme)}`, pageWidth - 58, y + 6);
+    // ----------------------------------------
+    // BLOQUE STOCK
+    // ----------------------------------------
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(12);
+    pdf.setTextColor(30, 41, 59);
+    pdf.text("Stock", margin, y);
+    y += 6;
 
-  y += 16;
+    // Función interna para dibujar una tarjeta de estanque en el PDF
+    const card = (titulo, altura, stock, disponible, porcentaje, color) => {
+      pdf.setFillColor(248, 250, 252);
+      pdf.setDrawColor(220, 220, 220);
+      pdf.roundedRect(margin, y, 190, 18, 2, 2, "FD");
 
-  pdf.setDrawColor(220, 220, 220);
-  pdf.line(margin, y, pageWidth - margin, y);
-  y += 7;
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(10);
+      pdf.setTextColor(30, 41, 59);
+      pdf.text(titulo, margin + 4, y + 6);
 
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(12);
-  pdf.setTextColor(30, 41, 59);
-  pdf.text("Datos del Informe", margin, y);
-  y += 7;
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(9);
+      pdf.setTextColor(51, 65, 85);
+      pdf.text(`Altura: ${altura || 0} cm`, margin + 45, y + 6);
+      pdf.text(
+        `Stock: ${Number(stock || 0).toLocaleString("es-CL")} L`,
+        margin + 85,
+        y + 6,
+      );
+      pdf.text(
+        `Disponible: ${Number(disponible || 0).toLocaleString("es-CL")} L`,
+        margin + 130,
+        y + 6,
+      );
 
-  pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(10);
-  pdf.setTextColor(51, 65, 85);
-  pdf.text(`Operador: ${operador || "-"}`, margin, y);
-  pdf.text(`Fecha: ${formatearFecha(fechaInforme)}`, 110, y);
+      // Barra base
+      pdf.setFillColor(230, 230, 230);
+      pdf.roundedRect(margin + 4, y + 10, 80, 4, 1, 1, "F");
 
-  y += 11;
+      // Barra de progreso según porcentaje
+      pdf.setFillColor(...color);
+      pdf.roundedRect(
+        margin + 4,
+        y + 10,
+        Math.max(2, 80 * (Number(porcentaje || 0) / 100)),
+        4,
+        1,
+        1,
+        "F",
+      );
 
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(12);
-  pdf.setTextColor(30, 41, 59);
-  pdf.text("Stock", margin, y);
-  y += 6;
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(9);
+      pdf.setTextColor(30, 41, 59);
+      pdf.text(
+        `${Number(porcentaje || 0).toFixed(0)} %`,
+        margin + 88,
+        y + 13.5,
+      );
 
-  const card = (titulo, altura, stock, disponible, porcentaje, color) => {
+      // Avanza la posición vertical para la siguiente tarjeta
+      y += 22;
+    };
+
+    // Tarjetas de stock para cada estanque
+    card(
+      "Petróleo",
+      alturaPetroleo,
+      stockPetroleo,
+      dispPetroleo,
+      nivelPetroleo,
+      [34, 197, 94],
+    );
+    card(
+      "Mezcla",
+      alturaMezcla,
+      stockMezcla,
+      dispMezcla,
+      nivelMezcla,
+      [59, 130, 246],
+    );
+    card(
+      "Aceite Residual",
+      alturaAceite,
+      stockAceite,
+      dispAceite,
+      nivelAceite,
+      [234, 179, 8],
+    );
+
+    // Espacio entre última tarjeta y siguiente sección
+    y += 2;
+
+    // ----------------------------------------
+    // REGISTRO DE FABRICACIÓN
+    // ----------------------------------------
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(12);
+    pdf.setTextColor(30, 41, 59);
+    pdf.text("Registro de Fabricación", margin, y);
+    y += 6;
+
     pdf.setFillColor(248, 250, 252);
     pdf.setDrawColor(220, 220, 220);
-    pdf.roundedRect(margin, y, 190, 18, 2, 2, "FD");
+    pdf.roundedRect(margin, y, 190, 34, 2, 2, "FD");
 
     pdf.setFont("helvetica", "bold");
     pdf.setFontSize(10);
     pdf.setTextColor(30, 41, 59);
-    pdf.text(titulo, margin + 4, y + 6);
+    pdf.text("Detalle del Registro", margin + 4, y + 6);
 
     pdf.setFont("helvetica", "normal");
     pdf.setFontSize(9);
     pdf.setTextColor(51, 65, 85);
-    pdf.text(`Altura: ${altura || 0} cm`, margin + 45, y + 6);
-    pdf.text(`Stock: ${Number(stock || 0).toLocaleString("es-CL")} L`, margin + 85, y + 6);
+
     pdf.text(
-      `Disponible: ${Number(disponible || 0).toLocaleString("es-CL")} L`,
-      margin + 130,
-      y + 6
-    );
-
-    pdf.setFillColor(230, 230, 230);
-    pdf.roundedRect(margin + 4, y + 10, 80, 4, 1, 1, "F");
-
-    pdf.setFillColor(...color);
-    pdf.roundedRect(
+      `Petróleo utilizado: ${Number(utilizadoPetroleo || 0).toLocaleString(
+        "es-CL",
+        {
+          maximumFractionDigits: 2,
+        },
+      )} L`,
       margin + 4,
-      y + 10,
-      Math.max(2, 80 * (Number(porcentaje || 0) / 100)),
-      4,
-      1,
-      1,
-      "F"
+      y + 14,
     );
 
-    pdf.setFont("helvetica", "normal");
-    pdf.setFontSize(9);
+    pdf.text(
+      `Aceite utilizado: ${Number(utilizadoAceite || 0).toLocaleString(
+        "es-CL",
+        {
+          maximumFractionDigits: 2,
+        },
+      )} L`,
+      margin + 4,
+      y + 20,
+    );
+
+    pdf.text(
+      `Mezcla fabricada: ${Number(mezclaFabricada || 0).toLocaleString(
+        "es-CL",
+        {
+          maximumFractionDigits: 2,
+        },
+      )} L`,
+      margin + 4,
+      y + 26,
+    );
+
+    pdf.text(
+      `% Petróleo: ${Number(porcPetroleoFabricado || 0).toFixed(1)} %`,
+      110,
+      y + 26,
+    );
+
+    pdf.text(
+      `% Aceite: ${Number(porcAceiteFabricado || 0).toFixed(1)} %`,
+      150,
+      y + 26,
+    );
+
+    y += 42;
+
+    // ----------------------------------------
+    // RESUMEN
+    // ----------------------------------------
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(12);
     pdf.setTextColor(30, 41, 59);
-    pdf.text(`${Number(porcentaje || 0).toFixed(0)} %`, margin + 88, y + 13.5);
+    pdf.text("Resumen", margin, y);
+    y += 6;
 
-    y += 22;
-  };
-
-  card("Petróleo", alturaPetroleo, stockPetroleo, dispPetroleo, nivelPetroleo, [34, 197, 94]);
-  card("Mezcla", alturaMezcla, stockMezcla, dispMezcla, nivelMezcla, [59, 130, 246]);
-  card("Aceite Residual", alturaAceite, stockAceite, dispAceite, nivelAceite, [234, 179, 8]);
-
-  y += 2;  
-
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(12);
-  pdf.setTextColor(30, 41, 59);
-  pdf.text("Registro de Fabricación", margin, y);
-  y += 6;
-
-  pdf.setFillColor(248, 250, 252);
-  pdf.setDrawColor(220, 220, 220);
-  pdf.roundedRect(margin, y, 190, 34, 2, 2, "FD");
-
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(10);
-  pdf.setTextColor(30, 41, 59);
-  pdf.text("Detalle del Registro", margin + 4, y + 6);
-
-  pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(9);
-  pdf.setTextColor(51, 65, 85);
-
-  pdf.text(
-    `Petróleo utilizado: ${Number(utilizadoPetroleo || 0).toLocaleString("es-CL", {
-      maximumFractionDigits: 2,
-    })} L`,
-    margin + 4,
-    y + 14
-  );
-
-  pdf.text(
-    `Aceite utilizado: ${Number(utilizadoAceite || 0).toLocaleString("es-CL", {
-      maximumFractionDigits: 2,
-    })} L`,
-    margin + 4,
-    y + 20
-  );
-
-  pdf.text(
-    `Mezcla fabricada: ${Number(mezclaFabricada || 0).toLocaleString("es-CL", {
-      maximumFractionDigits: 2,
-    })} L`,
-    margin + 4,
-    y + 26
-  );
-
-  pdf.text(
-    `% Petróleo: ${Number(porcPetroleoFabricado || 0).toFixed(1)} %`,
-    110,
-    y + 26
-  );
-
-  pdf.text(
-    `% Aceite: ${Number(porcAceiteFabricado || 0).toFixed(1)} %`,
-    150,
-    y + 26
-  );
-
-  y += 42;
-
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(12);
-  pdf.setTextColor(30, 41, 59);
-  pdf.text("Resumen", margin, y);
-  y += 6;
-
-  pdf.setFillColor(241, 245, 249);
-  pdf.rect(margin, y, 190, 8, "F");
-
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(9);
-  pdf.setTextColor(51, 65, 85);
-  pdf.text("Estanque", margin + 2, y + 5.5);
-  pdf.text("Altura", margin + 35, y + 5.5);
-  pdf.text("Stock", margin + 58, y + 5.5);
-  pdf.text("Utilizado", margin + 90, y + 5.5);
-  pdf.text("Fabricado", margin + 125, y + 5.5);
-  pdf.text("Disponible", margin + 160, y + 5.5);
-
-  y += 8;
-
-  const filaResumen = (nombre, altura, stock, utilizado, fabricado, disponible) => {
-    pdf.setDrawColor(230, 230, 230);
-    pdf.line(margin, y, pageWidth - margin, y);
-
-    pdf.setFont("helvetica", "normal");
-    pdf.setFontSize(9);
-    pdf.setTextColor(30, 41, 59);
-    pdf.text(nombre, margin + 2, y + 5.5);
-    pdf.text(String(altura || 0), margin + 35, y + 5.5);
+    // Encabezado de la tabla
+    pdf.setFillColor(241, 245, 249);
+    pdf.rect(margin, y, 190, 8, "F");
 
     pdf.setFont("helvetica", "bold");
-    pdf.setTextColor(15, 23, 42);
-    pdf.text(Number(stock || 0).toLocaleString("es-CL"), margin + 58, y + 5.5);
+    pdf.setFontSize(9);
+    pdf.setTextColor(51, 65, 85);
+    pdf.text("Estanque", margin + 2, y + 5.5);
+    pdf.text("Altura", margin + 35, y + 5.5);
+    pdf.text("Stock", margin + 58, y + 5.5);
+    pdf.text("Utilizado", margin + 90, y + 5.5);
+    pdf.text("Fabricado", margin + 125, y + 5.5);
+    pdf.text("Disponible", margin + 160, y + 5.5);
+
+    y += 8;
+
+    // Función interna para dibujar una fila del resumen
+    const filaResumen = (
+      nombre,
+      altura,
+      stock,
+      utilizado,
+      fabricado,
+      disponible,
+    ) => {
+      pdf.setDrawColor(230, 230, 230);
+      pdf.line(margin, y, pageWidth - margin, y);
+
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(9);
+      pdf.setTextColor(30, 41, 59);
+      pdf.text(nombre, margin + 2, y + 5.5);
+      pdf.text(String(altura || 0), margin + 35, y + 5.5);
+
+      pdf.setFont("helvetica", "bold");
+      pdf.setTextColor(15, 23, 42);
+      pdf.text(
+        Number(stock || 0).toLocaleString("es-CL"),
+        margin + 58,
+        y + 5.5,
+      );
+
+      pdf.setFont("helvetica", "normal");
+      pdf.setTextColor(220, 38, 38);
+      pdf.text(String(utilizado), margin + 90, y + 5.5);
+
+      pdf.setTextColor(22, 163, 74);
+      pdf.text(String(fabricado), margin + 125, y + 5.5);
+
+      pdf.setTextColor(37, 99, 235);
+      pdf.text(String(disponible), margin + 160, y + 5.5);
+
+      pdf.setTextColor(0, 0, 0);
+      y += 8;
+    };
+
+    // Filas del resumen
+    filaResumen(
+      "Petróleo",
+      alturaPetroleo,
+      stockPetroleo,
+      Number(utilizadoPetroleo || 0).toLocaleString("es-CL", {
+        maximumFractionDigits: 2,
+      }),
+      "-",
+      Number(dispPetroleo || 0).toLocaleString("es-CL"),
+    );
+
+    filaResumen(
+      "Mezcla",
+      alturaMezcla,
+      stockMezcla,
+      "-",
+      Number(mezclaFabricada || 0).toLocaleString("es-CL", {
+        maximumFractionDigits: 2,
+      }),
+      Number(dispMezcla || 0).toLocaleString("es-CL"),
+    );
+
+    filaResumen(
+      "Aceite",
+      alturaAceite,
+      stockAceite,
+      Number(utilizadoAceite || 0).toLocaleString("es-CL", {
+        maximumFractionDigits: 2,
+      }),
+      "-",
+      Number(dispAceite || 0).toLocaleString("es-CL"),
+    );
+
+    // ----------------------------------------
+    // FIRMA DEL OPERADOR
+    // ----------------------------------------
+    y += 14;
 
     pdf.setFont("helvetica", "normal");
-    pdf.setTextColor(220, 38, 38);
-    pdf.text(String(utilizado), margin + 90, y + 5.5);
+    pdf.setFontSize(10);
+    pdf.setTextColor(100, 116, 139);
+    pdf.text("Operador", margin, y);
+    pdf.text("Firma del operador", 120, y);
 
-    pdf.setTextColor(22, 163, 74);
-    pdf.text(String(fabricado), margin + 125, y + 5.5);
+    y += 16;
 
-    pdf.setTextColor(37, 99, 235);
-    pdf.text(String(disponible), margin + 160, y + 5.5);
+    pdf.setDrawColor(120, 120, 120);
+    pdf.line(margin, y, 90, y);
+    pdf.line(120, y, 200, y);
 
-    pdf.setTextColor(0, 0, 0);
-    y += 8;
+    y += 6;
+
+    pdf.setTextColor(30, 41, 59);
+    pdf.text(operador || "", margin, y);
+
+    // Guardar archivo final
+    pdf.save(`reporte_a4_planta_arl_${fechaInforme}.pdf`);
   };
 
-  filaResumen(
-    "Petróleo",
-    alturaPetroleo,
-    stockPetroleo,
-    Number(utilizadoPetroleo || 0).toLocaleString("es-CL", { maximumFractionDigits: 2 }),
-    "-",
-    Number(dispPetroleo || 0).toLocaleString("es-CL")
-  );
-
-  filaResumen(
-    "Mezcla",
-    alturaMezcla,
-    stockMezcla,
-    "-",
-    Number(mezclaFabricada || 0).toLocaleString("es-CL", { maximumFractionDigits: 2 }),
-    Number(dispMezcla || 0).toLocaleString("es-CL")
-  );
-
-  filaResumen(
-    "Aceite",
-    alturaAceite,
-    stockAceite,
-    Number(utilizadoAceite || 0).toLocaleString("es-CL", { maximumFractionDigits: 2 }),
-    "-",
-    Number(dispAceite || 0).toLocaleString("es-CL")
-  );
-
-  y += 14;
-
-  pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(10);
-  pdf.setTextColor(100, 116, 139);
-  pdf.text("Operador", margin, y);
-  pdf.text("Firma del operador", 120, y);
-
-  y += 16;
-
-  pdf.setDrawColor(120, 120, 120);
-  pdf.line(margin, y, 90, y);
-  pdf.line(120, y, 200, y);
-
-  y += 6;
-
-  pdf.setTextColor(30, 41, 59);
-  pdf.text(operador || "", margin, y);
-
-  pdf.save(`reporte_a4_planta_arl_${fechaInforme}.pdf`);
-};
-
-
-
+  // ========================================
+  // CÁLCULO DE STOCK ACTUAL SEGÚN ALTURA
+  // ========================================
+  // Convierte la altura ingresada en litros usando la tabla de calibración
   const stockPetroleo = obtenerLitrosDesdeAltura(
     calibraciones.petroleo,
     alturaPetroleo,
@@ -454,6 +607,10 @@ const exportarPDFA4 = () => {
     alturaAceite,
   );
 
+  // ========================================
+  // CÁLCULO DE CAPACIDAD TOTAL POR ESTANQUE
+  // ========================================
+  // Se toma el último valor de litros de cada tabla de calibración como capacidad máxima
   const capPetroleo =
     calibraciones.petroleo.length > 0
       ? calibraciones.petroleo[calibraciones.petroleo.length - 1].litros
@@ -469,10 +626,18 @@ const exportarPDFA4 = () => {
       ? calibraciones.aceite[calibraciones.aceite.length - 1].litros
       : 0;
 
+  // ========================================
+  // CÁLCULO DE CAPACIDAD DISPONIBLE
+  // ========================================
+  // Litros disponibles restantes en cada estanque
   const dispPetroleo = Math.max(0, capPetroleo - stockPetroleo);
   const dispMezcla = Math.max(0, capMezcla - stockMezcla);
   const dispAceite = Math.max(0, capAceite - stockAceite);
 
+  // ========================================
+  // CÁLCULO DE NIVEL DE LLENADO (%)
+  // ========================================
+  // Se calcula el porcentaje de llenado de cada estanque
   const nivelPetroleo =
     capPetroleo > 0 ? Math.min((stockPetroleo / capPetroleo) * 100, 100) : 0;
 
@@ -482,12 +647,18 @@ const exportarPDFA4 = () => {
   const nivelAceite =
     capAceite > 0 ? Math.min((stockAceite / capAceite) * 100, 100) : 0;
 
+  // ========================================
+  // CÁLCULOS DE MEZCLA
+  // ========================================
+  // Valores numéricos usados en la calculadora y en el registro
   const objetivoLitros = Number(mezclaObjetivo) || 0;
   const utilizadoPetroleo = Number(petroleoUsar) || 0;
   const utilizadoAceite = Number(aceiteUsar) || 0;
 
+  // Suma de porcentajes ingresados
   const sumaPorcentajes = Number(porcPetroleo) + Number(porcAceite);
 
+  // Validación: ambos porcentajes deben estar entre 0 y 100 y sumar exactamente 100
   const porcentajesValidos =
     Number(porcPetroleo) >= 0 &&
     Number(porcAceite) >= 0 &&
@@ -495,6 +666,7 @@ const exportarPDFA4 = () => {
     Number(porcAceite) <= 100 &&
     sumaPorcentajes === 100;
 
+  // Cálculo teórico de litros necesarios para fabricar la mezcla objetivo
   const petroleoNecesarioCalc = porcentajesValidos
     ? objetivoLitros * (porcPetroleo / 100)
     : 0;
@@ -503,6 +675,7 @@ const exportarPDFA4 = () => {
     ? objetivoLitros * (porcAceite / 100)
     : 0;
 
+  // Cálculo real según el registro de fabricación
   const mezclaFabricada = utilizadoPetroleo + utilizadoAceite;
 
   const porcPetroleoFabricado = mezclaFabricada
@@ -513,6 +686,10 @@ const exportarPDFA4 = () => {
     ? (utilizadoAceite / mezclaFabricada) * 100
     : 0;
 
+  // ========================================
+  // CLASES AUXILIARES DE ESTILO
+  // ========================================
+  // Clase dinámica para botones del menú lateral
   const navButtonClass = (seccion) =>
     `w-full text-left rounded-xl px-4 py-3 font-medium transition ${
       seccionActiva === seccion
@@ -520,11 +697,18 @@ const exportarPDFA4 = () => {
         : "text-slate-200 hover:bg-slate-800"
     }`;
 
+  // Clase base para inputs
   const inputClass =
     "w-full border border-slate-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500";
 
+  // ========================================
+  // RENDER PRINCIPAL
+  // ========================================
   return (
     <div className="min-h-screen bg-slate-100 flex">
+      {/* ========================================
+          SIDEBAR / MENÚ LATERAL
+      ======================================== */}
       <aside className="w-72 bg-slate-900 text-white flex flex-col shadow-2xl">
         <div className="px-6 py-6 border-b border-slate-800">
           <h1 className="text-2xl font-bold tracking-wide">Planta ARL</h1>
@@ -557,8 +741,12 @@ const exportarPDFA4 = () => {
         </div>
       </aside>
 
+      {/* ========================================
+          CONTENIDO PRINCIPAL
+      ======================================== */}
       <main className="flex-1 p-8">
         <div className="max-w-7xl mx-auto">
+          {/* Encabezado general del dashboard */}
           <div className="mb-8 flex items-start justify-between gap-4">
             <div>
               <p className="text-sm text-slate-500">Dashboard</p>
@@ -571,6 +759,7 @@ const exportarPDFA4 = () => {
               </p>
             </div>
 
+            {/* Botones de exportación visibles solo en la sección principal */}
             {seccionActiva === "inicio" && (
               <div className="flex gap-3">
                 <button
@@ -590,11 +779,15 @@ const exportarPDFA4 = () => {
             )}
           </div>
 
+          {/* ========================================
+              SECCIÓN PRINCIPAL DEL REPORTE
+          ======================================== */}
           {seccionActiva === "inicio" && (
             <section
               ref={reporteRef}
               className="space-y-8 bg-white p-6 rounded-2xl shadow border border-slate-200"
             >
+              {/* Cabecera visual del reporte */}
               <div className="flex items-center justify-between gap-6 border-b border-slate-200 pb-6">
                 <div className="flex items-center gap-4">
                   <img
@@ -618,6 +811,7 @@ const exportarPDFA4 = () => {
                 </div>
               </div>
 
+              {/* Datos generales del informe */}
               <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
                 <h3 className="text-2xl font-bold text-slate-800 mb-4">
                   Datos del Informe
@@ -651,12 +845,14 @@ const exportarPDFA4 = () => {
                 </div>
               </div>
 
+              {/* Tarjetas de stock por estanque */}
               <div>
                 <h3 className="text-2xl font-bold text-slate-800 mb-4">
                   Stock
                 </h3>
 
                 <div className="grid md:grid-cols-3 gap-6">
+                  {/* Tarjeta petróleo */}
                   <div className="bg-white p-6 rounded-2xl shadow border border-slate-200">
                     <h4 className="font-semibold mb-3 text-slate-800">
                       Petróleo
@@ -692,6 +888,7 @@ const exportarPDFA4 = () => {
                     </p>
                   </div>
 
+                  {/* Tarjeta mezcla */}
                   <div className="bg-white p-6 rounded-2xl shadow border border-slate-200">
                     <h4 className="font-semibold mb-3 text-slate-800">
                       Mezcla
@@ -727,6 +924,7 @@ const exportarPDFA4 = () => {
                     </p>
                   </div>
 
+                  {/* Tarjeta aceite residual */}
                   <div className="bg-white p-6 rounded-2xl shadow border border-slate-200">
                     <h4 className="font-semibold mb-3 text-slate-800">
                       Aceite Residual
@@ -764,12 +962,14 @@ const exportarPDFA4 = () => {
                 </div>
               </div>
 
+              {/* Calculadora teórica + registro real de fabricación */}
               <div>
                 <h3 className="text-2xl font-bold text-slate-800 mb-4">
                   Calculadora y Registro de Fabricación
                 </h3>
 
                 <div className="grid md:grid-cols-2 gap-6">
+                  {/* Calculadora teórica */}
                   <div className="bg-white p-6 rounded-2xl shadow border border-slate-200">
                     <h4 className="text-lg font-semibold mb-4 text-slate-800">
                       Calculadora de Mezcla
@@ -860,6 +1060,7 @@ const exportarPDFA4 = () => {
                     </div>
                   </div>
 
+                  {/* Registro real de fabricación */}
                   <div className="bg-white p-6 rounded-2xl shadow border border-slate-200">
                     <h4 className="text-lg font-semibold mb-4 text-slate-800">
                       Registro de Fabricación
@@ -918,6 +1119,7 @@ const exportarPDFA4 = () => {
                 </div>
               </div>
 
+              {/* Tabla resumen */}
               <div>
                 <h3 className="text-2xl font-bold text-slate-800 mb-4">
                   Resumen
@@ -992,6 +1194,7 @@ const exportarPDFA4 = () => {
                 </div>
               </div>
 
+              {/* Área de firma */}
               <div className="pt-8">
                 <div className="grid md:grid-cols-2 gap-8">
                   <div>
@@ -1022,6 +1225,9 @@ const exportarPDFA4 = () => {
             </section>
           )}
 
+          {/* ========================================
+              SECCIÓN DE CALIBRACIONES
+          ======================================== */}
           {seccionActiva === "calibraciones" && (
             <section>
               <h3 className="text-2xl font-bold text-slate-800 mb-4">
@@ -1049,6 +1255,7 @@ const exportarPDFA4 = () => {
               </p>
 
               <div className="grid md:grid-cols-3 gap-6">
+                {/* Carga calibración petróleo */}
                 <div className="bg-white p-6 rounded-2xl shadow border border-slate-200">
                   <h4 className="font-semibold mb-3">Calibración Petróleo</h4>
                   <p className="text-sm text-slate-600 mb-1">
@@ -1068,6 +1275,7 @@ const exportarPDFA4 = () => {
                   </p>
                 </div>
 
+                {/* Carga calibración mezcla */}
                 <div className="bg-white p-6 rounded-2xl shadow border border-slate-200">
                   <h4 className="font-semibold mb-3">Calibración Mezcla</h4>
                   <p className="text-sm text-slate-600 mb-1">
@@ -1087,6 +1295,7 @@ const exportarPDFA4 = () => {
                   </p>
                 </div>
 
+                {/* Carga calibración aceite */}
                 <div className="bg-white p-6 rounded-2xl shadow border border-slate-200">
                   <h4 className="font-semibold mb-3">Calibración Aceite</h4>
                   <p className="text-sm text-slate-600 mb-1">
