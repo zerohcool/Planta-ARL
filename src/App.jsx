@@ -178,7 +178,7 @@ function App() {
     const margin = 10;
     let y = 12;
 
-    pdf.addImage(logo, "PNG", margin, y, 24, 14);
+    pdf.addImage(logo, "PNG", margin, y, 36, 16);
 
 pdf.setFont("helvetica", "bold");
 pdf.setFontSize(16);
