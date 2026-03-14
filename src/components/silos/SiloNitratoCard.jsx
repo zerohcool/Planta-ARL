@@ -5,6 +5,8 @@ function SiloNitratoCard({ medicion, setMedicion }) {
     distanciaVacia: Number(medicion) || 0,
   });
 
+  const capacidadDisponibleTon = (datos.Vvac * datos.densidad) / 1000;
+
   return (
     <div className="bg-white p-6 rounded-2xl shadow border border-slate-200">
       <h4 className="text-xl font-bold text-slate-800 mb-4">Silo Nitrato</h4>
@@ -20,40 +22,20 @@ function SiloNitratoCard({ medicion, setMedicion }) {
       />
 
       <div className="mt-5 grid grid-cols-2 gap-4">
-        <div className="bg-slate-50 p-4 rounded-xl border">
-          <p className="text-sm text-slate-500">Volumen ocupado</p>
-          <p className="text-2xl font-bold text-slate-800">
-            {datos.Voc.toLocaleString("es-CL", {
-              maximumFractionDigits: 2,
-            })}{" "}
-            m³
-          </p>
-        </div>
-
-        <div className="bg-slate-50 p-4 rounded-xl border">
-          <p className="text-sm text-slate-500">Volumen disponible</p>
-          <p className="text-2xl font-bold text-slate-800">
-            {datos.Vvac.toLocaleString("es-CL", {
-              maximumFractionDigits: 2,
-            })}{" "}
-            m³
-          </p>
-        </div>
-
-        <div className="bg-blue-50 p-4 rounded-xl border border-blue-100">
-          <p className="text-sm text-slate-500">Masa disponible</p>
-          <p className="text-2xl font-bold text-slate-800">
-            {datos.masaKg.toLocaleString("es-CL", {
-              maximumFractionDigits: 0,
-            })}{" "}
-            kg
-          </p>
-        </div>
-
         <div className="bg-green-50 p-4 rounded-xl border border-green-100">
           <p className="text-sm text-slate-500">Stock toneladas</p>
           <p className="text-2xl font-bold text-slate-800">
             {datos.stockTon.toLocaleString("es-CL", {
+              maximumFractionDigits: 2,
+            })}{" "}
+            ton
+          </p>
+        </div>
+
+        <div className="bg-blue-50 p-4 rounded-xl border border-blue-100">
+          <p className="text-sm text-slate-500">Capacidad disponible</p>
+          <p className="text-2xl font-bold text-slate-800">
+            {capacidadDisponibleTon.toLocaleString("es-CL", {
               maximumFractionDigits: 2,
             })}{" "}
             ton
