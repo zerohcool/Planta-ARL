@@ -261,7 +261,7 @@ const exportarPDFA4 = () => {
     pdf.roundedRect(
       margin + 4,
       y + 10,
-      Math.max(2, 80 * ((Number(porcentaje || 0)) / 100)),
+      Math.max(2, 80 * (Number(porcentaje || 0) / 100)),
       4,
       1,
       1,
@@ -285,7 +285,7 @@ const exportarPDFA4 = () => {
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(12);
   pdf.setTextColor(30, 41, 59);
-pdf.text("Registro A4 NUEVO", margin, y);
+  pdf.text("Registro de Fabricación", margin, y);
   y += 6;
 
   pdf.setFillColor(248, 250, 252);
@@ -314,27 +314,27 @@ pdf.text("Registro A4 NUEVO", margin, y);
       maximumFractionDigits: 2,
     })} L`,
     margin + 4,
-    y + 21
+    y + 20
   );
 
   pdf.text(
     `Mezcla fabricada: ${Number(mezclaFabricada || 0).toLocaleString("es-CL", {
       maximumFractionDigits: 2,
     })} L`,
-    margin + 95,
-    y + 14
+    margin + 4,
+    y + 26
   );
 
   pdf.text(
     `% Petróleo: ${Number(porcPetroleoFabricado || 0).toFixed(1)} %`,
-    margin + 95,
-    y + 21
+    110,
+    y + 26
   );
 
   pdf.text(
     `% Aceite: ${Number(porcAceiteFabricado || 0).toFixed(1)} %`,
-    margin + 145,
-    y + 21
+    150,
+    y + 26
   );
 
   y += 42;
