@@ -306,13 +306,12 @@ pdf.setFont("helvetica", "normal");
 pdf.setFontSize(9);
 pdf.setTextColor(51, 65, 85);
 
-// Columna izquierda
 pdf.text(
   `Petróleo utilizado: ${utilizadoPetroleo.toLocaleString("es-CL", {
     maximumFractionDigits: 2,
   })} L`,
   margin + 4,
-  y + 15
+  y + 14
 );
 
 pdf.text(
@@ -320,28 +319,23 @@ pdf.text(
     maximumFractionDigits: 2,
   })} L`,
   margin + 4,
-  y + 23
+  y + 20
 );
 
-// Columna derecha
 pdf.text(
   `Mezcla fabricada: ${mezclaFabricada.toLocaleString("es-CL", {
     maximumFractionDigits: 2,
   })} L`,
-  105,
-  y + 15
+  margin + 4,
+  y + 26
 );
 
 pdf.text(
-  `% Petróleo: ${porcPetroleoFabricado.toFixed(1)} %`,
+  `% Petróleo: ${porcPetroleoFabricado.toFixed(1)} %   |   % Aceite: ${porcAceiteFabricado.toFixed(
+    1
+  )} %`,
   105,
-  y + 23
-);
-
-pdf.text(
-  `% Aceite: ${porcAceiteFabricado.toFixed(1)} %`,
-  150,
-  y + 23
+  y + 26
 );
 
 y += 42;
