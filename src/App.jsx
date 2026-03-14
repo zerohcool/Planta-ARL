@@ -285,7 +285,7 @@ const exportarPDFA4 = () => {
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(12);
   pdf.setTextColor(30, 41, 59);
-  pdf.text("Registro de Fabricación", margin, y);
+pdf.text("Registro A4 NUEVO", margin, y);
   y += 6;
 
   pdf.setFillColor(248, 250, 252);
