@@ -178,17 +178,17 @@ function App() {
     const margin = 10;
     let y = 12;
 
-    pdf.addImage(logo, "PNG", margin, y, 36, 16);
+    pdf.addImage(logo, "PNG", margin, y, 36, 14);
 
-pdf.setFont("helvetica", "bold");
-pdf.setFontSize(16);
-pdf.setTextColor(30, 41, 59);
-pdf.text("Reporte Operacional", 40, 16);
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(16);
+    pdf.setTextColor(30, 41, 59);
+    pdf.text("Reporte Operacional", 52, 16);
 
-pdf.setFont("helvetica", "normal");
-pdf.setFontSize(11);
-pdf.setTextColor(100, 116, 139);
-pdf.text("Planta ARL", 40, 24);    
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(11);
+    pdf.setTextColor(100, 116, 139);
+    pdf.text("Planta ARL", 52, 24);    
 
 
 
