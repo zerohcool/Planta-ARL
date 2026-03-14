@@ -179,9 +179,18 @@ function App() {
     let y = 12;
 
     pdf.addImage(logo, "PNG", margin, y, 24, 14);
-    pdf.setFont("helvetica", "bold");
-    pdf.setFontSize(16);
-    pdf.text("Reporte Operacional - Planta ARL", 40, 18);
+
+pdf.setFont("helvetica", "bold");
+pdf.setFontSize(16);
+pdf.setTextColor(30, 41, 59);
+pdf.text("Reporte Operacional", 40, 16);
+
+pdf.setFont("helvetica", "normal");
+pdf.setFontSize(11);
+pdf.setTextColor(100, 116, 139);
+pdf.text("Planta ARL", 40, 24);    
+
+
 
     pdf.setFont("helvetica", "normal");
     pdf.setFontSize(10);
