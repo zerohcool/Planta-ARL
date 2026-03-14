@@ -247,9 +247,9 @@ const exportarPDFA4 = () => {
     pdf.setFontSize(9);
     pdf.setTextColor(51, 65, 85);
     pdf.text(`Altura: ${altura || 0} cm`, margin + 45, y + 6);
-    pdf.text(`Stock: ${stock.toLocaleString("es-CL")} L`, margin + 85, y + 6);
+    pdf.text(`Stock: ${Number(stock || 0).toLocaleString("es-CL")} L`, margin + 85, y + 6);
     pdf.text(
-      `Disponible: ${disponible.toLocaleString("es-CL")} L`,
+      `Disponible: ${Number(disponible || 0).toLocaleString("es-CL")} L`,
       margin + 130,
       y + 6
     );
@@ -261,84 +261,83 @@ const exportarPDFA4 = () => {
     pdf.roundedRect(
       margin + 4,
       y + 10,
-      Math.max(2, 80 * (porcentaje / 100)),
+      Math.max(2, 80 * ((Number(porcentaje || 0)) / 100)),
       4,
       1,
       1,
       "F"
     );
 
+    pdf.setFont("helvetica", "normal");
     pdf.setFontSize(9);
     pdf.setTextColor(30, 41, 59);
-    pdf.text(`${porcentaje.toFixed(0)} %`, margin + 88, y + 13.5);
+    pdf.text(`${Number(porcentaje || 0).toFixed(0)} %`, margin + 88, y + 13.5);
 
     y += 22;
   };
 
-  card("Petróleo", alturaPetroleo, stockPetroleo, dispPetroleo, nivelPetroleo, [
-    34, 197, 94,
-  ]);
-  card("Mezcla", alturaMezcla, stockMezcla, dispMezcla, nivelMezcla, [
-    59, 130, 246,
-  ]);
-  card("Aceite Residual", alturaAceite, stockAceite, dispAceite, nivelAceite, [
-    234, 179, 8,
-  ]);
+  card("Petróleo", alturaPetroleo, stockPetroleo, dispPetroleo, nivelPetroleo, [34, 197, 94]);
+  card("Mezcla", alturaMezcla, stockMezcla, dispMezcla, nivelMezcla, [59, 130, 246]);
+  card("Aceite Residual", alturaAceite, stockAceite, dispAceite, nivelAceite, [234, 179, 8]);
 
   y -= 2;
 
-pdf.setFont("helvetica", "bold");
-pdf.setFontSize(12);
-pdf.setTextColor(30, 41, 59);
-pdf.text("Registro de Fabricación", margin, y);
-y += 6;
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(12);
+  pdf.setTextColor(30, 41, 59);
+  pdf.text("Registro de Fabricación", margin, y);
+  y += 6;
 
-pdf.setFillColor(248, 250, 252);
-pdf.setDrawColor(220, 220, 220);
-pdf.roundedRect(margin, y, 190, 34, 2, 2, "FD");
+  pdf.setFillColor(248, 250, 252);
+  pdf.setDrawColor(220, 220, 220);
+  pdf.roundedRect(margin, y, 190, 34, 2, 2, "FD");
 
-pdf.setFont("helvetica", "bold");
-pdf.setFontSize(10);
-pdf.setTextColor(30, 41, 59);
-pdf.text("Detalle del Registro", margin + 4, y + 6);
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(10);
+  pdf.setTextColor(30, 41, 59);
+  pdf.text("Detalle del Registro", margin + 4, y + 6);
 
-pdf.setFont("helvetica", "normal");
-pdf.setFontSize(9);
-pdf.setTextColor(51, 65, 85);
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(9);
+  pdf.setTextColor(51, 65, 85);
 
-pdf.text(
-  `Petróleo utilizado: ${utilizadoPetroleo.toLocaleString("es-CL", {
-    maximumFractionDigits: 2,
-  })} L`,
-  margin + 4,
-  y + 14
-);
+  pdf.text(
+    `Petróleo utilizado: ${Number(utilizadoPetroleo || 0).toLocaleString("es-CL", {
+      maximumFractionDigits: 2,
+    })} L`,
+    margin + 4,
+    y + 14
+  );
 
-pdf.text(
-  `Aceite utilizado: ${utilizadoAceite.toLocaleString("es-CL", {
-    maximumFractionDigits: 2,
-  })} L`,
-  margin + 4,
-  y + 20
-);
+  pdf.text(
+    `Aceite utilizado: ${Number(utilizadoAceite || 0).toLocaleString("es-CL", {
+      maximumFractionDigits: 2,
+    })} L`,
+    margin + 4,
+    y + 21
+  );
 
-pdf.text(
-  `Mezcla fabricada: ${mezclaFabricada.toLocaleString("es-CL", {
-    maximumFractionDigits: 2,
-  })} L`,
-  margin + 4,
-  y + 26
-);
+  pdf.text(
+    `Mezcla fabricada: ${Number(mezclaFabricada || 0).toLocaleString("es-CL", {
+      maximumFractionDigits: 2,
+    })} L`,
+    margin + 95,
+    y + 14
+  );
 
-pdf.text(
-  `% Petróleo: ${porcPetroleoFabricado.toFixed(1)} %   |   % Aceite: ${porcAceiteFabricado.toFixed(
-    1
-  )} %`,
-  105,
-  y + 26
-);
+  pdf.text(
+    `% Petróleo: ${Number(porcPetroleoFabricado || 0).toFixed(1)} %`,
+    margin + 95,
+    y + 21
+  );
 
-y += 42;
+  pdf.text(
+    `% Aceite: ${Number(porcAceiteFabricado || 0).toFixed(1)} %`,
+    margin + 145,
+    y + 21
+  );
+
+  y += 42;
 
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(12);
@@ -373,17 +372,17 @@ y += 42;
 
     pdf.setFont("helvetica", "bold");
     pdf.setTextColor(15, 23, 42);
-    pdf.text(stock.toLocaleString("es-CL"), margin + 58, y + 5.5);
+    pdf.text(Number(stock || 0).toLocaleString("es-CL"), margin + 58, y + 5.5);
 
     pdf.setFont("helvetica", "normal");
     pdf.setTextColor(220, 38, 38);
-    pdf.text(utilizado, margin + 90, y + 5.5);
+    pdf.text(String(utilizado), margin + 90, y + 5.5);
 
     pdf.setTextColor(22, 163, 74);
-    pdf.text(fabricado, margin + 125, y + 5.5);
+    pdf.text(String(fabricado), margin + 125, y + 5.5);
 
     pdf.setTextColor(37, 99, 235);
-    pdf.text(disponible, margin + 160, y + 5.5);
+    pdf.text(String(disponible), margin + 160, y + 5.5);
 
     pdf.setTextColor(0, 0, 0);
     y += 8;
@@ -393,9 +392,9 @@ y += 42;
     "Petróleo",
     alturaPetroleo,
     stockPetroleo,
-    utilizadoPetroleo.toLocaleString("es-CL", { maximumFractionDigits: 2 }),
+    Number(utilizadoPetroleo || 0).toLocaleString("es-CL", { maximumFractionDigits: 2 }),
     "-",
-    dispPetroleo.toLocaleString("es-CL")
+    Number(dispPetroleo || 0).toLocaleString("es-CL")
   );
 
   filaResumen(
@@ -403,17 +402,17 @@ y += 42;
     alturaMezcla,
     stockMezcla,
     "-",
-    mezclaFabricada.toLocaleString("es-CL", { maximumFractionDigits: 2 }),
-    dispMezcla.toLocaleString("es-CL")
+    Number(mezclaFabricada || 0).toLocaleString("es-CL", { maximumFractionDigits: 2 }),
+    Number(dispMezcla || 0).toLocaleString("es-CL")
   );
 
   filaResumen(
     "Aceite",
     alturaAceite,
     stockAceite,
-    utilizadoAceite.toLocaleString("es-CL", { maximumFractionDigits: 2 }),
+    Number(utilizadoAceite || 0).toLocaleString("es-CL", { maximumFractionDigits: 2 }),
     "-",
-    dispAceite.toLocaleString("es-CL")
+    Number(dispAceite || 0).toLocaleString("es-CL")
   );
 
   y += 14;
