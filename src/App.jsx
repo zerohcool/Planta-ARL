@@ -18,6 +18,15 @@ import logo from "./assets/logo.png";
 import { calibracionesIniciales } from "./data/calibraciones";
 import { obtenerLitrosDesdeAltura } from "./utils/calculos";
 
+
+// Componentes card silos
+import SiloMatrizCard from "./components/silos/SiloMatrizCard";
+import SiloNitratoCard from "./components/silos/SiloNitratoCard";
+
+
+
+
+
 function App() {
   // ========================================
   // REFERENCIAS
@@ -84,6 +93,23 @@ function App() {
 
     return calibracionesIniciales;
   });
+
+
+
+  // ========================================
+  // ESTADO DE mediciones silos
+  // ========================================
+  // Se intenta cargar desde localStorage; si falla, se usan las calibraciones iniciales
+  const [medicionSiloMatriz, setMedicionSiloMatriz] = useState("");
+  const [medicionSiloNitrato, setMedicionSiloNitrato] = useState("");
+
+
+
+
+
+
+
+
 
   // ========================================
   // EFECTO: GUARDAR CALIBRACIONES EN LOCALSTORAGE
@@ -786,6 +812,17 @@ function App() {
         </div>
 
         <nav className="flex-1 px-4 py-6 space-y-2">
+          
+          <button
+            onClick={() => setSeccionActiva("silos")}
+            className={navButtonClass("silos")}
+          >
+            Silos
+          </button>
+          
+          
+          
+          
           <button
             onClick={() => setSeccionActiva("inicio")}
             className={navButtonClass("inicio")}
@@ -1424,6 +1461,33 @@ function App() {
               </div>
             </section>
           )}
+
+{seccionActiva === "silos" && (
+  <section>
+    <h3 className="text-2xl font-bold text-slate-800 mb-4">Silos</h3>
+
+    <p className="text-slate-500 mb-6">
+      Cálculo de stock para silos mediante fórmulas geométricas.
+      Se está validando un silo de Matriz y un silo de Nitrato antes de escalar a los 8 silos.
+    </p>
+
+    <div className="grid md:grid-cols-2 gap-6">
+      <SiloMatrizCard
+        medicion={medicionSiloMatriz}
+        setMedicion={setMedicionSiloMatriz}
+      />
+
+      <SiloNitratoCard
+        medicion={medicionSiloNitrato}
+        setMedicion={setMedicionSiloNitrato}
+      />
+    </div>
+  </section>
+)}
+
+
+
+
         </div>
       </main>
     </div>
