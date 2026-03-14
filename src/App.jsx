@@ -211,7 +211,7 @@ function App() {
 
     pdf.setDrawColor(220, 220, 220);
     pdf.line(margin, y, pageWidth - margin, y);
-    y += 8;
+    y += 6;
 
     pdf.setFont("helvetica", "bold");
     pdf.setFontSize(12);
@@ -224,13 +224,13 @@ function App() {
     pdf.setTextColor(51, 65, 85);
     pdf.text(`Operador: ${operador || "-"}`, margin, y);
     pdf.text(`Fecha: ${formatearFecha(fechaInforme)}`, 110, y);
-    y += 10;
+    y += 5;
 
     pdf.setFont("helvetica", "bold");
     pdf.setFontSize(12);
     pdf.setTextColor(30, 41, 59);
     pdf.text("Stock", margin, y);
-    y += 8;
+    y += 5;
 
     const card = (titulo, altura, stock, disponible, porcentaje, color) => {
       pdf.setFillColor(248, 250, 252);
@@ -284,11 +284,13 @@ function App() {
       234, 179, 8,
     ]);
 
+    y -= 4;
+
     pdf.setFont("helvetica", "bold");
     pdf.setFontSize(12);
     pdf.setTextColor(30, 41, 59);
     pdf.text("Registro de Fabricación", margin, y);
-    y += 8;
+    y += 5;
 
     pdf.setFillColor(248, 250, 252);
     pdf.setDrawColor(220, 220, 220);
@@ -339,13 +341,13 @@ function App() {
       y + 19
     );
 
-    y += 36;
+    y += 18;
 
     pdf.setFont("helvetica", "bold");
     pdf.setFontSize(12);
     pdf.setTextColor(30, 41, 59);
     pdf.text("Resumen", margin, y);
-    y += 8;
+    y += 5;
 
     pdf.setFillColor(241, 245, 249);
     pdf.rect(margin, y, 190, 8, "F");
@@ -417,7 +419,7 @@ function App() {
       dispAceite.toLocaleString("es-CL")
     );
 
-    y += 18;
+    y += 12;
 
     pdf.setFont("helvetica", "normal");
     pdf.setFontSize(10);
@@ -438,7 +440,6 @@ function App() {
 
     pdf.save(`reporte_a4_planta_arl_${fechaInforme}.pdf`);
   };
-
 
 
 
