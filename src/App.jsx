@@ -26,6 +26,8 @@ import matrizGuia from "./assets/matriz-guia.png";
 import SiloMatrizCard from "./components/silos/SiloMatrizCard";
 import SiloNitratoCard from "./components/silos/SiloNitratoCard";
 import EmptySiloCard from "./components/silos/EmptySiloCard";
+import SilosGrid from "./components/silos/SilosGrid";
+import SilosResumen from "./components/silos/SilosResumen";
 
 function App() {
   // ========================================
@@ -1572,43 +1574,18 @@ function App() {
                 la medición ingresada y los parámetros configurados.
               </p>
 
-              <div className="space-y-6">
-                {silosConfig.map((fila, filaIndex) => (
-                  <div key={filaIndex} className="grid md:grid-cols-3 gap-6">
-                    {fila.map((silo) => {
-                      if (silo.tipo === "matriz") {
-                        return (
-                          <SiloMatrizCard
-                            key={silo.id}
-                            titulo={`Silo ${silo.id}`}
-                            medicion={medicionesSilos[silo.id]}
-                            setMedicion={(valor) =>
-                              actualizarMedicionSilo(silo.id, valor)
-                            }
-                            parametros={parametrosMatriz}
-                          />
-                        );
-                      }
+              <SilosGrid
+                medicionesSilos={medicionesSilos}
+                actualizarMedicionSilo={actualizarMedicionSilo}
+                parametrosMatriz={parametrosMatriz}
+                parametrosNitrato={parametrosNitrato}
+              />
 
-                      if (silo.tipo === "nitrato") {
-                        return (
-                          <SiloNitratoCard
-                            key={silo.id}
-                            titulo={`Silo ${silo.id}`}
-                            medicion={medicionesSilos[silo.id]}
-                            setMedicion={(valor) =>
-                              actualizarMedicionSilo(silo.id, valor)
-                            }
-                            parametros={parametrosNitrato}
-                          />
-                        );
-                      }
-
-                      return <EmptySiloCard key={silo.id} />;
-                    })}
-                  </div>
-                ))}
-              </div>
+              <SilosResumen
+                medicionesSilos={medicionesSilos}
+                parametrosMatriz={parametrosMatriz}
+                parametrosNitrato={parametrosNitrato}
+              />
             </section>
           )}
 

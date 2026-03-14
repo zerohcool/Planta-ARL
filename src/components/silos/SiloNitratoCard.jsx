@@ -13,8 +13,6 @@ function SiloNitratoCard({
   // ========================================
   // CÁLCULO PRINCIPAL DEL SILO
   // ========================================
-  // Si la medición viene vacía, se usa 0 solo para no romper cálculos internos,
-  // pero la validación seguirá mostrando el error correspondiente.
   const datos = calcularSiloNitrato({
     distanciaVacia: Number(medicion) || 0,
     densidad: Number(parametros.densidad) || 0,
@@ -22,7 +20,11 @@ function SiloNitratoCard({
     A1: Number(parametros.A1) || 0,
     B1: Number(parametros.B1) || 0,
     h2: Number(parametros.h2) || 0,
+    A2: Number(parametros.A2) || 0,
+    B2: Number(parametros.B2) || 0,
     h3: Number(parametros.h3) || 0,
+    A3: Number(parametros.A3) || 0,
+    B3: Number(parametros.B3) || 0,
     a3: Number(parametros.a3) || 0,
     b3: Number(parametros.b3) || 0,
     h4: Number(parametros.h4) || 0,
@@ -32,15 +34,10 @@ function SiloNitratoCard({
     b4: Number(parametros.b4) || 0,
   });
 
-  // ========================================
-  // PARÁMETROS DE VALIDACIÓN
-  // ========================================
-  // Altura máxima total del silo nitrato
+  // Altura máxima del silo
   const alturaMaxima = datos.Htot;
 
-  // ========================================
-  // VALIDACIONES
-  // ========================================
+  // Validaciones
   const errorMedicion =
     medicion === ""
       ? "La medición es obligatoria."
@@ -50,23 +47,16 @@ function SiloNitratoCard({
           ? `La medición no puede superar ${alturaMaxima.toFixed(2)} m.`
           : "";
 
-  // Estado general del campo
   const medicionValida = !errorMedicion;
 
-  // ========================================
-  // CÁLCULO DE CAPACIDAD DISPONIBLE EN TONELADAS
-  // ========================================
-  // Fórmula:
-  // (Volumen disponible * densidad) / 1000
+  // Capacidad disponible en toneladas
   const capacidadDisponibleTon = (datos.Vvac * datos.densidad) / 1000;
 
   return (
-    <div className="bg-white p-6 rounded-2xl shadow border border-slate-200">
-      {/* Título del módulo */}
+    <div className="bg-amber-50 p-6 rounded-2xl shadow border border-amber-200">
       <h4 className="text-xl font-bold text-slate-800 mb-1">{titulo}</h4>
-      <p className="text-sm text-emerald-600 font-medium mb-4">Tipo: Nitrato</p>
+      <p className="text-sm text-amber-700 font-medium mb-4">Tipo: Nitrato</p>
 
-      {/* Entrada de la medición */}
       <p className="text-sm text-slate-600 mb-1">Distancia vacía medida (m)</p>
       <input
         type="number"
@@ -74,27 +64,23 @@ function SiloNitratoCard({
         value={medicion}
         onChange={(e) => setMedicion(e.target.value)}
         placeholder="Ingrese medición"
-        className={`w-full border rounded-lg p-3 focus:outline-none focus:ring-2 ${
+        className={`w-full border rounded-lg p-3 focus:outline-none focus:ring-2 bg-white ${
           errorMedicion
             ? "border-red-500 focus:ring-red-200 focus:border-red-500"
-            : "border-slate-300 focus:ring-blue-200 focus:border-blue-500"
+            : "border-amber-200 focus:ring-amber-200 focus:border-amber-400"
         }`}
       />
 
-      {/* Error visible para el usuario */}
       {errorMedicion && (
         <p className="mt-2 text-sm text-red-600 font-medium">{errorMedicion}</p>
       )}
 
-      {/* Información auxiliar */}
       <p className="mt-2 text-xs text-slate-500">
         Altura total del silo: {alturaMaxima.toFixed(2)} m
       </p>
 
-      {/* Tarjetas resumen */}
       <div className="mt-5 grid grid-cols-2 gap-4">
-        {/* Stock */}
-        <div className="bg-green-50 p-4 rounded-xl border border-green-100">
+        <div className="bg-white p-4 rounded-xl border border-green-100">
           <p className="text-sm text-slate-500">Stock toneladas</p>
           <p className="text-2xl font-bold text-slate-800">
             {medicionValida
@@ -106,8 +92,7 @@ function SiloNitratoCard({
           </p>
         </div>
 
-        {/* Capacidad disponible */}
-        <div className="bg-blue-50 p-4 rounded-xl border border-blue-100">
+        <div className="bg-white p-4 rounded-xl border border-amber-100">
           <p className="text-sm text-slate-500">Capacidad disponible</p>
           <p className="text-2xl font-bold text-slate-800">
             {medicionValida
@@ -120,17 +105,15 @@ function SiloNitratoCard({
         </div>
       </div>
 
-      {/* Indicador visual */}
-      <div className="w-full bg-slate-200 rounded-full h-4 mt-5 overflow-hidden">
+      <div className="w-full bg-amber-100 rounded-full h-4 mt-5 overflow-hidden">
         <div
-          className="bg-emerald-600 h-4 rounded-full transition-all"
+          className="bg-amber-500 h-4 rounded-full transition-all"
           style={{
             width: medicionValida ? `${datos.porcentaje}%` : "0%",
           }}
         />
       </div>
 
-      {/* Porcentaje ocupado */}
       <p className="text-sm mt-2 text-slate-700 font-medium">
         Nivel ocupado: {medicionValida ? datos.porcentaje.toFixed(1) : "0.0"}%
       </p>
