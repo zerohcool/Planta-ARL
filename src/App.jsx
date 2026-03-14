@@ -44,7 +44,7 @@ function App() {
   useEffect(() => {
     localStorage.setItem(
       "calibracionesPlantaARL",
-      JSON.stringify(calibraciones)
+      JSON.stringify(calibraciones),
     );
   }, [calibraciones]);
 
@@ -74,12 +74,16 @@ function App() {
           return;
         }
 
-        const encabezado1 = String(filas[0][0] ?? "").trim().toLowerCase();
-        const encabezado2 = String(filas[0][1] ?? "").trim().toLowerCase();
+        const encabezado1 = String(filas[0][0] ?? "")
+          .trim()
+          .toLowerCase();
+        const encabezado2 = String(filas[0][1] ?? "")
+          .trim()
+          .toLowerCase();
 
         if (!encabezado1.includes("altura") || !encabezado2.includes("litro")) {
           alert(
-            "El archivo no tiene el formato esperado. Debe contener columnas 'Altura' y 'Litros'."
+            "El archivo no tiene el formato esperado. Debe contener columnas 'Altura' y 'Litros'.",
           );
           return;
         }
@@ -161,7 +165,7 @@ function App() {
         xCentrado,
         margin,
         ajustadoWidth,
-        pdfHeight - margin * 2
+        pdfHeight - margin * 2,
       );
     }
 
@@ -181,7 +185,11 @@ function App() {
 
     pdf.setFont("helvetica", "normal");
     pdf.setFontSize(10);
-    pdf.text(`Fecha informe: ${formatearFecha(fechaInforme)}`, pageWidth - 60, 18);
+    pdf.text(
+      `Fecha informe: ${formatearFecha(fechaInforme)}`,
+      pageWidth - 60,
+      18,
+    );
 
     y += 20;
 
@@ -220,7 +228,7 @@ function App() {
       pdf.text(
         `Disponible: ${disponible.toLocaleString("es-CL")} L`,
         margin + 130,
-        y + 6
+        y + 6,
       );
 
       pdf.setFillColor(230, 230, 230);
@@ -234,7 +242,7 @@ function App() {
         4,
         1,
         1,
-        "F"
+        "F",
       );
 
       pdf.setFontSize(9);
@@ -243,15 +251,30 @@ function App() {
       y += 22;
     };
 
-    card("Petróleo", alturaPetroleo, stockPetroleo, dispPetroleo, nivelPetroleo, [
-      34, 197, 94,
-    ]);
-    card("Mezcla", alturaMezcla, stockMezcla, dispMezcla, nivelMezcla, [
-      59, 130, 246,
-    ]);
-    card("Aceite Residual", alturaAceite, stockAceite, dispAceite, nivelAceite, [
-      234, 179, 8,
-    ]);
+    card(
+      "Petróleo",
+      alturaPetroleo,
+      stockPetroleo,
+      dispPetroleo,
+      nivelPetroleo,
+      [34, 197, 94],
+    );
+    card(
+      "Mezcla",
+      alturaMezcla,
+      stockMezcla,
+      dispMezcla,
+      nivelMezcla,
+      [59, 130, 246],
+    );
+    card(
+      "Aceite Residual",
+      alturaAceite,
+      stockAceite,
+      dispAceite,
+      nivelAceite,
+      [234, 179, 8],
+    );
 
     pdf.setFont("helvetica", "bold");
     pdf.setFontSize(12);
@@ -268,7 +291,11 @@ function App() {
 
     pdf.setFont("helvetica", "normal");
     pdf.setFontSize(9);
-    pdf.text(`Cantidad objetivo: ${objetivoLitros.toLocaleString("es-CL")} L`, margin + 4, y + 12);
+    pdf.text(
+      `Cantidad objetivo: ${objetivoLitros.toLocaleString("es-CL")} L`,
+      margin + 4,
+      y + 12,
+    );
     pdf.text(`% Petróleo: ${porcPetroleo}%`, margin + 4, y + 17);
     pdf.text(`% Aceite: ${porcAceite}%`, margin + 4, y + 22);
     pdf.text(
@@ -276,14 +303,14 @@ function App() {
         maximumFractionDigits: 2,
       })} L`,
       margin + 42,
-      y + 17
+      y + 17,
     );
     pdf.text(
       `Aceite necesario: ${aceiteNecesarioCalc.toLocaleString("es-CL", {
         maximumFractionDigits: 2,
       })} L`,
       margin + 42,
-      y + 22
+      y + 22,
     );
 
     pdf.setFillColor(248, 250, 252);
@@ -299,7 +326,7 @@ function App() {
     pdf.text(
       `Cantidad objetivo: ${objetivoLitros.toLocaleString("es-CL")} L`,
       margin + 4,
-      y + 12
+      y + 12,
     );
     pdf.text(`% Petróleo: ${porcPetroleo}%`, margin + 4, y + 17);
     pdf.text(`% Aceite: ${porcAceite}%`, margin + 4, y + 22);
@@ -308,14 +335,14 @@ function App() {
         maximumFractionDigits: 2,
       })} L`,
       margin + 42,
-      y + 17
+      y + 17,
     );
     pdf.text(
       `Aceite necesario: ${aceiteNecesarioCalc.toLocaleString("es-CL", {
         maximumFractionDigits: 2,
       })} L`,
       margin + 42,
-      y + 22
+      y + 22,
     );
 
     pdf.setFillColor(248, 250, 252);
@@ -333,21 +360,21 @@ function App() {
         maximumFractionDigits: 2,
       })} L`,
       112,
-      y + 12
+      y + 12,
     );
     pdf.text(
       `Aceite utilizado: ${utilizadoAceite.toLocaleString("es-CL", {
         maximumFractionDigits: 2,
       })} L`,
       112,
-      y + 17
+      y + 17,
     );
     pdf.text(
       `Mezcla fabricada: ${mezclaFabricada.toLocaleString("es-CL", {
         maximumFractionDigits: 2,
       })} L`,
       112,
-      y + 22
+      y + 22,
     );
     pdf.text(`% Petróleo: ${porcPetroleoFabricado.toFixed(1)} %`, 112, y + 27);
     pdf.text(`% Aceite: ${porcAceiteFabricado.toFixed(1)} %`, 155, y + 27);
@@ -373,7 +400,14 @@ function App() {
 
     y += 8;
 
-    const filaResumen = (nombre, altura, stock, utilizado, fabricado, disponible) => {
+    const filaResumen = (
+      nombre,
+      altura,
+      stock,
+      utilizado,
+      fabricado,
+      disponible,
+    ) => {
       pdf.setDrawColor(230, 230, 230);
       pdf.line(margin, y, pageWidth - margin, y);
 
@@ -407,7 +441,7 @@ function App() {
       stockPetroleo,
       utilizadoPetroleo.toLocaleString("es-CL", { maximumFractionDigits: 2 }),
       "-",
-      dispPetroleo.toLocaleString("es-CL")
+      dispPetroleo.toLocaleString("es-CL"),
     );
 
     filaResumen(
@@ -416,7 +450,7 @@ function App() {
       stockMezcla,
       "-",
       mezclaFabricada.toLocaleString("es-CL", { maximumFractionDigits: 2 }),
-      dispMezcla.toLocaleString("es-CL")
+      dispMezcla.toLocaleString("es-CL"),
     );
 
     filaResumen(
@@ -425,7 +459,7 @@ function App() {
       stockAceite,
       utilizadoAceite.toLocaleString("es-CL", { maximumFractionDigits: 2 }),
       "-",
-      dispAceite.toLocaleString("es-CL")
+      dispAceite.toLocaleString("es-CL"),
     );
 
     y += 18;
@@ -451,17 +485,17 @@ function App() {
 
   const stockPetroleo = obtenerLitrosDesdeAltura(
     calibraciones.petroleo,
-    alturaPetroleo
+    alturaPetroleo,
   );
 
   const stockMezcla = obtenerLitrosDesdeAltura(
     calibraciones.mezcla,
-    alturaMezcla
+    alturaMezcla,
   );
 
   const stockAceite = obtenerLitrosDesdeAltura(
     calibraciones.aceite,
-    alturaAceite
+    alturaAceite,
   );
 
   const capPetroleo =
@@ -576,8 +610,8 @@ function App() {
                 Control diario de estanques
               </h2>
               <p className="text-slate-500 mt-2">
-                Medición por altura, cálculo de mezcla, registro de fabricación y
-                gestión de calibraciones.
+                Medición por altura, cálculo de mezcla, registro de fabricación
+                y gestión de calibraciones.
               </p>
             </div>
 
@@ -662,12 +696,18 @@ function App() {
               </div>
 
               <div>
-                <h3 className="text-2xl font-bold text-slate-800 mb-4">Stock</h3>
+                <h3 className="text-2xl font-bold text-slate-800 mb-4">
+                  Stock
+                </h3>
 
                 <div className="grid md:grid-cols-3 gap-6">
                   <div className="bg-white p-6 rounded-2xl shadow border border-slate-200">
-                    <h4 className="font-semibold mb-3 text-slate-800">Petróleo</h4>
-                    <p className="text-sm text-slate-600 mb-1">Medición en cm</p>
+                    <h4 className="font-semibold mb-3 text-slate-800">
+                      Petróleo
+                    </h4>
+                    <p className="text-sm text-slate-600 mb-1">
+                      Medición en cm
+                    </p>
                     <input
                       type="number"
                       value={alturaPetroleo}
@@ -675,12 +715,15 @@ function App() {
                       placeholder="Ingrese altura"
                       className={inputClass}
                     />
-                    <p className="mt-4 text-sm text-slate-500">Stock calculado</p>
+                    <p className="mt-4 text-sm text-slate-500">
+                      Stock calculado
+                    </p>
                     <p className="text-2xl font-bold text-slate-800">
                       {stockPetroleo.toLocaleString("es-CL")} L
                     </p>
                     <p className="mt-2 text-sm text-slate-500">
-                      Capacidad disponible: {dispPetroleo.toLocaleString("es-CL")} L
+                      Capacidad disponible:{" "}
+                      {dispPetroleo.toLocaleString("es-CL")} L
                     </p>
                     <div className="w-full bg-slate-200 rounded-full h-4 mt-3 overflow-hidden">
                       <div
@@ -694,8 +737,12 @@ function App() {
                   </div>
 
                   <div className="bg-white p-6 rounded-2xl shadow border border-slate-200">
-                    <h4 className="font-semibold mb-3 text-slate-800">Mezcla</h4>
-                    <p className="text-sm text-slate-600 mb-1">Medición en cm</p>
+                    <h4 className="font-semibold mb-3 text-slate-800">
+                      Mezcla
+                    </h4>
+                    <p className="text-sm text-slate-600 mb-1">
+                      Medición en cm
+                    </p>
                     <input
                       type="number"
                       value={alturaMezcla}
@@ -703,12 +750,15 @@ function App() {
                       placeholder="Ingrese altura"
                       className={inputClass}
                     />
-                    <p className="mt-4 text-sm text-slate-500">Stock calculado</p>
+                    <p className="mt-4 text-sm text-slate-500">
+                      Stock calculado
+                    </p>
                     <p className="text-2xl font-bold text-slate-800">
                       {stockMezcla.toLocaleString("es-CL")} L
                     </p>
                     <p className="mt-2 text-sm text-slate-500">
-                      Capacidad disponible: {dispMezcla.toLocaleString("es-CL")} L
+                      Capacidad disponible: {dispMezcla.toLocaleString("es-CL")}{" "}
+                      L
                     </p>
                     <div className="w-full bg-slate-200 rounded-full h-4 mt-3 overflow-hidden">
                       <div
@@ -725,7 +775,9 @@ function App() {
                     <h4 className="font-semibold mb-3 text-slate-800">
                       Aceite Residual
                     </h4>
-                    <p className="text-sm text-slate-600 mb-1">Medición en cm</p>
+                    <p className="text-sm text-slate-600 mb-1">
+                      Medición en cm
+                    </p>
                     <input
                       type="number"
                       value={alturaAceite}
@@ -733,12 +785,15 @@ function App() {
                       placeholder="Ingrese altura"
                       className={inputClass}
                     />
-                    <p className="mt-4 text-sm text-slate-500">Stock calculado</p>
+                    <p className="mt-4 text-sm text-slate-500">
+                      Stock calculado
+                    </p>
                     <p className="text-2xl font-bold text-slate-800">
                       {stockAceite.toLocaleString("es-CL")} L
                     </p>
                     <p className="mt-2 text-sm text-slate-500">
-                      Capacidad disponible: {dispAceite.toLocaleString("es-CL")} L
+                      Capacidad disponible: {dispAceite.toLocaleString("es-CL")}{" "}
+                      L
                     </p>
                     <div className="w-full bg-slate-200 rounded-full h-4 mt-3 overflow-hidden">
                       <div
@@ -779,13 +834,17 @@ function App() {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <p className="text-sm mb-1 text-slate-700">% Petróleo</p>
+                        <p className="text-sm mb-1 text-slate-700">
+                          % Petróleo
+                        </p>
                         <input
                           type="number"
                           min="0"
                           max="100"
                           value={porcPetroleo}
-                          onChange={(e) => setPorcPetroleo(Number(e.target.value))}
+                          onChange={(e) =>
+                            setPorcPetroleo(Number(e.target.value))
+                          }
                           className={inputClass}
                         />
                       </div>
@@ -797,7 +856,9 @@ function App() {
                           min="0"
                           max="100"
                           value={porcAceite}
-                          onChange={(e) => setPorcAceite(Number(e.target.value))}
+                          onChange={(e) =>
+                            setPorcAceite(Number(e.target.value))
+                          }
                           className={inputClass}
                         />
                       </div>
@@ -902,7 +963,9 @@ function App() {
               </div>
 
               <div>
-                <h3 className="text-2xl font-bold text-slate-800 mb-4">Resumen</h3>
+                <h3 className="text-2xl font-bold text-slate-800 mb-4">
+                  Resumen
+                </h3>
 
                 <div className="bg-white p-6 rounded-2xl shadow border border-slate-200 overflow-x-auto">
                   <table className="w-full min-w-[700px]">
@@ -1010,8 +1073,8 @@ function App() {
               </h3>
 
               <p className="text-slate-500 mb-6">
-                Carga de tablas de calibración por estanque desde archivos Excel.
-                La plantilla usa columnas <strong>Altura</strong> y{" "}
+                Carga de tablas de calibración por estanque desde archivos
+                Excel. La plantilla usa columnas <strong>Altura</strong> y{" "}
                 <strong>Litros</strong>.
               </p>
 
@@ -1044,7 +1107,8 @@ function App() {
                     className="w-full border rounded-lg p-2"
                   />
                   <p className="mt-3 text-sm text-slate-700">
-                    Puntos cargados: <strong>{calibraciones.petroleo.length}</strong>
+                    Puntos cargados:{" "}
+                    <strong>{calibraciones.petroleo.length}</strong>
                   </p>
                 </div>
 
@@ -1062,7 +1126,8 @@ function App() {
                     className="w-full border rounded-lg p-2"
                   />
                   <p className="mt-3 text-sm text-slate-700">
-                    Puntos cargados: <strong>{calibraciones.mezcla.length}</strong>
+                    Puntos cargados:{" "}
+                    <strong>{calibraciones.mezcla.length}</strong>
                   </p>
                 </div>
 
@@ -1080,7 +1145,8 @@ function App() {
                     className="w-full border rounded-lg p-2"
                   />
                   <p className="mt-3 text-sm text-slate-700">
-                    Puntos cargados: <strong>{calibraciones.aceite.length}</strong>
+                    Puntos cargados:{" "}
+                    <strong>{calibraciones.aceite.length}</strong>
                   </p>
                 </div>
               </div>
