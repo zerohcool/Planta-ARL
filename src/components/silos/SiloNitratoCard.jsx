@@ -4,28 +4,33 @@
 // Función utilitaria que realiza todos los cálculos geométricos del silo nitrato
 import { calcularSiloNitrato } from "../../utils/silos/nitrato";
 
-function SiloNitratoCard({ titulo = "Silo Nitrato", medicion, setMedicion, parametros }) {
+function SiloNitratoCard({
+  titulo = "Silo Nitrato",
+  medicion,
+  setMedicion,
+  parametros,
+}) {
   // ========================================
   // CÁLCULO PRINCIPAL DEL SILO
   // ========================================
   // Si la medición viene vacía, se usa 0 solo para no romper cálculos internos,
   // pero la validación seguirá mostrando el error correspondiente.
   const datos = calcularSiloNitrato({
-  distanciaVacia: Number(medicion) || 0,
-  densidad: Number(parametros.densidad) || 0,
-  h1: Number(parametros.h1) || 0,
-  A1: Number(parametros.A1) || 0,
-  B1: Number(parametros.B1) || 0,
-  h2: Number(parametros.h2) || 0,
-  h3: Number(parametros.h3) || 0,
-  a3: Number(parametros.a3) || 0,
-  b3: Number(parametros.b3) || 0,
-  h4: Number(parametros.h4) || 0,
-  A4: Number(parametros.A4) || 0,
-  B4: Number(parametros.B4) || 0,
-  a4: Number(parametros.a4) || 0,
-  b4: Number(parametros.b4) || 0,
-});
+    distanciaVacia: Number(medicion) || 0,
+    densidad: Number(parametros.densidad) || 0,
+    h1: Number(parametros.h1) || 0,
+    A1: Number(parametros.A1) || 0,
+    B1: Number(parametros.B1) || 0,
+    h2: Number(parametros.h2) || 0,
+    h3: Number(parametros.h3) || 0,
+    a3: Number(parametros.a3) || 0,
+    b3: Number(parametros.b3) || 0,
+    h4: Number(parametros.h4) || 0,
+    A4: Number(parametros.A4) || 0,
+    B4: Number(parametros.B4) || 0,
+    a4: Number(parametros.a4) || 0,
+    b4: Number(parametros.b4) || 0,
+  });
 
   // ========================================
   // PARÁMETROS DE VALIDACIÓN
@@ -58,7 +63,8 @@ function SiloNitratoCard({ titulo = "Silo Nitrato", medicion, setMedicion, param
   return (
     <div className="bg-white p-6 rounded-2xl shadow border border-slate-200">
       {/* Título del módulo */}
-      <h4 className="text-xl font-bold text-slate-800 mb-4">{titulo}</h4>
+      <h4 className="text-xl font-bold text-slate-800 mb-1">{titulo}</h4>
+      <p className="text-sm text-emerald-600 font-medium mb-4">Tipo: Nitrato</p>
 
       {/* Entrada de la medición */}
       <p className="text-sm text-slate-600 mb-1">Distancia vacía medida (m)</p>

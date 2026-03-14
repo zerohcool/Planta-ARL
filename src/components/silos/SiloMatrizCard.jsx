@@ -4,21 +4,26 @@
 // Función utilitaria que realiza todos los cálculos geométricos del silo matriz
 import { calcularSiloMatriz } from "../../utils/silos/matriz";
 
-function SiloMatrizCard({ titulo = "Silo Matriz", medicion, setMedicion, parametros }) {
+function SiloMatrizCard({
+  titulo = "Silo Matriz",
+  medicion,
+  setMedicion,
+  parametros,
+}) {
   // ========================================
   // CÁLCULO PRINCIPAL DEL SILO
   // ========================================
   // Se envía la medición al cálculo. Si está vacía, se usa 0 solo para evitar errores
   // matemáticos en pantalla, pero la validación igual marcará el campo como inválido.
   const datos = calcularSiloMatriz({
-  distanciaVacia: Number(medicion) || 0,
-  densidad: Number(parametros.densidad) || 0,
-  H1: Number(parametros.H1) || 0,
-  D1: Number(parametros.D1) || 0,
-  H2: Number(parametros.H2) || 0,
-  d0: Number(parametros.d0) || 0,
-  H3: Number(parametros.H3) || 0,
-});
+    distanciaVacia: Number(medicion) || 0,
+    densidad: Number(parametros.densidad) || 0,
+    H1: Number(parametros.H1) || 0,
+    D1: Number(parametros.D1) || 0,
+    H2: Number(parametros.H2) || 0,
+    d0: Number(parametros.d0) || 0,
+    H3: Number(parametros.H3) || 0,
+  });
 
   // ========================================
   // PARÁMETROS DE VALIDACIÓN
@@ -54,7 +59,8 @@ function SiloMatrizCard({ titulo = "Silo Matriz", medicion, setMedicion, paramet
   return (
     <div className="bg-white p-6 rounded-2xl shadow border border-slate-200">
       {/* Título de la tarjeta */}
-      <h4 className="text-xl font-bold text-slate-800 mb-4">{titulo}</h4>
+      <h4 className="text-xl font-bold text-slate-800 mb-1">{titulo}</h4>
+      <p className="text-sm text-blue-600 font-medium mb-4">Tipo: Matriz</p>
 
       {/* Campo de entrada de medición */}
       <p className="text-sm text-slate-600 mb-1">Distancia vacía medida (m)</p>

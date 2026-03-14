@@ -76,32 +76,28 @@ function App() {
   const [petroleoUsar, setPetroleoUsar] = useState("");
   const [aceiteUsar, setAceiteUsar] = useState("");
 
-// ========================================
-// CONFIGURACIÓN VISUAL DE SILOS
-// ========================================
-// Esta estructura define el orden, nombre y tipo de cada silo
-// para renderizar la grilla automáticamente.
-const silosConfig = [
-  [
-    { id: "C1", tipo: "matriz" },
-    { id: "B1", tipo: "matriz" },
-    { id: "A1", tipo: "matriz" },
-  ],
-  [
-    { id: "C2", tipo: "matriz" },
-    { id: "B2", tipo: "nitrato" },
-    { id: "A2", tipo: "nitrato" },
-  ],
-  [
-    { id: "C3", tipo: "nitrato" },
-    { id: "B3", tipo: "blank" },
-    { id: "A3", tipo: "nitrato" },
-  ],
-];
-
-
-
-
+  // ========================================
+  // CONFIGURACIÓN VISUAL DE SILOS
+  // ========================================
+  // Esta estructura define el orden, nombre y tipo de cada silo
+  // para renderizar la grilla automáticamente.
+  const silosConfig = [
+    [
+      { id: "C1", tipo: "matriz" },
+      { id: "B1", tipo: "matriz" },
+      { id: "A1", tipo: "matriz" },
+    ],
+    [
+      { id: "C2", tipo: "matriz" },
+      { id: "B2", tipo: "nitrato" },
+      { id: "A2", tipo: "nitrato" },
+    ],
+    [
+      { id: "C3", tipo: "nitrato" },
+      { id: "B3", tipo: "blank" },
+      { id: "A3", tipo: "nitrato" },
+    ],
+  ];
 
   // ========================================
   // ESTADO DE CALIBRACIONES
@@ -121,36 +117,33 @@ const silosConfig = [
     return calibracionesIniciales;
   });
 
+  // ========================================
+  // MEDICIONES DE TODOS LOS SILOS
+  // ========================================
+  // Cada silo guarda su medición de distancia vacía.
+  // Esto permite escalar fácilmente y mantener el código ordenado.
+  const [medicionesSilos, setMedicionesSilos] = useState({
+    A1: "",
+    A2: "",
+    A3: "",
+    B1: "",
+    B2: "",
+    B3: "",
+    C1: "",
+    C2: "",
+    C3: "",
+  });
 
-// ========================================
-// MEDICIONES DE TODOS LOS SILOS
-// ========================================
-// Cada silo guarda su medición de distancia vacía.
-// Esto permite escalar fácilmente y mantener el código ordenado.
-const [medicionesSilos, setMedicionesSilos] = useState({
-  A1: "",
-  A2: "",
-  A3: "",
-  B1: "",
-  B2: "",
-  B3: "",
-  C1: "",
-  C2: "",
-  C3: "",
-});
-
-// ========================================
-// ACTUALIZAR MEDICIÓN DE UN SILO
-// ========================================
-// Recibe el nombre del silo y el valor ingresado por el usuario.
-const actualizarMedicionSilo = (silo, valor) => {
-  setMedicionesSilos((prev) => ({
-    ...prev,
-    [silo]: valor,
-  }));
-};
-
-
+  // ========================================
+  // ACTUALIZAR MEDICIÓN DE UN SILO
+  // ========================================
+  // Recibe el nombre del silo y el valor ingresado por el usuario.
+  const actualizarMedicionSilo = (silo, valor) => {
+    setMedicionesSilos((prev) => ({
+      ...prev,
+      [silo]: valor,
+    }));
+  };
 
   // ========================================
   // ESTADO DE mediciones silos
@@ -1570,50 +1563,54 @@ const actualizarMedicionSilo = (silo, valor) => {
           )}
 
           {seccionActiva === "silos" && (
-  <section>
-    <h3 className="text-2xl font-bold text-slate-800 mb-4">Silos</h3>
+            <section>
+              <h3 className="text-2xl font-bold text-slate-800 mb-4">Silos</h3>
 
-    <p className="text-slate-500 mb-6">
-      Visualización general de los silos de Matriz y Nitrato. Cada tarjeta
-      calcula stock y capacidad disponible en toneladas según la medición
-      ingresada y los parámetros configurados.
-    </p>
+              <p className="text-slate-500 mb-6">
+                Visualización general de los silos de Matriz y Nitrato. Cada
+                tarjeta calcula stock y capacidad disponible en toneladas según
+                la medición ingresada y los parámetros configurados.
+              </p>
 
-    <div className="space-y-6">
-      {silosConfig.map((fila, filaIndex) => (
-        <div key={filaIndex} className="grid md:grid-cols-3 gap-6">
-          {fila.map((silo) => {
-            if (silo.tipo === "matriz") {
-              return (
-                <SiloMatrizCard
-                  key={silo.id}
-                  titulo={`Silo ${silo.id}`}
-                  medicion={medicionesSilos[silo.id]}
-                  setMedicion={(valor) => actualizarMedicionSilo(silo.id, valor)}
-                  parametros={parametrosMatriz}
-                />
-              );
-            }
+              <div className="space-y-6">
+                {silosConfig.map((fila, filaIndex) => (
+                  <div key={filaIndex} className="grid md:grid-cols-3 gap-6">
+                    {fila.map((silo) => {
+                      if (silo.tipo === "matriz") {
+                        return (
+                          <SiloMatrizCard
+                            key={silo.id}
+                            titulo={`Silo ${silo.id}`}
+                            medicion={medicionesSilos[silo.id]}
+                            setMedicion={(valor) =>
+                              actualizarMedicionSilo(silo.id, valor)
+                            }
+                            parametros={parametrosMatriz}
+                          />
+                        );
+                      }
 
-            if (silo.tipo === "nitrato") {
-              return (
-                <SiloNitratoCard
-                  key={silo.id}
-                  titulo={`Silo ${silo.id}`}
-                  medicion={medicionesSilos[silo.id]}
-                  setMedicion={(valor) => actualizarMedicionSilo(silo.id, valor)}
-                  parametros={parametrosNitrato}
-                />
-              );
-            }
+                      if (silo.tipo === "nitrato") {
+                        return (
+                          <SiloNitratoCard
+                            key={silo.id}
+                            titulo={`Silo ${silo.id}`}
+                            medicion={medicionesSilos[silo.id]}
+                            setMedicion={(valor) =>
+                              actualizarMedicionSilo(silo.id, valor)
+                            }
+                            parametros={parametrosNitrato}
+                          />
+                        );
+                      }
 
-            return <EmptySiloCard key={silo.id} />;
-          })}
-        </div>
-      ))}
-    </div>
-  </section>
-)}
+                      return <EmptySiloCard key={silo.id} />;
+                    })}
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
 
           {seccionActiva === "parametros-silos" && (
             <section>
