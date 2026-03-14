@@ -4,15 +4,21 @@
 // Función utilitaria que realiza todos los cálculos geométricos del silo matriz
 import { calcularSiloMatriz } from "../../utils/silos/matriz";
 
-function SiloMatrizCard({ medicion, setMedicion }) {
+function SiloMatrizCard({ medicion, setMedicion, parametros }) {
   // ========================================
   // CÁLCULO PRINCIPAL DEL SILO
   // ========================================
   // Se envía la medición al cálculo. Si está vacía, se usa 0 solo para evitar errores
   // matemáticos en pantalla, pero la validación igual marcará el campo como inválido.
   const datos = calcularSiloMatriz({
-    distanciaVacia: Number(medicion) || 0,
-  });
+  distanciaVacia: Number(medicion) || 0,
+  densidad: Number(parametros.densidad) || 0,
+  H1: Number(parametros.H1) || 0,
+  D1: Number(parametros.D1) || 0,
+  H2: Number(parametros.H2) || 0,
+  d0: Number(parametros.d0) || 0,
+  H3: Number(parametros.H3) || 0,
+});
 
   // ========================================
   // PARÁMETROS DE VALIDACIÓN

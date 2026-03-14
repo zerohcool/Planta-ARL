@@ -18,14 +18,9 @@ import logo from "./assets/logo.png";
 import { calibracionesIniciales } from "./data/calibraciones";
 import { obtenerLitrosDesdeAltura } from "./utils/calculos";
 
-
 // Componentes card silos
 import SiloMatrizCard from "./components/silos/SiloMatrizCard";
 import SiloNitratoCard from "./components/silos/SiloNitratoCard";
-
-
-
-
 
 function App() {
   // ========================================
@@ -94,8 +89,6 @@ function App() {
     return calibracionesIniciales;
   });
 
-
-
   // ========================================
   // ESTADO DE mediciones silos
   // ========================================
@@ -103,13 +96,61 @@ function App() {
   const [medicionSiloMatriz, setMedicionSiloMatriz] = useState("");
   const [medicionSiloNitrato, setMedicionSiloNitrato] = useState("");
 
+  // ========================================
+  // PARÁMETROS EDITABLES DE SILOS
+  // ========================================
+  // Estos parámetros permiten adaptar la app a silos
+  // con diferentes geometrías y capacidades.
 
+  // Parámetros del silo Matriz
+  const [parametrosMatriz, setParametrosMatriz] = useState({
+    densidad: 1300,
+    H1: 4.26,
+    D1: 3.5,
+    H2: 1.67,
+    d0: 0.15,
+    H3: 0.2,
+  });
 
+  // Parámetros del silo Nitrato
+  const [parametrosNitrato, setParametrosNitrato] = useState({
+    densidad: 770,
+    h1: 0.5,
+    A1: 3.4,
+    B1: 3.4,
+    h2: 5.8,
+    A2: 3.4,
+    B2: 3.4,
+    h3: 0.8,
+    A3: 3.49,
+    B3: 3.49,
+    a3: 2.88,
+    b3: 2.21,
+    h4: 1.3,
+    A4: 1.44,
+    B4: 2.21,
+    a4: 0.14,
+    b4: 0.14,
+  });
 
+  // ========================================
+  // HELPERS PARA ACTUALIZAR PARÁMETROS
+  // ========================================
+  // Actualiza un campo del silo Matriz
+  const actualizarParametroMatriz = (campo, valor) => {
+    setParametrosMatriz((prev) => ({
+      ...prev,
+      [campo]: valor === "" ? "" : Number(valor),
+    }));
+  };
 
-
-
-
+  // Actualiza un campo del silo Nitrato
+  const actualizarParametroNitrato = (campo, valor) => {
+    setParametrosNitrato((prev) => ({
+      ...prev,
+      [campo]: valor === "" ? "" : Number(valor),
+    }));
+  };
 
   // ========================================
   // EFECTO: GUARDAR CALIBRACIONES EN LOCALSTORAGE
@@ -812,17 +853,13 @@ function App() {
         </div>
 
         <nav className="flex-1 px-4 py-6 space-y-2">
-          
           <button
             onClick={() => setSeccionActiva("silos")}
             className={navButtonClass("silos")}
           >
             Silos
           </button>
-          
-          
-          
-          
+
           <button
             onClick={() => setSeccionActiva("inicio")}
             className={navButtonClass("inicio")}
@@ -835,6 +872,13 @@ function App() {
             className={navButtonClass("calibraciones")}
           >
             Calibraciones
+          </button>
+
+          <button
+            onClick={() => setSeccionActiva("parametros-silos")}
+            className={navButtonClass("parametros-silos")}
+          >
+            Parámetros Silos
           </button>
         </nav>
 
@@ -1462,25 +1506,316 @@ function App() {
             </section>
           )}
 
-{seccionActiva === "silos" && (
+          {seccionActiva === "silos" && (
+            <section>
+              <h3 className="text-2xl font-bold text-slate-800 mb-4">Silos</h3>
+
+              <p className="text-slate-500 mb-6">
+                Cálculo de stock para silos mediante fórmulas geométricas. Se
+                está validando un silo de Matriz y un silo de Nitrato antes de
+                escalar a los 8 silos.
+              </p>
+
+              <div className="grid md:grid-cols-2 gap-6">
+                <SiloMatrizCard
+                  medicion={medicionSiloMatriz}
+                  setMedicion={setMedicionSiloMatriz}
+                  parametros={parametrosMatriz}
+                />
+
+                <SiloNitratoCard
+                  medicion={medicionSiloNitrato}
+                  setMedicion={setMedicionSiloNitrato}
+                  parametros={parametrosNitrato}
+                />
+              </div>
+            </section>
+          )}
+
+{seccionActiva === "parametros-silos" && (
   <section>
-    <h3 className="text-2xl font-bold text-slate-800 mb-4">Silos</h3>
+    <h3 className="text-2xl font-bold text-slate-800 mb-4">
+      Parámetros de Silos
+    </h3>
 
     <p className="text-slate-500 mb-6">
-      Cálculo de stock para silos mediante fórmulas geométricas.
-      Se está validando un silo de Matriz y un silo de Nitrato antes de escalar a los 8 silos.
+      Aquí puedes modificar las dimensiones y densidades de los silos para que
+      la webapp se adapte a otras medidas y capacidades.
     </p>
 
-    <div className="grid md:grid-cols-2 gap-6">
-      <SiloMatrizCard
-        medicion={medicionSiloMatriz}
-        setMedicion={setMedicionSiloMatriz}
-      />
+    <div className="grid lg:grid-cols-2 gap-6">
+      {/* ======================================== */}
+      {/* TARJETA PARÁMETROS SILO MATRIZ */}
+      {/* ======================================== */}
+      <div className="bg-white rounded-2xl shadow border border-slate-200 p-6">
+        <h4 className="text-xl font-bold text-slate-800 mb-4">
+          Parámetros Silo Matriz
+        </h4>
 
-      <SiloNitratoCard
-        medicion={medicionSiloNitrato}
-        setMedicion={setMedicionSiloNitrato}
-      />
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm text-slate-600 mb-1">
+              Densidad (kg/m³)
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              value={parametrosMatriz.densidad}
+              onChange={(e) =>
+                actualizarParametroMatriz("densidad", e.target.value)
+              }
+              className="w-full border border-slate-300 rounded-lg p-3"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm text-slate-600 mb-1">
+              Altura cilindro grande H1 (m)
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              value={parametrosMatriz.H1}
+              onChange={(e) => actualizarParametroMatriz("H1", e.target.value)}
+              className="w-full border border-slate-300 rounded-lg p-3"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm text-slate-600 mb-1">
+              Diámetro cilindro grande D1 (m)
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              value={parametrosMatriz.D1}
+              onChange={(e) => actualizarParametroMatriz("D1", e.target.value)}
+              className="w-full border border-slate-300 rounded-lg p-3"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm text-slate-600 mb-1">
+              Altura cono truncado H2 (m)
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              value={parametrosMatriz.H2}
+              onChange={(e) => actualizarParametroMatriz("H2", e.target.value)}
+              className="w-full border border-slate-300 rounded-lg p-3"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm text-slate-600 mb-1">
+              Diámetro cilindro pequeño d0 (m)
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              value={parametrosMatriz.d0}
+              onChange={(e) => actualizarParametroMatriz("d0", e.target.value)}
+              className="w-full border border-slate-300 rounded-lg p-3"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm text-slate-600 mb-1">
+              Altura cilindro pequeño H3 (m)
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              value={parametrosMatriz.H3}
+              onChange={(e) => actualizarParametroMatriz("H3", e.target.value)}
+              className="w-full border border-slate-300 rounded-lg p-3"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* ======================================== */}
+      {/* TARJETA PARÁMETROS SILO NITRATO */}
+      {/* ======================================== */}
+      <div className="bg-white rounded-2xl shadow border border-slate-200 p-6">
+        <h4 className="text-xl font-bold text-slate-800 mb-4">
+          Parámetros Silo Nitrato
+        </h4>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm text-slate-600 mb-1">
+              Densidad (kg/m³)
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              value={parametrosNitrato.densidad}
+              onChange={(e) =>
+                actualizarParametroNitrato("densidad", e.target.value)
+              }
+              className="w-full border border-slate-300 rounded-lg p-3"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm text-slate-600 mb-1">
+              Altura pirámide superior h1 (m)
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              value={parametrosNitrato.h1}
+              onChange={(e) => actualizarParametroNitrato("h1", e.target.value)}
+              className="w-full border border-slate-300 rounded-lg p-3"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm text-slate-600 mb-1">
+              Lado a superior (m)
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              value={parametrosNitrato.A1}
+              onChange={(e) => actualizarParametroNitrato("A1", e.target.value)}
+              className="w-full border border-slate-300 rounded-lg p-3"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm text-slate-600 mb-1">
+              Lado b superior (m)
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              value={parametrosNitrato.B1}
+              onChange={(e) => actualizarParametroNitrato("B1", e.target.value)}
+              className="w-full border border-slate-300 rounded-lg p-3"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm text-slate-600 mb-1">
+              Altura prisma h2 (m)
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              value={parametrosNitrato.h2}
+              onChange={(e) => actualizarParametroNitrato("h2", e.target.value)}
+              className="w-full border border-slate-300 rounded-lg p-3"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm text-slate-600 mb-1">
+              Altura truncada h3 (m)
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              value={parametrosNitrato.h3}
+              onChange={(e) => actualizarParametroNitrato("h3", e.target.value)}
+              className="w-full border border-slate-300 rounded-lg p-3"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm text-slate-600 mb-1">
+              Lado a inferior tramo 3 (m)
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              value={parametrosNitrato.a3}
+              onChange={(e) => actualizarParametroNitrato("a3", e.target.value)}
+              className="w-full border border-slate-300 rounded-lg p-3"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm text-slate-600 mb-1">
+              Lado b inferior tramo 3 (m)
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              value={parametrosNitrato.b3}
+              onChange={(e) => actualizarParametroNitrato("b3", e.target.value)}
+              className="w-full border border-slate-300 rounded-lg p-3"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm text-slate-600 mb-1">
+              Altura truncada doble h4 (m)
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              value={parametrosNitrato.h4}
+              onChange={(e) => actualizarParametroNitrato("h4", e.target.value)}
+              className="w-full border border-slate-300 rounded-lg p-3"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm text-slate-600 mb-1">
+              Lado A tramo 4 (m)
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              value={parametrosNitrato.A4}
+              onChange={(e) => actualizarParametroNitrato("A4", e.target.value)}
+              className="w-full border border-slate-300 rounded-lg p-3"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm text-slate-600 mb-1">
+              Lado B tramo 4 (m)
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              value={parametrosNitrato.B4}
+              onChange={(e) => actualizarParametroNitrato("B4", e.target.value)}
+              className="w-full border border-slate-300 rounded-lg p-3"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm text-slate-600 mb-1">
+              Lado a inferior tramo 4 (m)
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              value={parametrosNitrato.a4}
+              onChange={(e) => actualizarParametroNitrato("a4", e.target.value)}
+              className="w-full border border-slate-300 rounded-lg p-3"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm text-slate-600 mb-1">
+              Lado b inferior tramo 4 (m)
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              value={parametrosNitrato.b4}
+              onChange={(e) => actualizarParametroNitrato("b4", e.target.value)}
+              className="w-full border border-slate-300 rounded-lg p-3"
+            />
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 )}
