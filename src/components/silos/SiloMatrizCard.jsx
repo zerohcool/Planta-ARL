@@ -69,9 +69,12 @@ function SiloMatrizCard({
       </p>
 
       <div className="mt-5 grid grid-cols-2 gap-4">
-        <div className="bg-white p-4 rounded-xl border border-sky-200 shadow-sm">
-          <p className="text-sm font-medium text-slate-500">Toneladas ocupadas</p>
-          <p className="text-2xl font-bold text-sky-600">
+        <div
+          className="p-4 rounded-xl shadow-sm border border-sky-400/30 text-white"
+          style={{ backgroundColor: "rgb(75, 162, 227)" }}
+        >
+          <p className="text-sm font-medium text-white/90">Toneladas ocupadas</p>
+          <p className="text-2xl font-bold text-white">
             {medicionValida
               ? datos.stockTon.toLocaleString("es-CL", {
                   maximumFractionDigits: 2,
@@ -81,9 +84,12 @@ function SiloMatrizCard({
           </p>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-sky-200 shadow-sm">
-          <p className="text-sm font-medium text-slate-500">Capacidad disponible</p>
-          <p className="text-2xl font-bold text-sky-600">
+        <div
+          className="p-4 rounded-xl shadow-sm border border-sky-200"
+          style={{ backgroundColor: "rgb(227, 241, 253)" }}
+        >
+          <p className="text-sm font-medium text-sky-800">Capacidad disponible</p>
+          <p className="text-2xl font-bold text-sky-900">
             {medicionValida
               ? capacidadDisponibleTon.toLocaleString("es-CL", {
                   maximumFractionDigits: 2,
@@ -94,10 +100,14 @@ function SiloMatrizCard({
         </div>
       </div>
 
-      <div className="w-full bg-sky-100 rounded-full h-4 mt-5 overflow-hidden">
+      <div
+        className="w-full rounded-full h-4 mt-5 overflow-hidden"
+        style={{ backgroundColor: "rgb(227, 241, 253)" }}
+      >
         <div
-          className="bg-sky-500 h-4 rounded-full transition-all"
+          className="h-4 rounded-full transition-all"
           style={{
+            backgroundColor: "rgb(75, 162, 227)",
             width: medicionValida ? `${datos.porcentaje}%` : "0%",
           }}
         />
