@@ -84,8 +84,8 @@ function SilosResumen({
 
       <div className="grid md:grid-cols-2 xl:grid-cols-5 gap-4">
         <div className="bg-sky-50 border border-sky-200 rounded-xl p-4">
-          <p className="text-sm text-slate-500">Stock total matriz</p>
-          <p className="text-2xl font-bold text-slate-800">
+          <p className="text-sm font-medium text-slate-500">Stock total matriz</p>
+          <p className="text-2xl font-bold text-sky-700">
             {stockTotalMatriz.toLocaleString("es-CL", {
               maximumFractionDigits: 2,
             })}{" "}
@@ -94,10 +94,10 @@ function SilosResumen({
         </div>
 
         <div className="bg-sky-50 border border-sky-200 rounded-xl p-4">
-          <p className="text-sm text-slate-500">
+          <p className="text-sm font-medium text-slate-500">
             Capacidad disponible total matriz
           </p>
-          <p className="text-2xl font-bold text-slate-800">
+          <p className="text-2xl font-bold text-sky-700">
             {capacidadDisponibleMatriz.toLocaleString("es-CL", {
               maximumFractionDigits: 2,
             })}{" "}
@@ -106,8 +106,8 @@ function SilosResumen({
         </div>
 
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-          <p className="text-sm text-slate-500">Stock total nitrato</p>
-          <p className="text-2xl font-bold text-slate-800">
+          <p className="text-sm font-medium text-slate-500">Stock total nitrato</p>
+          <p className="text-2xl font-bold text-amber-700">
             {stockTotalNitrato.toLocaleString("es-CL", {
               maximumFractionDigits: 2,
             })}{" "}
@@ -116,10 +116,10 @@ function SilosResumen({
         </div>
 
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-          <p className="text-sm text-slate-500">
+          <p className="text-sm font-medium text-slate-500">
             Capacidad disponible total nitrato
           </p>
-          <p className="text-2xl font-bold text-slate-800">
+          <p className="text-2xl font-bold text-amber-700">
             {capacidadDisponibleNitrato.toLocaleString("es-CL", {
               maximumFractionDigits: 2,
             })}{" "}

@@ -80,9 +80,9 @@ function SiloNitratoCard({
       </p>
 
       <div className="mt-5 grid grid-cols-2 gap-4">
-        <div className="bg-white p-4 rounded-xl border border-green-100">
-          <p className="text-sm text-slate-500">Stock toneladas</p>
-          <p className="text-2xl font-bold text-slate-800">
+        <div className="bg-white p-4 rounded-xl border border-amber-200 shadow-sm">
+          <p className="text-sm font-medium text-slate-500">Toneladas ocupadas</p>
+          <p className="text-2xl font-bold text-amber-600">
             {medicionValida
               ? datos.stockTon.toLocaleString("es-CL", {
                   maximumFractionDigits: 2,
@@ -92,9 +92,9 @@ function SiloNitratoCard({
           </p>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-amber-100">
-          <p className="text-sm text-slate-500">Capacidad disponible</p>
-          <p className="text-2xl font-bold text-slate-800">
+        <div className="bg-white p-4 rounded-xl border border-amber-200 shadow-sm">
+          <p className="text-sm font-medium text-slate-500">Capacidad disponible</p>
+          <p className="text-2xl font-bold text-amber-600">
             {medicionValida
               ? capacidadDisponibleTon.toLocaleString("es-CL", {
                   maximumFractionDigits: 2,
@@ -114,7 +114,7 @@ function SiloNitratoCard({
         />
       </div>
 
-      <p className="text-sm mt-2 text-slate-700 font-medium">
+      <p className="text-sm mt-2 text-amber-800 font-medium">
         Nivel ocupado: {medicionValida ? datos.porcentaje.toFixed(1) : "0.0"}%
       </p>
     </div>
