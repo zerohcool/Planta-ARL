@@ -1,50 +1,69 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import MateriaPrimaRow from "./MateriaPrimaRow";
+import { silosDisponiblesMMPP } from "../../config/silos";
+import {
+  obtenerFechaHoraActual,
+  crearFilaVaciaMMPP,
+} from "../../utils/materiasPrimas";
 
-function obtenerFechaHoraActual() {
-  const ahora = new Date();
+function IngresoMateriasPrimas({
+  ingresos: ingresosProp,
+  setIngresos: setIngresosProp,
+}) {
+  // Estado local de respaldo en caso de usarse de forma autónoma
+  const [ingresosLocales, setIngresosLocales] = useState(() => {
+    const guardados = localStorage.getItem("materiasPrimasPlantaARL");
+    if (guardados) {
+      try {
+        const parsed = JSON.parse(guardados);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      } catch (e) {
+        console.error("Error al leer materias primas guardadas:", e);
+      }
+    }
+    return [crearFilaVaciaMMPP()];
+  });
 
-  const dd = String(ahora.getDate()).padStart(2, "0");
-  const mm = String(ahora.getMonth() + 1).padStart(2, "0");
-  const yyyy = ahora.getFullYear();
-  const hh = String(ahora.getHours()).padStart(2, "0");
-  const min = String(ahora.getMinutes()).padStart(2, "0");
+  const ingresos = ingresosProp ?? ingresosLocales;
+  const setIngresos = setIngresosProp ?? setIngresosLocales;
 
-  return `${dd}-${mm}-${yyyy} ${hh}:${min}`;
-}
-
-function crearFilaVacia() {
-  return {
-    guia: "",
-    patenteCamion: "",
-    patenteEstanque: "",
-    material: "",
-    cantidadKg: "",
-    silo: "",
-    despachado: false,
-    despachadoFecha: "",
-  };
-}
-
-function IngresoMateriasPrimas() {
-  const [ingresos, setIngresos] = useState([crearFilaVacia()]);
+  // Persistencia local autónoma cuando no se controlan las props externamente
+  useEffect(() => {
+    if (!setIngresosProp) {
+      localStorage.setItem(
+        "materiasPrimasPlantaARL",
+        JSON.stringify(ingresosLocales),
+      );
+    }
+  }, [ingresosLocales, setIngresosProp]);
 
   const materialesDisponibles = ["Matriz", "Nitrato"];
-  const silosDisponibles = ["Silo Matriz", "Silo Nitrato", "Silo 3", "Silo 4"];
+  const silosDisponibles = silosDisponiblesMMPP;
 
   const agregarFila = () => {
-    setIngresos((prev) => [...prev, crearFilaVacia()]);
+    setIngresos((prev) => [...prev, crearFilaVaciaMMPP()]);
   };
 
   const eliminarFila = (index) => {
-    setIngresos((prev) => prev.filter((_, i) => i !== index));
+    setIngresos((prev) => {
+      const filtrados = prev.filter((_, i) => i !== index);
+      return filtrados.length > 0 ? filtrados : [crearFilaVaciaMMPP()];
+    });
+  };
+
+  const limpiarRegistros = () => {
+    const confirmar = window.confirm(
+      "¿Seguro que deseas limpiar la lista de ingresos de materias primas?",
+    );
+    if (!confirmar) return;
+    setIngresos([crearFilaVaciaMMPP()]);
   };
 
   const actualizarFila = (index, campo, valor) => {
     setIngresos((prev) =>
       prev.map((item, i) =>
-        i === index ? { ...item, [campo]: valor } : item
-      )
+        i === index ? { ...item, [campo]: valor } : item,
+      ),
     );
   };
 
@@ -60,7 +79,7 @@ function IngresoMateriasPrimas() {
           despachado: nuevoEstado,
           despachadoFecha: nuevoEstado ? obtenerFechaHoraActual() : "",
         };
-      })
+      }),
     );
   };
 
@@ -96,13 +115,22 @@ function IngresoMateriasPrimas() {
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={agregarFila}
-          className="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-lg font-medium transition"
-        >
-          Agregar
-        </button>
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={limpiarRegistros}
+            className="border border-slate-300 hover:bg-slate-100 text-slate-700 px-4 py-2 rounded-lg font-medium transition"
+          >
+            Limpiar registros
+          </button>
+          <button
+            type="button"
+            onClick={agregarFila}
+            className="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-lg font-medium transition"
+          >
+            + Agregar camión
+          </button>
+        </div>
       </div>
 
       <div className="space-y-4">

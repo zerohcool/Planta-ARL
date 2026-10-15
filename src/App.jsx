@@ -29,6 +29,7 @@ import SilosResumen from "./components/silos/SilosResumen";
 
 // Componentes Materias primas
 import IngresoMateriasPrimas from "./components/materias-primas/IngresoMateriasPrimas";
+import { crearFilaVaciaMMPP } from "./utils/materiasPrimas";
 
 function App() {
   // ========================================
@@ -107,6 +108,23 @@ function App() {
     localStorage.removeItem("calibracionesPlantaARL");
     setCalibraciones(calibracionesIniciales);
   };
+
+  // ========================================
+  // ESTADO DE INGRESO DE MATERIAS PRIMAS
+  // ========================================
+  // Se conserva en el estado raíz y en localStorage para evitar pérdidas al cambiar de sección o recargar
+  const [ingresosMMPP, setIngresosMMPP] = useState(() => {
+    const guardados = localStorage.getItem("materiasPrimasPlantaARL");
+    if (guardados) {
+      try {
+        const parsed = JSON.parse(guardados);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      } catch (error) {
+        console.error("Error al leer materias primas guardadas:", error);
+      }
+    }
+    return [crearFilaVaciaMMPP()];
+  });
 
   // ========================================
   // MEDICIONES DE TODOS LOS SILOS
@@ -202,6 +220,14 @@ function App() {
       JSON.stringify(calibraciones),
     );
   }, [calibraciones]);
+
+  // Cada vez que cambian los ingresos de materias primas, se guardan automáticamente
+  useEffect(() => {
+    localStorage.setItem(
+      "materiasPrimasPlantaARL",
+      JSON.stringify(ingresosMMPP),
+    );
+  }, [ingresosMMPP]);
 
   // ========================================
   // FUNCIÓN AUXILIAR: FORMATEAR FECHA
@@ -1918,7 +1944,12 @@ function App() {
               </div>
             </section>
           )}
-          {seccionActiva === "materias-primas" && <IngresoMateriasPrimas />}
+          {seccionActiva === "materias-primas" && (
+            <IngresoMateriasPrimas
+              ingresos={ingresosMMPP}
+              setIngresos={setIngresosMMPP}
+            />
+          )}
         </div>
       </main>
     </div>

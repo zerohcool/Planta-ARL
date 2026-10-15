@@ -3,21 +3,7 @@
 // ========================================
 import { calcularSiloMatriz } from "../../utils/silos/matriz";
 import { calcularSiloNitrato } from "../../utils/silos/nitrato";
-
-// ========================================
-// CONFIGURACIÓN DE TIPOS POR SILO
-// ========================================
-const configResumen = {
-  A1: "matriz",
-  A2: "nitrato",
-  A3: "nitrato",
-  B1: "matriz",
-  B2: "nitrato",
-  B3: "blank",
-  C1: "matriz",
-  C2: "matriz",
-  C3: "nitrato",
-};
+import { silosConfigResumen } from "../../config/silos";
 
 // ========================================
 // COMPONENTE RESUMEN GENERAL
@@ -34,7 +20,7 @@ function SilosResumen({
   let capacidadDisponibleNitrato = 0;
 
   // Recorremos todos los silos configurados
-  Object.entries(configResumen).forEach(([siloId, tipo]) => {
+  Object.entries(silosConfigResumen).forEach(([siloId, tipo]) => {
     if (tipo === "blank") return;
 
     const medicion = Number(medicionesSilos[siloId]);

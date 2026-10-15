@@ -93,11 +93,15 @@ function MateriaPrimaRow({
           className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
         >
           <option value="">Seleccione</option>
-          {silosDisponibles.map((silo, i) => (
-            <option key={i} value={silo}>
-              {silo}
-            </option>
-          ))}
+          {silosDisponibles.map((silo, i) => {
+            const valor = typeof silo === "object" ? silo.id : silo;
+            const etiqueta = typeof silo === "object" ? silo.label : silo;
+            return (
+              <option key={i} value={valor}>
+                {etiqueta}
+              </option>
+            );
+          })}
         </select>
       </div>
 

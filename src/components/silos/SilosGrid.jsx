@@ -4,28 +4,7 @@
 import SiloMatrizCard from "./SiloMatrizCard";
 import SiloNitratoCard from "./SiloNitratoCard";
 import EmptySiloCard from "./EmptySiloCard";
-
-// ========================================
-// CONFIGURACIÓN VISUAL DE LA GRILLA
-// ========================================
-// Esta matriz define el orden visual de los silos en pantalla.
-const silosConfig = [
-  [
-    { id: "C1", tipo: "matriz" },
-    { id: "B1", tipo: "matriz" },
-    { id: "A1", tipo: "matriz" },
-  ],
-  [
-    { id: "C2", tipo: "matriz" },
-    { id: "B2", tipo: "nitrato" },
-    { id: "A2", tipo: "nitrato" },
-  ],
-  [
-    { id: "C3", tipo: "nitrato" },
-    { id: "B3", tipo: "blank" },
-    { id: "A3", tipo: "nitrato" },
-  ],
-];
+import { silosLayoutGrid } from "../../config/silos";
 
 // ========================================
 // COMPONENTE PRINCIPAL DE LA GRILLA
@@ -38,7 +17,7 @@ function SilosGrid({
 }) {
   return (
     <div className="space-y-6">
-      {silosConfig.map((fila, filaIndex) => (
+      {silosLayoutGrid.map((fila, filaIndex) => (
         <div key={filaIndex} className="grid md:grid-cols-3 gap-6">
           {fila.map((silo) => {
             if (silo.tipo === "matriz") {

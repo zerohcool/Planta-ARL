@@ -1,23 +1,48 @@
 export function obtenerLitrosDesdeAltura(tabla, alturaIngresada) {
+  if (
+    alturaIngresada === "" ||
+    alturaIngresada === null ||
+    alturaIngresada === undefined
+  ) {
+    return 0;
+  }
+
   const altura = Number(alturaIngresada);
 
   if (!tabla || tabla.length === 0) return 0;
   if (isNaN(altura) || altura < 0) return 0;
 
+  // Coincidencia exacta
   const filaExacta = tabla.find((item) => item.altura === altura);
   if (filaExacta) return filaExacta.litros;
 
-  let filaMenor = null;
+  // Si la altura es menor o igual al primer registro de aforo
+  if (altura <= tabla[0].altura) {
+    return tabla[0].litros;
+  }
 
-  for (let i = 0; i < tabla.length; i++) {
-    if (tabla[i].altura <= altura) {
-      filaMenor = tabla[i];
-    } else {
-      break;
+  // Si la altura supera o iguala el aforo máximo registrado
+  const ultimoPunto = tabla[tabla.length - 1];
+  if (altura >= ultimoPunto.altura) {
+    return ultimoPunto.litros;
+  }
+
+  // Interpolación lineal entre cotas adyacentes
+  for (let i = 0; i < tabla.length - 1; i++) {
+    const p0 = tabla[i];
+    const p1 = tabla[i + 1];
+
+    if (altura > p0.altura && altura < p1.altura) {
+      const deltaAltura = p1.altura - p0.altura;
+      if (deltaAltura === 0) return p0.litros;
+
+      const factor = (altura - p0.altura) / deltaAltura;
+      const litrosInterpolados = p0.litros + factor * (p1.litros - p0.litros);
+      return Math.round(litrosInterpolados);
     }
   }
 
-  return filaMenor ? filaMenor.litros : 0;
+  return 0;
 }
 
 
