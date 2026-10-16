@@ -1016,30 +1016,6 @@ function App() {
               ref={reporteRef}
               className="space-y-8 bg-white p-6 rounded-2xl shadow border border-slate-200"
             >
-              {/* Cabecera visual del reporte */}
-              <div className="flex items-center justify-between gap-6 border-b border-slate-200 pb-6">
-                <div className="flex items-center gap-4">
-                  <img
-                    src={logo}
-                    alt="Logo empresa"
-                    className="h-16 w-auto object-contain"
-                  />
-                  <div>
-                    <h3 className="text-2xl font-bold text-slate-800">
-                      Reporte Operacional
-                    </h3>
-                    <p className="text-slate-500">Planta ARL</p>
-                  </div>
-                </div>
-
-                <div className="text-right">
-                  <p className="text-sm text-slate-500">Fecha informe</p>
-                  <p className="font-semibold text-slate-800">
-                    {formatearFecha(fechaInforme)}
-                  </p>
-                </div>
-              </div>
-
               {/* Datos generales del informe */}
               <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
                 <h3 className="text-2xl font-bold text-slate-800 mb-4">
@@ -1076,6 +1052,16 @@ function App() {
                       className={inputClass}
                     />
                   </div>
+                </div>
+              </div>
+
+              {/* Fecha del informe */}
+              <div className="flex justify-end items-center border-b border-slate-100 pb-2">
+                <div className="text-right">
+                  <p className="text-sm text-slate-500">Fecha informe</p>
+                  <p className="font-semibold text-slate-800 text-lg">
+                    {formatearFecha(fechaInforme)}
+                  </p>
                 </div>
               </div>
 
