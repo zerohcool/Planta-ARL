@@ -4,6 +4,10 @@
 // Función utilitaria que realiza todos los cálculos geométricos del silo nitrato
 import { calcularSiloNitrato } from "../../utils/silos/nitrato";
 
+// Iconos de estado Lleno / Vacío
+import iconoLleno from "../../assets/icons/Lleno.svg";
+import iconoVacio from "../../assets/icons/Vacio.svg";
+
 function SiloNitratoCard({
   titulo = "Silo Nitrato",
   medicion,
@@ -52,9 +56,12 @@ function SiloNitratoCard({
   // Capacidad disponible en toneladas
   const capacidadDisponibleTon = (datos.Vvac * datos.densidad) / 1000;
 
-  // Alternar entre medición mínima (0 m) y medición máxima (alturaMaxima)
+  // Determinar si el silo se encuentra lleno (medición en 0)
+  const estaLleno = medicion !== "" && Number(medicion) === 0;
+
+  // Alternar entre medición mínima (0 m, lleno) y medición máxima (alturaMaxima, vacío)
   const toggleMinMax = () => {
-    if (medicion !== "" && Number(medicion) === 0) {
+    if (estaLleno) {
       setMedicion(alturaMaxima.toFixed(2));
     } else {
       setMedicion("0");
@@ -83,22 +90,18 @@ function SiloNitratoCard({
         <button
           type="button"
           onClick={toggleMinMax}
-          title={`Alternar medición entre 0 m (lleno) y ${alturaMaxima.toFixed(2)} m (vacío)`}
-          className="p-3 bg-white hover:bg-amber-100 text-amber-700 border border-amber-300 rounded-lg transition shadow-sm flex items-center justify-center shrink-0 cursor-pointer"
+          title={
+            estaLleno
+              ? `Silo lleno (0 m). Clic para vaciar (${alturaMaxima.toFixed(2)} m)`
+              : `Silo vacío o parcial (${medicion || alturaMaxima.toFixed(2)} m). Clic para llenar (0 m)`
+          }
+          className="p-1.5 bg-white hover:bg-amber-100 border border-amber-300 rounded-lg transition shadow-sm flex items-center justify-center shrink-0 cursor-pointer h-[50px] w-[50px]"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="m7 15 5 5 5-5" />
-            <path d="m7 9 5-5 5 5" />
-          </svg>
+          <img
+            src={estaLleno ? iconoLleno : iconoVacio}
+            alt={estaLleno ? "Silo Lleno" : "Silo Vacío"}
+            className="w-8 h-8 object-contain transition-transform duration-200 active:scale-95"
+          />
         </button>
       </div>
 
