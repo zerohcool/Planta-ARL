@@ -16,7 +16,10 @@ import html2canvas from "html2canvas";
 // Recursos y datos del proyecto
 import logo from "./assets/logo.png";
 import { calibracionesIniciales } from "./data/calibraciones";
-import { obtenerLitrosDesdeAltura } from "./utils/calculos";
+import {
+  obtenerLitrosDesdeAltura,
+  obtenerAlturaDesdeLitros,
+} from "./utils/calculos";
 import EstanquesGrid from "./components/estanques/EstanquesGrid";
 
 // Imagenes de silos
@@ -58,9 +61,17 @@ function App() {
   const [fechaInforme, setFechaInforme] = useState(fechaHoy);
 
   // ========================================
-  // ESTADOS DE ALTURA DE ESTANQUES
+  // ESTADOS DE STOCK Y MEDICIÓN DE ESTANQUES
   // ========================================
-  // Alturas ingresadas manualmente por el usuario para cada estanque
+  // Modo de ingreso: "litros" (por defecto) o "altura" (medición en cm)
+  const [modoIngresoEstanques, setModoIngresoEstanques] = useState("litros");
+
+  // Litros ingresados directamente (modo litros)
+  const [litrosPetroleo, setLitrosPetroleo] = useState("");
+  const [litrosMezcla, setLitrosMezcla] = useState("");
+  const [litrosAceite, setLitrosAceite] = useState("");
+
+  // Alturas ingresadas manualmente en cm (modo altura)
   const [alturaPetroleo, setAlturaPetroleo] = useState("");
   const [alturaMezcla, setAlturaMezcla] = useState("");
   const [alturaAceite, setAlturaAceite] = useState("");
@@ -337,7 +348,7 @@ function App() {
   const validarFormularioAntesDeExportar = () => {
     if (!formularioValido) {
       alert(
-        "Debes completar correctamente el nombre del operador y las mediciones de los estanques antes de exportar el PDF.",
+        "Debes completar correctamente el nombre del operador y los valores de stock/medición de los estanques antes de exportar el PDF.",
       );
       return false;
     }
@@ -522,7 +533,7 @@ function App() {
     // Tarjetas de stock para cada estanque
     card(
       "Petróleo",
-      alturaPetroleo,
+      alturaReportePetroleo,
       stockPetroleo,
       dispPetroleo,
       nivelPetroleo,
@@ -530,7 +541,7 @@ function App() {
     );
     card(
       "Mezcla",
-      alturaMezcla,
+      alturaReporteMezcla,
       stockMezcla,
       dispMezcla,
       nivelMezcla,
@@ -538,7 +549,7 @@ function App() {
     );
     card(
       "Aceite Residual",
-      alturaAceite,
+      alturaReporteAceite,
       stockAceite,
       dispAceite,
       nivelAceite,
@@ -685,7 +696,7 @@ function App() {
     // Filas del resumen
     filaResumen(
       "Petróleo",
-      alturaPetroleo,
+      alturaReportePetroleo,
       stockPetroleo,
       Number(utilizadoPetroleo || 0).toLocaleString("es-CL", {
         maximumFractionDigits: 2,
@@ -696,7 +707,7 @@ function App() {
 
     filaResumen(
       "Mezcla",
-      alturaMezcla,
+      alturaReporteMezcla,
       stockMezcla,
       "-",
       Number(mezclaFabricada || 0).toLocaleString("es-CL", {
@@ -707,7 +718,7 @@ function App() {
 
     filaResumen(
       "Aceite",
-      alturaAceite,
+      alturaReporteAceite,
       stockAceite,
       Number(utilizadoAceite || 0).toLocaleString("es-CL", {
         maximumFractionDigits: 2,
@@ -743,28 +754,9 @@ function App() {
   };
 
   // ========================================
-  // CÁLCULO DE STOCK ACTUAL SEGÚN ALTURA
+  // CÁLCULO DE CAPACIDAD TOTAL Y ALTURA MÁXIMA POR ESTANQUE
   // ========================================
-  // Convierte la altura ingresada en litros usando la tabla de calibración
-  const stockPetroleo = obtenerLitrosDesdeAltura(
-    calibraciones.petroleo,
-    alturaPetroleo,
-  );
-
-  const stockMezcla = obtenerLitrosDesdeAltura(
-    calibraciones.mezcla,
-    alturaMezcla,
-  );
-
-  const stockAceite = obtenerLitrosDesdeAltura(
-    calibraciones.aceite,
-    alturaAceite,
-  );
-
-  // ========================================
-  // CÁLCULO DE CAPACIDAD TOTAL POR ESTANQUE
-  // ========================================
-  // Se toma el último valor de litros de cada tabla de calibración como capacidad máxima
+  // Se toma el último valor de cada tabla de calibración como capacidad y altura máxima
   const capPetroleo =
     calibraciones.petroleo.length > 0
       ? calibraciones.petroleo[calibraciones.petroleo.length - 1].litros
@@ -780,7 +772,6 @@ function App() {
       ? calibraciones.aceite[calibraciones.aceite.length - 1].litros
       : 0;
 
-  // Alturas máximas permitidas según calibración
   const maxAlturaPetroleo =
     calibraciones.petroleo.length > 0
       ? calibraciones.petroleo[calibraciones.petroleo.length - 1].altura
@@ -796,7 +787,130 @@ function App() {
       ? calibraciones.aceite[calibraciones.aceite.length - 1].altura
       : 0;
 
-  // Validaciones
+  // ========================================
+  // CÁLCULO DE STOCK SEGÚN MODO ACTIVO
+  // ========================================
+  // Si está en modo litros se usa el valor ingresado; si está en modo altura se calcula mediante la tabla
+  const stockPetroleo =
+    modoIngresoEstanques === "litros"
+      ? litrosPetroleo === ""
+        ? 0
+        : Number(litrosPetroleo) || 0
+      : obtenerLitrosDesdeAltura(calibraciones.petroleo, alturaPetroleo);
+
+  const stockMezcla =
+    modoIngresoEstanques === "litros"
+      ? litrosMezcla === ""
+        ? 0
+        : Number(litrosMezcla) || 0
+      : obtenerLitrosDesdeAltura(calibraciones.mezcla, alturaMezcla);
+
+  const stockAceite =
+    modoIngresoEstanques === "litros"
+      ? litrosAceite === ""
+        ? 0
+        : Number(litrosAceite) || 0
+      : obtenerLitrosDesdeAltura(calibraciones.aceite, alturaAceite);
+
+  // Alturas equivalentes estimadas desde litros (modo litros) o mediciones reales (modo altura)
+  const alturaEquivPetroleo =
+    modoIngresoEstanques === "litros"
+      ? litrosPetroleo !== ""
+        ? obtenerAlturaDesdeLitros(
+            calibraciones.petroleo,
+            Number(litrosPetroleo) || 0,
+          )
+        : 0
+      : alturaPetroleo;
+
+  const alturaEquivMezcla =
+    modoIngresoEstanques === "litros"
+      ? litrosMezcla !== ""
+        ? obtenerAlturaDesdeLitros(
+            calibraciones.mezcla,
+            Number(litrosMezcla) || 0,
+          )
+        : 0
+      : alturaMezcla;
+
+  const alturaEquivAceite =
+    modoIngresoEstanques === "litros"
+      ? litrosAceite !== ""
+        ? obtenerAlturaDesdeLitros(
+            calibraciones.aceite,
+            Number(litrosAceite) || 0,
+          )
+        : 0
+      : alturaAceite;
+
+  // Valores de altura a reportar en PDF y tabla resumen
+  const alturaReportePetroleo =
+    modoIngresoEstanques === "litros"
+      ? alturaEquivPetroleo
+      : alturaPetroleo || 0;
+  const alturaReporteMezcla =
+    modoIngresoEstanques === "litros" ? alturaEquivMezcla : alturaMezcla || 0;
+  const alturaReporteAceite =
+    modoIngresoEstanques === "litros" ? alturaEquivAceite : alturaAceite || 0;
+
+  // ========================================
+  // TOGGLE DE MODO DE INGRESO (CONVERSIÓN BIDIRECCIONAL)
+  // ========================================
+  const toggleModoIngresoEstanques = () => {
+    if (modoIngresoEstanques === "litros") {
+      // De litros a altura
+      if (litrosPetroleo !== "") {
+        const alt = obtenerAlturaDesdeLitros(
+          calibraciones.petroleo,
+          Number(litrosPetroleo) || 0,
+        );
+        setAlturaPetroleo(alt > 0 ? String(alt) : "");
+      }
+      if (litrosMezcla !== "") {
+        const alt = obtenerAlturaDesdeLitros(
+          calibraciones.mezcla,
+          Number(litrosMezcla) || 0,
+        );
+        setAlturaMezcla(alt > 0 ? String(alt) : "");
+      }
+      if (litrosAceite !== "") {
+        const alt = obtenerAlturaDesdeLitros(
+          calibraciones.aceite,
+          Number(litrosAceite) || 0,
+        );
+        setAlturaAceite(alt > 0 ? String(alt) : "");
+      }
+      setModoIngresoEstanques("altura");
+    } else {
+      // De altura a litros
+      if (alturaPetroleo !== "") {
+        const lts = obtenerLitrosDesdeAltura(
+          calibraciones.petroleo,
+          alturaPetroleo,
+        );
+        setLitrosPetroleo(lts > 0 ? String(lts) : "");
+      }
+      if (alturaMezcla !== "") {
+        const lts = obtenerLitrosDesdeAltura(
+          calibraciones.mezcla,
+          alturaMezcla,
+        );
+        setLitrosMezcla(lts > 0 ? String(lts) : "");
+      }
+      if (alturaAceite !== "") {
+        const lts = obtenerLitrosDesdeAltura(
+          calibraciones.aceite,
+          alturaAceite,
+        );
+        setLitrosAceite(lts > 0 ? String(lts) : "");
+      }
+      setModoIngresoEstanques("litros");
+    }
+  };
+
+  // ========================================
+  // VALIDACIONES
+  // ========================================
   const errorOperador = !operador.trim()
     ? "El nombre del operador es obligatorio."
     : "";
@@ -822,11 +936,32 @@ function App() {
         ? `La medición no puede superar ${maxAlturaAceite} cm.`
         : "";
 
+  const errorLitrosPetroleo =
+    litrosPetroleo === ""
+      ? "El stock de petróleo es obligatorio."
+      : Number(litrosPetroleo) > capPetroleo
+        ? `No puede superar ${capPetroleo.toLocaleString("es-CL")} L.`
+        : "";
+
+  const errorLitrosMezcla =
+    litrosMezcla === ""
+      ? "El stock de mezcla es obligatorio."
+      : Number(litrosMezcla) > capMezcla
+        ? `No puede superar ${capMezcla.toLocaleString("es-CL")} L.`
+        : "";
+
+  const errorLitrosAceite =
+    litrosAceite === ""
+      ? "El stock de aceite es obligatorio."
+      : Number(litrosAceite) > capAceite
+        ? `No puede superar ${capAceite.toLocaleString("es-CL")} L.`
+        : "";
+
   const formularioValido =
     !errorOperador &&
-    !errorAlturaPetroleo &&
-    !errorAlturaMezcla &&
-    !errorAlturaAceite;
+    (modoIngresoEstanques === "litros"
+      ? !errorLitrosPetroleo && !errorLitrosMezcla && !errorLitrosAceite
+      : !errorAlturaPetroleo && !errorAlturaMezcla && !errorAlturaAceite);
 
   // ========================================
   // CÁLCULO DE CAPACIDAD DISPONIBLE
@@ -1090,11 +1225,50 @@ function App() {
 
               {/* Tarjetas de stock por estanque */}
               <div>
-                <h3 className="text-2xl font-bold text-slate-800 mb-4">
-                  Stock
-                </h3>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+                  <div>
+                    <h3 className="text-2xl font-bold text-slate-800">
+                      Stock Planta ARL
+                    </h3>
+                    <p className="text-sm text-slate-500 mt-0.5">
+                      {modoIngresoEstanques === "litros"
+                        ? "Ingreso directo en litros. El sistema estima la cota/altura correspondiente."
+                        : "Ingreso por medición de altura en cm según tablas de calibración."}
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={toggleModoIngresoEstanques}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 border border-slate-300 rounded-xl font-medium shadow-sm transition text-sm cursor-pointer self-start sm:self-auto"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4 text-blue-600"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"
+                      />
+                    </svg>
+                    <span>
+                      Modo:{" "}
+                      <strong className="text-blue-600">
+                        {modoIngresoEstanques === "litros"
+                          ? "Directo (Litros)"
+                          : "Medición (Altura cm)"}
+                      </strong>
+                    </span>
+                  </button>
+                </div>
 
                 <EstanquesGrid
+                  modoIngreso={modoIngresoEstanques}
                   alturaPetroleo={alturaPetroleo}
                   setAlturaPetroleo={setAlturaPetroleo}
                   alturaMezcla={alturaMezcla}
@@ -1107,6 +1281,21 @@ function App() {
                   maxAlturaPetroleo={maxAlturaPetroleo}
                   maxAlturaMezcla={maxAlturaMezcla}
                   maxAlturaAceite={maxAlturaAceite}
+                  litrosPetroleo={litrosPetroleo}
+                  setLitrosPetroleo={setLitrosPetroleo}
+                  litrosMezcla={litrosMezcla}
+                  setLitrosMezcla={setLitrosMezcla}
+                  litrosAceite={litrosAceite}
+                  setLitrosAceite={setLitrosAceite}
+                  errorLitrosPetroleo={errorLitrosPetroleo}
+                  errorLitrosMezcla={errorLitrosMezcla}
+                  errorLitrosAceite={errorLitrosAceite}
+                  capPetroleo={capPetroleo}
+                  capMezcla={capMezcla}
+                  capAceite={capAceite}
+                  alturaEquivPetroleo={alturaEquivPetroleo}
+                  alturaEquivMezcla={alturaEquivMezcla}
+                  alturaEquivAceite={alturaEquivAceite}
                   stockPetroleo={stockPetroleo}
                   stockMezcla={stockMezcla}
                   stockAceite={stockAceite}
@@ -1157,41 +1346,43 @@ function App() {
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-6 mb-6">
-                    <div>
-                      <label className="block text-sm font-medium mb-1 text-slate-700">
+                    <div className="bg-emerald-50/40 p-4 rounded-xl border border-emerald-200">
+                      <label className="flex items-center gap-2 text-sm font-semibold mb-2 text-emerald-900">
+                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
                         Petróleo utilizado (L)
                       </label>
                       <input
                         type="number"
                         min="0"
-                        placeholder="Litros"
+                        placeholder="Litros de petróleo"
                         value={petroleoUsar}
                         onChange={(e) => setPetroleoUsar(e.target.value)}
-                        className={inputClass}
+                        className="w-full bg-white border border-emerald-300 rounded-lg p-3 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-500"
                       />
                     </div>
 
-                    <div>
-                      <label className="block text-sm font-medium mb-1 text-slate-700">
+                    <div className="bg-amber-50/40 p-4 rounded-xl border border-amber-200">
+                      <label className="flex items-center gap-2 text-sm font-semibold mb-2 text-amber-900">
+                        <span className="w-2.5 h-2.5 rounded-full bg-amber-600"></span>
                         Aceite utilizado (L)
                       </label>
                       <input
                         type="number"
                         min="0"
-                        placeholder="Litros"
+                        placeholder="Litros de aceite"
                         value={aceiteUsar}
                         onChange={(e) => setAceiteUsar(e.target.value)}
-                        className={inputClass}
+                        className="w-full bg-white border border-amber-300 rounded-lg p-3 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-200 focus:border-amber-500"
                       />
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-slate-50 border border-slate-200 p-4 rounded-xl">
-                    <div className="p-2">
-                      <p className="text-xs uppercase tracking-wider text-slate-500 font-semibold">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="p-4 rounded-xl bg-sky-50 border border-sky-200 shadow-sm">
+                      <p className="text-xs uppercase tracking-wider text-sky-700 font-semibold">
                         Mezcla fabricada
                       </p>
-                      <p className="text-xl font-bold text-slate-900 mt-1">
+                      <p className="text-2xl font-bold text-sky-950 mt-1">
                         {mezclaFabricada.toLocaleString("es-CL", {
                           maximumFractionDigits: 2,
                         })}{" "}
@@ -1199,20 +1390,20 @@ function App() {
                       </p>
                     </div>
 
-                    <div className="p-2 sm:border-l border-slate-200">
-                      <p className="text-xs uppercase tracking-wider text-slate-500 font-semibold">
+                    <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 shadow-sm">
+                      <p className="text-xs uppercase tracking-wider text-emerald-700 font-semibold">
                         % Petróleo
                       </p>
-                      <p className="text-xl font-bold text-slate-900 mt-1">
+                      <p className="text-2xl font-bold text-emerald-950 mt-1">
                         {porcPetroleoFabricado.toFixed(1)} %
                       </p>
                     </div>
 
-                    <div className="p-2 sm:border-l border-slate-200">
-                      <p className="text-xs uppercase tracking-wider text-slate-500 font-semibold">
+                    <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 shadow-sm">
+                      <p className="text-xs uppercase tracking-wider text-amber-700 font-semibold">
                         % Aceite
                       </p>
-                      <p className="text-xl font-bold text-slate-900 mt-1">
+                      <p className="text-2xl font-bold text-amber-950 mt-1">
                         {porcAceiteFabricado.toFixed(1)} %
                       </p>
                     </div>
@@ -1239,11 +1430,18 @@ function App() {
                       </tr>
                     </thead>
 
-                    <tbody className="text-slate-800">
-                      <tr className="border-b">
-                        <td className="py-3">Petróleo</td>
-                        <td>{alturaPetroleo || 0}</td>
-                        <td className="font-bold">
+                    <tbody className="text-slate-800 divide-y divide-slate-100">
+                      <tr className="hover:bg-emerald-50/20 transition-colors">
+                        <td className="py-3.5">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                            Petróleo
+                          </span>
+                        </td>
+                        <td className="text-slate-700 font-medium">
+                          {alturaReportePetroleo || 0}
+                        </td>
+                        <td className="font-bold text-slate-900">
                           {stockPetroleo.toLocaleString("es-CL")}
                         </td>
                         <td className="text-red-600 font-medium">
@@ -1251,33 +1449,47 @@ function App() {
                             maximumFractionDigits: 2,
                           })}
                         </td>
-                        <td className="text-green-600 font-medium">-</td>
-                        <td className="text-blue-600 font-medium">
+                        <td className="text-slate-400 font-medium">-</td>
+                        <td className="text-emerald-700 font-bold">
                           {dispPetroleo.toLocaleString("es-CL")}
                         </td>
                       </tr>
 
-                      <tr className="border-b">
-                        <td className="py-3">Mezcla</td>
-                        <td>{alturaMezcla || 0}</td>
-                        <td className="font-bold">
+                      <tr className="hover:bg-sky-50/20 transition-colors">
+                        <td className="py-3.5">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-sky-100 text-sky-800 border border-sky-200">
+                            <span className="w-2 h-2 rounded-full bg-sky-500"></span>
+                            Mezcla
+                          </span>
+                        </td>
+                        <td className="text-slate-700 font-medium">
+                          {alturaReporteMezcla || 0}
+                        </td>
+                        <td className="font-bold text-slate-900">
                           {stockMezcla.toLocaleString("es-CL")}
                         </td>
-                        <td className="text-red-600 font-medium">-</td>
-                        <td className="text-green-600 font-medium">
+                        <td className="text-slate-400 font-medium">-</td>
+                        <td className="text-sky-700 font-bold">
                           {mezclaFabricada.toLocaleString("es-CL", {
                             maximumFractionDigits: 2,
                           })}
                         </td>
-                        <td className="text-blue-600 font-medium">
+                        <td className="text-blue-700 font-bold">
                           {dispMezcla.toLocaleString("es-CL")}
                         </td>
                       </tr>
 
-                      <tr>
-                        <td className="py-3">Aceite</td>
-                        <td>{alturaAceite || 0}</td>
-                        <td className="font-bold">
+                      <tr className="hover:bg-amber-50/20 transition-colors">
+                        <td className="py-3.5">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-200">
+                            <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                            Aceite
+                          </span>
+                        </td>
+                        <td className="text-slate-700 font-medium">
+                          {alturaReporteAceite || 0}
+                        </td>
+                        <td className="font-bold text-slate-900">
                           {stockAceite.toLocaleString("es-CL")}
                         </td>
                         <td className="text-red-600 font-medium">
@@ -1285,8 +1497,8 @@ function App() {
                             maximumFractionDigits: 2,
                           })}
                         </td>
-                        <td className="text-green-600 font-medium">-</td>
-                        <td className="text-blue-600 font-medium">
+                        <td className="text-slate-400 font-medium">-</td>
+                        <td className="text-amber-700 font-bold">
                           {dispAceite.toLocaleString("es-CL")}
                         </td>
                       </tr>

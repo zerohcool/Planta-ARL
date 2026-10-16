@@ -45,6 +45,52 @@ export function obtenerLitrosDesdeAltura(tabla, alturaIngresada) {
   return 0;
 }
 
+export function obtenerAlturaDesdeLitros(tabla, litrosIngresados) {
+  if (
+    litrosIngresados === "" ||
+    litrosIngresados === null ||
+    litrosIngresados === undefined
+  ) {
+    return 0;
+  }
+
+  const litros = Number(litrosIngresados);
+
+  if (!tabla || tabla.length === 0) return 0;
+  if (isNaN(litros) || litros <= 0) return 0;
+
+  // Coincidencia exacta
+  const filaExacta = tabla.find((item) => item.litros === litros);
+  if (filaExacta) return filaExacta.altura;
+
+  // Si los litros son menores o iguales al primer punto
+  if (litros <= tabla[0].litros) {
+    return tabla[0].altura;
+  }
+
+  // Si los litros superan o igualan el aforo máximo
+  const ultimoPunto = tabla[tabla.length - 1];
+  if (litros >= ultimoPunto.litros) {
+    return ultimoPunto.altura;
+  }
+
+  // Interpolación lineal entre cotas de litros adyacentes
+  for (let i = 0; i < tabla.length - 1; i++) {
+    const p0 = tabla[i];
+    const p1 = tabla[i + 1];
+
+    if (litros > p0.litros && litros < p1.litros) {
+      const deltaLitros = p1.litros - p0.litros;
+      if (deltaLitros === 0) return p0.altura;
+
+      const factor = (litros - p0.litros) / deltaLitros;
+      const alturaInterpolada = p0.altura + factor * (p1.altura - p0.altura);
+      return Math.round(alturaInterpolada);
+    }
+  }
+
+  return 0;
+}
 
 export function parsearCSVCalibracion(textoCSV) {
   const lineas = textoCSV.trim().split("\n");

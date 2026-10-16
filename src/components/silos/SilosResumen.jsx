@@ -85,11 +85,13 @@ function SilosResumen({
       <div className="grid md:grid-cols-2 xl:grid-cols-5 gap-4">
         {/* Stock Matriz - Oscuro */}
         <div
-          className="rounded-xl p-4 shadow-sm border border-sky-400/30 text-white"
+          className="rounded-xl p-4 shadow-sm border border-sky-400/30 text-white min-w-0"
           style={{ backgroundColor: "rgb(75, 162, 227)" }}
         >
-          <p className="text-sm font-medium text-white/90">Stock total matriz</p>
-          <p className="text-2xl font-bold text-white">
+          <p className="text-sm font-medium text-white/90 whitespace-nowrap truncate" title="Stock total matriz">
+            Stock total matriz
+          </p>
+          <p className="text-2xl font-bold text-white mt-1">
             {stockTotalMatriz.toLocaleString("es-CL", {
               maximumFractionDigits: 2,
             })}{" "}
@@ -99,13 +101,13 @@ function SilosResumen({
 
         {/* Capacidad Matriz - Claro */}
         <div
-          className="rounded-xl p-4 shadow-sm border border-sky-200"
+          className="rounded-xl p-4 shadow-sm border border-sky-200 min-w-0"
           style={{ backgroundColor: "rgb(227, 241, 253)" }}
         >
-          <p className="text-sm font-medium text-sky-800">
-            Capacidad disponible total matriz
+          <p className="text-sm font-medium text-sky-800 whitespace-nowrap truncate" title="Capacidad total matriz">
+            Capacidad total matriz
           </p>
-          <p className="text-2xl font-bold text-sky-900">
+          <p className="text-2xl font-bold text-sky-900 mt-1">
             {capacidadDisponibleMatriz.toLocaleString("es-CL", {
               maximumFractionDigits: 2,
             })}{" "}
@@ -115,11 +117,13 @@ function SilosResumen({
 
         {/* Stock Nitrato - Oscuro */}
         <div
-          className="rounded-xl p-4 shadow-sm border border-amber-600/30 text-white"
+          className="rounded-xl p-4 shadow-sm border border-amber-600/30 text-white min-w-0"
           style={{ backgroundColor: "rgb(245, 158, 11)" }}
         >
-          <p className="text-sm font-medium text-white/90">Stock total nitrato</p>
-          <p className="text-2xl font-bold text-white">
+          <p className="text-sm font-medium text-white/90 whitespace-nowrap truncate" title="Stock total nitrato">
+            Stock total nitrato
+          </p>
+          <p className="text-2xl font-bold text-white mt-1">
             {stockTotalNitrato.toLocaleString("es-CL", {
               maximumFractionDigits: 2,
             })}{" "}
@@ -129,13 +133,13 @@ function SilosResumen({
 
         {/* Capacidad Nitrato - Claro */}
         <div
-          className="rounded-xl p-4 shadow-sm border border-amber-200"
+          className="rounded-xl p-4 shadow-sm border border-amber-200 min-w-0"
           style={{ backgroundColor: "rgb(254, 243, 199)" }}
         >
-          <p className="text-sm font-medium text-amber-800">
-            Capacidad disponible total nitrato
+          <p className="text-sm font-medium text-amber-800 whitespace-nowrap truncate" title="Capacidad total nitrato">
+            Capacidad total nitrato
           </p>
-          <p className="text-2xl font-bold text-amber-900">
+          <p className="text-2xl font-bold text-amber-900 mt-1">
             {capacidadDisponibleNitrato.toLocaleString("es-CL", {
               maximumFractionDigits: 2,
             })}{" "}
@@ -144,9 +148,11 @@ function SilosResumen({
         </div>
 
         {/* Stock Total Planta - Oscuro Neutral */}
-        <div className="bg-slate-800 border border-slate-700 text-white rounded-xl p-4 shadow-sm">
-          <p className="text-sm font-medium text-slate-300">Stock total planta</p>
-          <p className="text-2xl font-bold text-white">
+        <div className="bg-slate-800 border border-slate-700 text-white rounded-xl p-4 shadow-sm min-w-0">
+          <p className="text-sm font-medium text-slate-300 whitespace-nowrap truncate" title="Stock total planta">
+            Stock total planta
+          </p>
+          <p className="text-2xl font-bold text-white mt-1">
             {stockTotalPlanta.toLocaleString("es-CL", {
               maximumFractionDigits: 2,
             })}{" "}

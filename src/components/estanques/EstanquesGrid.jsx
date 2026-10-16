@@ -2,6 +2,8 @@ import EstanqueCard from "./EstanqueCard";
 import { estanquesConfig } from "../../config/estanques";
 
 function EstanquesGrid({
+  modoIngreso = "litros",
+  // Altura
   alturaPetroleo,
   setAlturaPetroleo,
   alturaMezcla,
@@ -14,6 +16,24 @@ function EstanquesGrid({
   maxAlturaPetroleo,
   maxAlturaMezcla,
   maxAlturaAceite,
+  // Litros
+  litrosPetroleo,
+  setLitrosPetroleo,
+  litrosMezcla,
+  setLitrosMezcla,
+  litrosAceite,
+  setLitrosAceite,
+  errorLitrosPetroleo,
+  errorLitrosMezcla,
+  errorLitrosAceite,
+  capPetroleo,
+  capMezcla,
+  capAceite,
+  // Estimaciones
+  alturaEquivPetroleo,
+  alturaEquivMezcla,
+  alturaEquivAceite,
+  // Valores calculados
   stockPetroleo,
   stockMezcla,
   stockAceite,
@@ -31,6 +51,11 @@ function EstanquesGrid({
       setAltura: setAlturaPetroleo,
       errorAltura: errorAlturaPetroleo,
       maxAltura: maxAlturaPetroleo,
+      litros: litrosPetroleo,
+      setLitros: setLitrosPetroleo,
+      errorLitros: errorLitrosPetroleo,
+      capTotal: capPetroleo,
+      alturaEquivalente: alturaEquivPetroleo,
       stock: stockPetroleo,
       disponible: dispPetroleo,
       nivel: nivelPetroleo,
@@ -40,6 +65,11 @@ function EstanquesGrid({
       setAltura: setAlturaMezcla,
       errorAltura: errorAlturaMezcla,
       maxAltura: maxAlturaMezcla,
+      litros: litrosMezcla,
+      setLitros: setLitrosMezcla,
+      errorLitros: errorLitrosMezcla,
+      capTotal: capMezcla,
+      alturaEquivalente: alturaEquivMezcla,
       stock: stockMezcla,
       disponible: dispMezcla,
       nivel: nivelMezcla,
@@ -49,6 +79,11 @@ function EstanquesGrid({
       setAltura: setAlturaAceite,
       errorAltura: errorAlturaAceite,
       maxAltura: maxAlturaAceite,
+      litros: litrosAceite,
+      setLitros: setLitrosAceite,
+      errorLitros: errorLitrosAceite,
+      capTotal: capAceite,
+      alturaEquivalente: alturaEquivAceite,
       stock: stockAceite,
       disponible: dispAceite,
       nivel: nivelAceite,
@@ -64,15 +99,22 @@ function EstanquesGrid({
           <EstanqueCard
             key={estanque.key}
             titulo={estanque.nombre}
+            modoIngreso={modoIngreso}
             altura={data.altura}
             setAltura={data.setAltura}
             errorAltura={data.errorAltura}
             maxAltura={data.maxAltura}
+            litros={data.litros}
+            setLitros={data.setLitros}
+            errorLitros={data.errorLitros}
+            capTotal={data.capTotal}
+            alturaEquivalente={data.alturaEquivalente}
             stock={data.stock}
             disponible={data.disponible}
             nivel={data.nivel}
             inputClass={inputClass}
             colorClasses={estanque.colorClasses}
+            colorIcono={estanque.colorIcono}
           />
         );
       })}
