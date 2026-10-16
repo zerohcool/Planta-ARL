@@ -47,8 +47,8 @@ function App() {
   // ========================================
   // ESTADOS DE NAVEGACIÓN
   // ========================================
-  // Controla qué sección del panel está visible: "inicio" o "calibraciones"
-  const [seccionActiva, setSeccionActiva] = useState("inicio");
+  // Controla qué sección del panel está visible: "silos", "materias-primas", "calibraciones" o "parametros-silos"
+  const [seccionActiva, setSeccionActiva] = useState("silos");
 
   // ========================================
   // ESTADOS DEL INFORME
@@ -72,6 +72,7 @@ function App() {
   const [mezclaObjetivo, setMezclaObjetivo] = useState("");
   const [porcPetroleo, setPorcPetroleo] = useState(30);
   const [porcAceite, setPorcAceite] = useState(70);
+  const [mostrarModalCalculadora, setMostrarModalCalculadora] = useState(false);
 
   // ========================================
   // ESTADOS DE REGISTRO DE FABRICACIÓN
@@ -934,13 +935,6 @@ function App() {
           </button>
 
           <button
-            onClick={() => setSeccionActiva("inicio")}
-            className={navButtonClass("inicio")}
-          >
-            Planta ARL
-          </button>
-
-          <button
             onClick={() => setSeccionActiva("calibraciones")}
             className={navButtonClass("calibraciones")}
           >
@@ -969,27 +963,30 @@ function App() {
       <main className="flex-1 p-8">
         <div className="max-w-7xl mx-auto">
           {/* Encabezado general del dashboard */}
-          <div className="mb-8 flex items-start justify-between gap-4">
+          <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <p className="text-sm text-slate-500">Dashboard</p>
-              <h2 className="text-4xl font-bold text-slate-800">
-                Control diario de estanques
+              <img
+                src={logo}
+                alt="Enaex"
+                className="h-10 w-auto object-contain mb-3"
+              />
+              <h2 className="text-3xl md:text-4xl font-bold text-slate-800">
+                Control diario de Materias Primas
               </h2>
               <p className="text-slate-500 mt-2">
-                Medición por altura, cálculo de mezcla, registro de fabricación
-                y gestión de calibraciones.
+                Medición por altura, cálculo de mezcla y registro de fabricación.
               </p>
             </div>
 
-            {/* Botones de exportación visibles solo en la sección principal */}
-            {seccionActiva === "inicio" && (
+            {/* Botones de exportación visibles en la sección de silos */}
+            {seccionActiva === "silos" && (
               <div className="flex gap-3">
                 <button
                   onClick={exportarPDF}
                   disabled={!formularioValido}
                   className={`px-5 py-3 rounded-xl shadow transition whitespace-nowrap text-white ${
                     formularioValido
-                      ? "bg-red-600 hover:bg-red-700"
+                      ? "bg-red-600 hover:bg-red-700 cursor-pointer"
                       : "bg-red-300 cursor-not-allowed"
                   }`}
                 >
@@ -1001,7 +998,7 @@ function App() {
                   disabled={!formularioValido}
                   className={`px-5 py-3 rounded-xl shadow transition whitespace-nowrap text-white ${
                     formularioValido
-                      ? "bg-slate-800 hover:bg-slate-900"
+                      ? "bg-slate-800 hover:bg-slate-900 cursor-pointer"
                       : "bg-slate-400 cursor-not-allowed"
                   }`}
                 >
@@ -1012,9 +1009,9 @@ function App() {
           </div>
 
           {/* ========================================
-              SECCIÓN PRINCIPAL DEL REPORTE
+              SECCIÓN PRINCIPAL DEL REPORTE UNIFICADO (SILOS)
           ======================================== */}
-          {seccionActiva === "inicio" && (
+          {seccionActiva === "silos" && (
             <section
               ref={reporteRef}
               className="space-y-8 bg-white p-6 rounded-2xl shadow border border-slate-200"
@@ -1082,6 +1079,29 @@ function App() {
                 </div>
               </div>
 
+              {/* Silos de Matriz y Nitrato */}
+              <div>
+                <h3 className="text-2xl font-bold text-slate-800 mb-2">Silos</h3>
+                <p className="text-slate-500 mb-6">
+                  Visualización general de los silos de Matriz y Nitrato. Cada
+                  tarjeta calcula stock y capacidad disponible en toneladas según
+                  la medición ingresada y los parámetros configurados.
+                </p>
+
+                <SilosGrid
+                  medicionesSilos={medicionesSilos}
+                  actualizarMedicionSilo={actualizarMedicionSilo}
+                  parametrosMatriz={parametrosMatriz}
+                  parametrosNitrato={parametrosNitrato}
+                />
+
+                <SilosResumen
+                  medicionesSilos={medicionesSilos}
+                  parametrosMatriz={parametrosMatriz}
+                  parametrosNitrato={parametrosNitrato}
+                />
+              </div>
+
               {/* Tarjetas de stock por estanque */}
               <div>
                 <h3 className="text-2xl font-bold text-slate-800 mb-4">
@@ -1114,157 +1134,100 @@ function App() {
                 />
               </div>
 
-              {/* Calculadora teórica + registro real de fabricación */}
+              {/* Registro real de fabricación a lo largo con botón de Calculadora de Mezcla */}
               <div>
-                <h3 className="text-2xl font-bold text-slate-800 mb-4">
-                  Calculadora y Registro de Fabricación
-                </h3>
-
-                <div className="grid md:grid-cols-2 gap-6">
-                  {/* Calculadora teórica */}
-                  <div className="bg-white p-6 rounded-2xl shadow border border-slate-200">
-                    <h4 className="text-lg font-semibold mb-4 text-slate-800">
-                      Calculadora de Mezcla
-                    </h4>
-
-                    <p className="text-sm font-medium mb-1 text-slate-700">
-                      Cantidad de mezcla a fabricar (L)
-                    </p>
-
-                    <input
-                      type="number"
-                      min="0"
-                      placeholder="Litros"
-                      value={mezclaObjetivo}
-                      onChange={(e) => setMezclaObjetivo(e.target.value)}
-                      className={`${inputClass} mb-4`}
-                    />
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-sm mb-1 text-slate-700">
-                          % Petróleo
-                        </p>
-                        <input
-                          type="number"
-                          min="0"
-                          max="100"
-                          value={porcPetroleo}
-                          onChange={(e) =>
-                            setPorcPetroleo(Number(e.target.value))
-                          }
-                          className={inputClass}
-                        />
-                      </div>
-
-                      <div>
-                        <p className="text-sm mb-1 text-slate-700">% Aceite</p>
-                        <input
-                          type="number"
-                          min="0"
-                          max="100"
-                          value={porcAceite}
-                          onChange={(e) =>
-                            setPorcAceite(Number(e.target.value))
-                          }
-                          className={inputClass}
-                        />
-                      </div>
+                <div className="bg-white p-6 rounded-2xl shadow border border-slate-200">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 pb-4 border-b border-slate-100">
+                    <div>
+                      <h4 className="text-xl font-bold text-slate-800">
+                        Registro de Fabricación
+                      </h4>
+                      <p className="text-sm text-slate-500 mt-1">
+                        Litros reales utilizados en la fabricación de mezcla.
+                      </p>
                     </div>
 
-                    <p className="mt-3 text-sm text-slate-600">
-                      Suma de porcentajes:{" "}
-                      <strong
-                        className={
-                          porcentajesValidos ? "text-green-600" : "text-red-600"
-                        }
+                    <button
+                      type="button"
+                      onClick={() => setMostrarModalCalculadora(true)}
+                      className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl font-medium shadow-sm transition text-sm cursor-pointer self-start sm:self-auto"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
                       >
-                        {sumaPorcentajes}%
-                      </strong>
-                    </p>
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                        />
+                      </svg>
+                      Calculadora de Mezcla
+                    </button>
+                  </div>
 
-                    {!porcentajesValidos && (
-                      <p className="mt-2 text-sm text-red-600 font-medium">
-                        Los porcentajes deben sumar exactamente 100%.
-                      </p>
-                    )}
+                  <div className="grid md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                      <label className="block text-sm font-medium mb-1 text-slate-700">
+                        Petróleo utilizado (L)
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        placeholder="Litros"
+                        value={petroleoUsar}
+                        onChange={(e) => setPetroleoUsar(e.target.value)}
+                        className={inputClass}
+                      />
+                    </div>
 
-                    <div className="grid grid-cols-2 gap-4 mt-4">
-                      <div className="bg-blue-50 border border-blue-100 p-4 rounded-xl">
-                        <p className="text-slate-600">Petróleo necesario</p>
-                        <p className="text-2xl font-bold text-slate-800">
-                          {petroleoNecesarioCalc.toLocaleString("es-CL", {
-                            maximumFractionDigits: 2,
-                          })}{" "}
-                          L
-                        </p>
-                      </div>
-
-                      <div className="bg-yellow-50 border border-yellow-100 p-4 rounded-xl">
-                        <p className="text-slate-600">Aceite necesario</p>
-                        <p className="text-2xl font-bold text-slate-800">
-                          {aceiteNecesarioCalc.toLocaleString("es-CL", {
-                            maximumFractionDigits: 2,
-                          })}{" "}
-                          L
-                        </p>
-                      </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1 text-slate-700">
+                        Aceite utilizado (L)
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        placeholder="Litros"
+                        value={aceiteUsar}
+                        onChange={(e) => setAceiteUsar(e.target.value)}
+                        className={inputClass}
+                      />
                     </div>
                   </div>
 
-                  {/* Registro real de fabricación */}
-                  <div className="bg-white p-6 rounded-2xl shadow border border-slate-200">
-                    <h4 className="text-lg font-semibold mb-4 text-slate-800">
-                      Registro de Fabricación
-                    </h4>
-
-                    <p className="text-sm mb-1 text-slate-700">
-                      Petróleo utilizado (L)
-                    </p>
-                    <input
-                      type="number"
-                      min="0"
-                      placeholder="Litros"
-                      value={petroleoUsar}
-                      onChange={(e) => setPetroleoUsar(e.target.value)}
-                      className={`${inputClass} mb-3`}
-                    />
-
-                    <p className="text-sm mb-1 text-slate-700">
-                      Aceite utilizado (L)
-                    </p>
-                    <input
-                      type="number"
-                      min="0"
-                      placeholder="Litros"
-                      value={aceiteUsar}
-                      onChange={(e) => setAceiteUsar(e.target.value)}
-                      className={inputClass}
-                    />
-
-                    <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl mt-4">
-                      <p className="text-slate-700">
-                        Mezcla fabricada:
-                        <strong className="ml-2 text-slate-900">
-                          {mezclaFabricada.toLocaleString("es-CL", {
-                            maximumFractionDigits: 2,
-                          })}{" "}
-                          L
-                        </strong>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-slate-50 border border-slate-200 p-4 rounded-xl">
+                    <div className="p-2">
+                      <p className="text-xs uppercase tracking-wider text-slate-500 font-semibold">
+                        Mezcla fabricada
                       </p>
-
-                      <p className="text-slate-700">
-                        % Petróleo:
-                        <strong className="ml-2 text-slate-900">
-                          {porcPetroleoFabricado.toFixed(1)} %
-                        </strong>
+                      <p className="text-xl font-bold text-slate-900 mt-1">
+                        {mezclaFabricada.toLocaleString("es-CL", {
+                          maximumFractionDigits: 2,
+                        })}{" "}
+                        L
                       </p>
+                    </div>
 
-                      <p className="text-slate-700">
-                        % Aceite:
-                        <strong className="ml-2 text-slate-900">
-                          {porcAceiteFabricado.toFixed(1)} %
-                        </strong>
+                    <div className="p-2 sm:border-l border-slate-200">
+                      <p className="text-xs uppercase tracking-wider text-slate-500 font-semibold">
+                        % Petróleo
+                      </p>
+                      <p className="text-xl font-bold text-slate-900 mt-1">
+                        {porcPetroleoFabricado.toFixed(1)} %
+                      </p>
+                    </div>
+
+                    <div className="p-2 sm:border-l border-slate-200">
+                      <p className="text-xs uppercase tracking-wider text-slate-500 font-semibold">
+                        % Aceite
+                      </p>
+                      <p className="text-xl font-bold text-slate-900 mt-1">
+                        {porcAceiteFabricado.toFixed(1)} %
                       </p>
                     </div>
                   </div>
@@ -1476,30 +1439,6 @@ function App() {
             </section>
           )}
 
-          {seccionActiva === "silos" && (
-            <section>
-              <h3 className="text-2xl font-bold text-slate-800 mb-4">Silos</h3>
-
-              <p className="text-slate-500 mb-6">
-                Visualización general de los silos de Matriz y Nitrato. Cada
-                tarjeta calcula stock y capacidad disponible en toneladas según
-                la medición ingresada y los parámetros configurados.
-              </p>
-
-              <SilosGrid
-                medicionesSilos={medicionesSilos}
-                actualizarMedicionSilo={actualizarMedicionSilo}
-                parametrosMatriz={parametrosMatriz}
-                parametrosNitrato={parametrosNitrato}
-              />
-
-              <SilosResumen
-                medicionesSilos={medicionesSilos}
-                parametrosMatriz={parametrosMatriz}
-                parametrosNitrato={parametrosNitrato}
-              />
-            </section>
-          )}
 
           {seccionActiva === "parametros-silos" && (
             <section>
@@ -1952,6 +1891,187 @@ function App() {
           )}
         </div>
       </main>
+
+      {/* ========================================
+          MODAL: CALCULADORA DE MEZCLA
+      ======================================== */}
+      {mostrarModalCalculadora && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
+            {/* Cabecera del modal */}
+            <div className="flex items-center justify-between p-6 border-b border-slate-100 bg-slate-50">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <h4 className="text-xl font-bold text-slate-800">
+                    Calculadora de Mezcla
+                  </h4>
+                  <p className="text-xs text-slate-500">
+                    Cálculo teórico de proporciones para fabricación
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setMostrarModalCalculadora(false)}
+                className="text-slate-400 hover:text-slate-600 p-2 rounded-lg hover:bg-slate-200 transition cursor-pointer"
+                aria-label="Cerrar modal"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            {/* Cuerpo del modal */}
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-semibold mb-1 text-slate-700">
+                  Cantidad de mezcla a fabricar (L)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="Litros objetivo"
+                  value={mezclaObjetivo}
+                  onChange={(e) => setMezclaObjetivo(e.target.value)}
+                  className={inputClass}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold mb-1 text-slate-700">
+                    % Petróleo
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={porcPetroleo}
+                    onChange={(e) => setPorcPetroleo(Number(e.target.value))}
+                    className={inputClass}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold mb-1 text-slate-700">
+                    % Aceite
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={porcAceite}
+                    onChange={(e) => setPorcAceite(Number(e.target.value))}
+                    className={inputClass}
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between text-sm py-2 px-3 bg-slate-50 rounded-lg border border-slate-100">
+                <span className="text-slate-600">Suma de porcentajes:</span>
+                <span
+                  className={`font-bold ${
+                    porcentajesValidos ? "text-green-600" : "text-red-600"
+                  }`}
+                >
+                  {sumaPorcentajes}%
+                </span>
+              </div>
+
+              {!porcentajesValidos && (
+                <p className="text-xs text-red-600 font-medium">
+                  Los porcentajes deben sumar exactamente 100%.
+                </p>
+              )}
+
+              <div className="grid grid-cols-2 gap-4 pt-2">
+                <div className="bg-blue-50 border border-blue-100 p-4 rounded-xl">
+                  <p className="text-xs text-blue-600 font-medium">
+                    Petróleo necesario
+                  </p>
+                  <p className="text-xl font-bold text-slate-800 mt-1">
+                    {petroleoNecesarioCalc.toLocaleString("es-CL", {
+                      maximumFractionDigits: 2,
+                    })}{" "}
+                    L
+                  </p>
+                </div>
+
+                <div className="bg-amber-50 border border-amber-100 p-4 rounded-xl">
+                  <p className="text-xs text-amber-600 font-medium">
+                    Aceite necesario
+                  </p>
+                  <p className="text-xl font-bold text-slate-800 mt-1">
+                    {aceiteNecesarioCalc.toLocaleString("es-CL", {
+                      maximumFractionDigits: 2,
+                    })}{" "}
+                    L
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Pie del modal */}
+            <div className="flex items-center justify-end gap-3 p-6 bg-slate-50 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setMostrarModalCalculadora(false)}
+                className="px-4 py-2 text-sm text-slate-600 hover:text-slate-800 hover:bg-slate-200 rounded-xl transition cursor-pointer"
+              >
+                Cerrar
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  if (mezclaObjetivo && porcentajesValidos) {
+                    setPetroleoUsar(petroleoNecesarioCalc);
+                    setAceiteUsar(aceiteNecesarioCalc);
+                  }
+                  setMostrarModalCalculadora(false);
+                }}
+                disabled={!mezclaObjetivo || !porcentajesValidos}
+                className={`px-4 py-2 text-sm font-medium rounded-xl text-white shadow-sm transition ${
+                  mezclaObjetivo && porcentajesValidos
+                    ? "bg-blue-600 hover:bg-blue-700 cursor-pointer"
+                    : "bg-slate-400 cursor-not-allowed"
+                }`}
+              >
+                Aplicar a Fabricación
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -83,9 +83,13 @@ function SilosResumen({
       </h4>
 
       <div className="grid md:grid-cols-2 xl:grid-cols-5 gap-4">
-        <div className="bg-sky-50 border border-sky-200 rounded-xl p-4">
-          <p className="text-sm font-medium text-slate-500">Stock total matriz</p>
-          <p className="text-2xl font-bold text-sky-700">
+        {/* Stock Matriz - Oscuro */}
+        <div
+          className="rounded-xl p-4 shadow-sm border border-sky-400/30 text-white"
+          style={{ backgroundColor: "rgb(75, 162, 227)" }}
+        >
+          <p className="text-sm font-medium text-white/90">Stock total matriz</p>
+          <p className="text-2xl font-bold text-white">
             {stockTotalMatriz.toLocaleString("es-CL", {
               maximumFractionDigits: 2,
             })}{" "}
@@ -93,11 +97,15 @@ function SilosResumen({
           </p>
         </div>
 
-        <div className="bg-sky-50 border border-sky-200 rounded-xl p-4">
-          <p className="text-sm font-medium text-slate-500">
+        {/* Capacidad Matriz - Claro */}
+        <div
+          className="rounded-xl p-4 shadow-sm border border-sky-200"
+          style={{ backgroundColor: "rgb(227, 241, 253)" }}
+        >
+          <p className="text-sm font-medium text-sky-800">
             Capacidad disponible total matriz
           </p>
-          <p className="text-2xl font-bold text-sky-700">
+          <p className="text-2xl font-bold text-sky-900">
             {capacidadDisponibleMatriz.toLocaleString("es-CL", {
               maximumFractionDigits: 2,
             })}{" "}
@@ -105,9 +113,13 @@ function SilosResumen({
           </p>
         </div>
 
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-          <p className="text-sm font-medium text-slate-500">Stock total nitrato</p>
-          <p className="text-2xl font-bold text-amber-700">
+        {/* Stock Nitrato - Oscuro */}
+        <div
+          className="rounded-xl p-4 shadow-sm border border-amber-600/30 text-white"
+          style={{ backgroundColor: "rgb(245, 158, 11)" }}
+        >
+          <p className="text-sm font-medium text-white/90">Stock total nitrato</p>
+          <p className="text-2xl font-bold text-white">
             {stockTotalNitrato.toLocaleString("es-CL", {
               maximumFractionDigits: 2,
             })}{" "}
@@ -115,11 +127,15 @@ function SilosResumen({
           </p>
         </div>
 
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-          <p className="text-sm font-medium text-slate-500">
+        {/* Capacidad Nitrato - Claro */}
+        <div
+          className="rounded-xl p-4 shadow-sm border border-amber-200"
+          style={{ backgroundColor: "rgb(254, 243, 199)" }}
+        >
+          <p className="text-sm font-medium text-amber-800">
             Capacidad disponible total nitrato
           </p>
-          <p className="text-2xl font-bold text-amber-700">
+          <p className="text-2xl font-bold text-amber-900">
             {capacidadDisponibleNitrato.toLocaleString("es-CL", {
               maximumFractionDigits: 2,
             })}{" "}
@@ -127,9 +143,10 @@ function SilosResumen({
           </p>
         </div>
 
-        <div className="bg-slate-100 border border-slate-200 rounded-xl p-4">
-          <p className="text-sm text-slate-500">Stock total planta</p>
-          <p className="text-2xl font-bold text-slate-800">
+        {/* Stock Total Planta - Oscuro Neutral */}
+        <div className="bg-slate-800 border border-slate-700 text-white rounded-xl p-4 shadow-sm">
+          <p className="text-sm font-medium text-slate-300">Stock total planta</p>
+          <p className="text-2xl font-bold text-white">
             {stockTotalPlanta.toLocaleString("es-CL", {
               maximumFractionDigits: 2,
             })}{" "}

@@ -52,24 +52,55 @@ function SiloNitratoCard({
   // Capacidad disponible en toneladas
   const capacidadDisponibleTon = (datos.Vvac * datos.densidad) / 1000;
 
+  // Alternar entre medición mínima (0 m) y medición máxima (alturaMaxima)
+  const toggleMinMax = () => {
+    if (medicion !== "" && Number(medicion) === 0) {
+      setMedicion(alturaMaxima.toFixed(2));
+    } else {
+      setMedicion("0");
+    }
+  };
+
   return (
     <div className="bg-amber-50 p-6 rounded-2xl shadow border border-amber-200">
       <h4 className="text-xl font-bold text-slate-800 mb-1">{titulo}</h4>
       <p className="text-sm text-amber-700 font-medium mb-4">Tipo: Nitrato</p>
 
       <p className="text-sm text-slate-600 mb-1">Distancia vacía medida (m)</p>
-      <input
-        type="number"
-        step="0.01"
-        value={medicion}
-        onChange={(e) => setMedicion(e.target.value)}
-        placeholder="Ingrese medición"
-        className={`w-full border rounded-lg p-3 focus:outline-none focus:ring-2 bg-white ${
-          errorMedicion
-            ? "border-red-500 focus:ring-red-200 focus:border-red-500"
-            : "border-amber-200 focus:ring-amber-200 focus:border-amber-400"
-        }`}
-      />
+      <div className="flex gap-2 items-center">
+        <input
+          type="number"
+          step="0.01"
+          value={medicion}
+          onChange={(e) => setMedicion(e.target.value)}
+          placeholder="Ingrese medición"
+          className={`flex-1 border rounded-lg p-3 focus:outline-none focus:ring-2 bg-white ${
+            errorMedicion
+              ? "border-red-500 focus:ring-red-200 focus:border-red-500"
+              : "border-amber-200 focus:ring-amber-200 focus:border-amber-400"
+          }`}
+        />
+        <button
+          type="button"
+          onClick={toggleMinMax}
+          title={`Alternar medición entre 0 m (lleno) y ${alturaMaxima.toFixed(2)} m (vacío)`}
+          className="p-3 bg-white hover:bg-amber-100 text-amber-700 border border-amber-300 rounded-lg transition shadow-sm flex items-center justify-center shrink-0 cursor-pointer"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="m7 15 5 5 5-5" />
+            <path d="m7 9 5-5 5 5" />
+          </svg>
+        </button>
+      </div>
 
       {errorMedicion && (
         <p className="mt-2 text-sm text-red-600 font-medium">{errorMedicion}</p>
@@ -79,13 +110,15 @@ function SiloNitratoCard({
         Altura total del silo: {alturaMaxima.toFixed(2)} m
       </p>
 
-      <div className="mt-5 grid grid-cols-2 gap-4">
+      <div className="mt-5 grid grid-cols-2 gap-3 sm:gap-4">
         <div
-          className="p-4 rounded-xl shadow-sm border border-amber-600/30 text-white"
+          className="p-3 sm:p-4 rounded-xl shadow-sm border border-amber-600/30 text-white min-w-0"
           style={{ backgroundColor: "rgb(245, 158, 11)" }}
         >
-          <p className="text-sm font-medium text-white/90">Toneladas ocupadas</p>
-          <p className="text-2xl font-bold text-white">
+          <p className="text-xs sm:text-sm font-medium text-white/90 whitespace-nowrap truncate">
+            Toneladas ocupadas
+          </p>
+          <p className="text-xl sm:text-2xl font-bold text-white whitespace-nowrap truncate mt-1">
             {medicionValida
               ? datos.stockTon.toLocaleString("es-CL", {
                   maximumFractionDigits: 2,
@@ -96,11 +129,13 @@ function SiloNitratoCard({
         </div>
 
         <div
-          className="p-4 rounded-xl shadow-sm border border-amber-200"
+          className="p-3 sm:p-4 rounded-xl shadow-sm border border-amber-200 min-w-0"
           style={{ backgroundColor: "rgb(254, 243, 199)" }}
         >
-          <p className="text-sm font-medium text-amber-800">Capacidad disponible</p>
-          <p className="text-2xl font-bold text-amber-900">
+          <p className="text-xs sm:text-sm font-medium text-amber-800 whitespace-nowrap truncate">
+            Capacidad disponible
+          </p>
+          <p className="text-xl sm:text-2xl font-bold text-amber-900 whitespace-nowrap truncate mt-1">
             {medicionValida
               ? capacidadDisponibleTon.toLocaleString("es-CL", {
                   maximumFractionDigits: 2,
