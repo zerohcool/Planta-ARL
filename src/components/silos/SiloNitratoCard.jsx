@@ -4,9 +4,8 @@
 // Función utilitaria que realiza todos los cálculos geométricos del silo nitrato
 import { calcularSiloNitrato } from "../../utils/silos/nitrato";
 
-// Iconos de estado Lleno / Vacío
-import iconoLleno from "../../assets/icons/Lleno.svg";
-import iconoVacio from "../../assets/icons/Vacio.svg";
+// Iconos vectoriales de estado Lleno / Vacío
+import { IconoLleno, IconoVacio } from "./SiloGaugeIcons";
 
 function SiloNitratoCard({
   titulo = "Silo Nitrato",
@@ -96,12 +95,13 @@ function SiloNitratoCard({
               : `Silo vacío o parcial (${medicion || alturaMaxima.toFixed(2)} m). Clic para llenar (0 m)`
           }
           className="p-1.5 bg-white hover:bg-amber-100 border border-amber-300 rounded-lg transition shadow-sm flex items-center justify-center shrink-0 cursor-pointer h-[50px] w-[50px]"
+          style={{ color: "rgb(245, 158, 11)" }}
         >
-          <img
-            src={estaLleno ? iconoLleno : iconoVacio}
-            alt={estaLleno ? "Silo Lleno" : "Silo Vacío"}
-            className="w-8 h-8 object-contain transition-transform duration-200 active:scale-95"
-          />
+          {estaLleno ? (
+            <IconoLleno className="w-8 h-8 transition-transform duration-200 active:scale-95" />
+          ) : (
+            <IconoVacio className="w-8 h-8 transition-transform duration-200 active:scale-95" />
+          )}
         </button>
       </div>
 

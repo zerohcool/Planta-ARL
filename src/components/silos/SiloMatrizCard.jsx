@@ -4,9 +4,8 @@
 // Función utilitaria que realiza todos los cálculos geométricos del silo matriz
 import { calcularSiloMatriz } from "../../utils/silos/matriz";
 
-// Iconos de estado Lleno / Vacío
-import iconoLleno from "../../assets/icons/Lleno.svg";
-import iconoVacio from "../../assets/icons/Vacio.svg";
+// Iconos vectoriales de estado Lleno / Vacío
+import { IconoLleno, IconoVacio } from "./SiloGaugeIcons";
 
 function SiloMatrizCard({
   titulo = "Silo Matriz",
@@ -85,12 +84,13 @@ function SiloMatrizCard({
               : `Silo vacío o parcial (${medicion || alturaMaxima.toFixed(2)} m). Clic para llenar (0 m)`
           }
           className="p-1.5 bg-white hover:bg-sky-100 border border-sky-300 rounded-lg transition shadow-sm flex items-center justify-center shrink-0 cursor-pointer h-[50px] w-[50px]"
+          style={{ color: "rgb(75, 162, 227)" }}
         >
-          <img
-            src={estaLleno ? iconoLleno : iconoVacio}
-            alt={estaLleno ? "Silo Lleno" : "Silo Vacío"}
-            className="w-8 h-8 object-contain transition-transform duration-200 active:scale-95"
-          />
+          {estaLleno ? (
+            <IconoLleno className="w-8 h-8 transition-transform duration-200 active:scale-95" />
+          ) : (
+            <IconoVacio className="w-8 h-8 transition-transform duration-200 active:scale-95" />
+          )}
         </button>
       </div>
 
