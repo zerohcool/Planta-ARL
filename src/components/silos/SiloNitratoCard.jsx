@@ -40,12 +40,15 @@ function SiloNitratoCard({
   // Altura máxima del silo
   const alturaMaxima = datos.Htot;
 
+  // Límite mínimo operativo: nunca menos de 0.5 m debido a la pirámide de llenado y ubicación de escotilla
+  const medicionMinima = 0.5;
+
   // Validaciones
   const errorMedicion =
     medicion === ""
       ? "La medición es obligatoria."
-      : Number(medicion) < 0
-        ? "La medición no puede ser negativa."
+      : Number(medicion) < medicionMinima
+        ? `La medición no puede ser menor a ${medicionMinima} m (límite por cono de llenado y escotilla).`
         : Number(medicion) > alturaMaxima
           ? `La medición no puede superar ${alturaMaxima.toFixed(2)} m.`
           : "";
@@ -55,15 +58,15 @@ function SiloNitratoCard({
   // Capacidad disponible en toneladas
   const capacidadDisponibleTon = (datos.Vvac * datos.densidad) / 1000;
 
-  // Determinar si el silo se encuentra lleno (medición en 0)
-  const estaLleno = medicion !== "" && Number(medicion) === 0;
+  // Determinar si el silo se encuentra lleno (medición en el mínimo físico permitido: 0.5 m)
+  const estaLleno = medicion !== "" && Number(medicion) <= medicionMinima;
 
-  // Alternar entre medición mínima (0 m, lleno) y medición máxima (alturaMaxima, vacío)
+  // Alternar entre medición mínima (0.5 m, lleno) y medición máxima (alturaMaxima, vacío)
   const toggleMinMax = () => {
     if (estaLleno) {
       setMedicion(alturaMaxima.toFixed(2));
     } else {
-      setMedicion("0");
+      setMedicion(medicionMinima.toFixed(2));
     }
   };
 
@@ -77,9 +80,11 @@ function SiloNitratoCard({
         <input
           type="number"
           step="0.01"
+          min={medicionMinima}
+          max={alturaMaxima.toFixed(2)}
           value={medicion}
           onChange={(e) => setMedicion(e.target.value)}
-          placeholder="Ingrese medición"
+          placeholder={`Mínimo ${medicionMinima} m`}
           className={`flex-1 border rounded-lg p-3 focus:outline-none focus:ring-2 bg-white ${
             errorMedicion
               ? "border-red-500 focus:ring-red-200 focus:border-red-500"
@@ -91,8 +96,8 @@ function SiloNitratoCard({
           onClick={toggleMinMax}
           title={
             estaLleno
-              ? `Silo lleno (0 m). Clic para vaciar (${alturaMaxima.toFixed(2)} m)`
-              : `Silo vacío o parcial (${medicion || alturaMaxima.toFixed(2)} m). Clic para llenar (0 m)`
+              ? `Silo lleno (${medicionMinima.toFixed(2)} m). Clic para vaciar (${alturaMaxima.toFixed(2)} m)`
+              : `Silo vacío o parcial (${medicion || alturaMaxima.toFixed(2)} m). Clic para llenar al máximo (${medicionMinima.toFixed(2)} m)`
           }
           className="p-1.5 bg-white hover:bg-amber-100 border border-amber-300 rounded-lg transition shadow-sm flex items-center justify-center shrink-0 cursor-pointer h-[50px] w-[50px]"
           style={{ color: "rgb(245, 158, 11)" }}
@@ -110,7 +115,7 @@ function SiloNitratoCard({
       )}
 
       <p className="mt-2 text-xs text-slate-500">
-        Altura total del silo: {alturaMaxima.toFixed(2)} m
+        Rango de medición: {medicionMinima.toFixed(2)} m (lleno) a {alturaMaxima.toFixed(2)} m (vacío)
       </p>
 
       <div className="mt-5 grid grid-cols-2 gap-3 sm:gap-4">

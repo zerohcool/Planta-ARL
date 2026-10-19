@@ -29,6 +29,7 @@ import matrizGuia from "./assets/matriz-guia.png";
 // Componentes card silos
 import SilosGrid from "./components/silos/SilosGrid";
 import SilosResumen from "./components/silos/SilosResumen";
+import { silosConfigResumen } from "./config/silos";
 
 // Componentes Materias primas
 import IngresoMateriasPrimas from "./components/materias-primas/IngresoMateriasPrimas";
@@ -59,6 +60,22 @@ function App() {
   // Datos generales del reporte
   const [operador, setOperador] = useState("");
   const [fechaInforme, setFechaInforme] = useState(fechaHoy);
+
+  // Registro de informes guardados por fecha (persistencia local / preparado para backend y BD)
+  const [informesGuardadosPorFecha, setInformesGuardadosPorFecha] = useState(
+    () => {
+      try {
+        const guardados = localStorage.getItem("informesGuardadosPlantaARL");
+        return guardados ? JSON.parse(guardados) : {};
+      } catch (e) {
+        console.error("Error al leer historial de informes guardados:", e);
+        return {};
+      }
+    },
+  );
+
+  // Indicador de si ya existen datos registrados previamente para la fecha seleccionada
+  const tieneDatosFecha = Boolean(informesGuardadosPorFecha[fechaInforme]);
 
   // ========================================
   // ESTADOS DE STOCK Y MEDICIÓN DE ESTANQUES
@@ -341,11 +358,49 @@ function App() {
   };
 
   // ========================================
+  // FUNCIÓN: REGISTRAR INFORME PARA LA FECHA SELECCIONADA
+  // ========================================
+  // Guarda un registro local para la fecha actual (indicador de estado / preparado para base de datos)
+  const registrarInformeParaFechaActual = () => {
+    const registro = {
+      operador,
+      fechaInforme,
+      medicionesSilos: { ...medicionesSilos },
+      modoIngresoEstanques,
+      litrosPetroleo,
+      litrosMezcla,
+      litrosAceite,
+      alturaPetroleo,
+      alturaMezcla,
+      alturaAceite,
+      guardadoEn: new Date().toISOString(),
+    };
+
+    setInformesGuardadosPorFecha((prev) => {
+      const actualizados = {
+        ...prev,
+        [fechaInforme]: registro,
+      };
+      localStorage.setItem(
+        "informesGuardadosPlantaARL",
+        JSON.stringify(actualizados),
+      );
+      return actualizados;
+    });
+  };
+
+  // ========================================
   // FUNCIÓN: VALIDACION DE CAMPOS
   // ========================================
-  // Valida si los campos nombre del operador y medicion de estanques estan llenos
-
+  // Valida campos de operador, estanques y restricción de silos de Nitrato
   const validarFormularioAntesDeExportar = () => {
+    if (errorSilosNitrato) {
+      alert(
+        "Hay mediciones inválidas en los silos de Nitrato. La medición no puede ser inferior a 0.5 m por la pirámide de llenado y ubicación de la escotilla.",
+      );
+      return false;
+    }
+
     if (!formularioValido) {
       alert(
         "Debes completar correctamente el nombre del operador y los valores de stock/medición de los estanques antes de exportar el PDF.",
@@ -353,6 +408,7 @@ function App() {
       return false;
     }
 
+    registrarInformeParaFechaActual();
     return true;
   };
 
@@ -450,12 +506,12 @@ function App() {
     y += 7;
 
     // ----------------------------------------
-    // DATOS DEL INFORME
+    // DATOS DEL OPERADOR
     // ----------------------------------------
     pdf.setFont("helvetica", "bold");
     pdf.setFontSize(12);
     pdf.setTextColor(30, 41, 59);
-    pdf.text("Datos del Informe", margin, y);
+    pdf.text("Datos del Operador", margin, y);
     y += 7;
 
     pdf.setFont("helvetica", "normal");
@@ -957,8 +1013,19 @@ function App() {
         ? `No puede superar ${capAceite.toLocaleString("es-CL")} L.`
         : "";
 
+  // Validación de silos Nitrato: la medición no puede ser inferior a 0.5 m
+  const errorSilosNitrato = Object.entries(medicionesSilos).some(
+    ([id, val]) => {
+      if (val === "" || val === null || val === undefined) return false;
+      const num = Number(val);
+      const tipo = silosConfigResumen[id];
+      return tipo === "nitrato" && !isNaN(num) && num < 0.5;
+    },
+  );
+
   const formularioValido =
     !errorOperador &&
+    !errorSilosNitrato &&
     (modoIngresoEstanques === "litros"
       ? !errorLitrosPetroleo && !errorLitrosMezcla && !errorLitrosAceite
       : !errorAlturaPetroleo && !errorAlturaMezcla && !errorAlturaAceite);
@@ -1151,23 +1218,23 @@ function App() {
               ref={reporteRef}
               className="space-y-8 bg-white p-6 rounded-2xl shadow border border-slate-200"
             >
-              {/* Datos generales del informe */}
+              {/* Datos del Operador */}
               <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
                 <h3 className="text-2xl font-bold text-slate-800 mb-4">
-                  Datos del Informe
+                  Datos del Operador
                 </h3>
 
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
-                    <p className="text-sm text-slate-600 mb-1">
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
                       Nombre del operador
-                    </p>
+                    </label>
                     <input
                       type="text"
                       value={operador}
                       onChange={(e) => setOperador(e.target.value)}
                       placeholder="Ingrese nombre del operador"
-                      className={`${inputClass} ${errorOperador ? "border-red-500 focus:ring-red-200 focus:border-red-500" : ""}`}
+                      className={`${inputClass} bg-white ${errorOperador ? "border-red-500 focus:ring-red-200 focus:border-red-500" : ""}`}
                     />
                     {errorOperador && (
                       <p className="mt-2 text-sm text-red-600 font-medium">
@@ -1177,26 +1244,50 @@ function App() {
                   </div>
 
                   <div>
-                    <p className="text-sm text-slate-600 mb-1">
-                      Fecha del informe
-                    </p>
-                    <input
-                      type="date"
-                      value={fechaInforme}
-                      onChange={(e) => setFechaInforme(e.target.value)}
-                      className={inputClass}
-                    />
-                  </div>
-                </div>
-              </div>
+                    <div className="flex items-center justify-between mb-1 gap-2">
+                      <label className="text-sm font-medium text-slate-700">
+                        Fecha del informe
+                      </label>
 
-              {/* Fecha del informe */}
-              <div className="flex justify-end items-center border-b border-slate-100 pb-2">
-                <div className="text-right">
-                  <p className="text-sm text-slate-500">Fecha informe</p>
-                  <p className="font-semibold text-slate-800 text-lg">
-                    {formatearFecha(fechaInforme)}
-                  </p>
+                      {/* Indicador de datos guardados para la fecha (preparado para base de datos) */}
+                      {tieneDatosFecha ? (
+                        <span
+                          className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs"
+                          title="Existen datos guardados para esta fecha en el sistema"
+                        >
+                          <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
+                          Con datos guardados
+                        </span>
+                      ) : (
+                        <span
+                          className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-200/80 text-slate-600 border border-slate-300"
+                          title="Sin registros previos guardados para esta fecha"
+                        >
+                          <span className="w-2 h-2 rounded-full bg-slate-400"></span>
+                          Sin datos registrados
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="date"
+                        value={fechaInforme}
+                        onChange={(e) => setFechaInforme(e.target.value)}
+                        className={`${inputClass} bg-white flex-1`}
+                      />
+
+                      {/* Fecha informe formateada dentro de la tarjeta al costado del selector */}
+                      <div className="bg-white px-4 py-2 border border-slate-300 rounded-lg shadow-2xs text-center shrink-0 min-w-[130px]">
+                        <p className="text-[10px] uppercase tracking-wider text-slate-400 font-bold leading-none">
+                          Fecha informe
+                        </p>
+                        <p className="text-base font-bold text-slate-800 mt-1 leading-none">
+                          {formatearFecha(fechaInforme) || "--/--/----"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
