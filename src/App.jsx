@@ -1426,47 +1426,36 @@ function App() {
               {/* Registro real de fabricación a lo largo con botón de Calculadora de Mezcla y Resumen integrado */}
               <div>
                 <div className="bg-white p-6 rounded-2xl shadow border border-slate-200">
-                  {/* Recepción de camiones / Ingreso del día (antes del título) */}
-                  <div className="bg-slate-50 p-4 sm:p-5 rounded-xl border border-slate-200 mb-6">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-3">
-                      <div>
-                        <h5 className="text-sm font-bold text-slate-800 flex items-center gap-2">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-4 w-4 text-blue-600"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"
-                            />
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"
-                            />
-                          </svg>
-                          Recepción de Camiones (Ingreso del Día)
-                        </h5>
-                        <p className="text-xs text-slate-500">
-                          Litros recepcionados si llega camión con petróleo y/o aceite durante el turno (por defecto 0 L).
-                        </p>
-                      </div>
+                  {/* Recepción de camiones / Ingreso del día (diseño minimalista antes del título) */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-5 border-b border-slate-100">
+                    <div className="flex items-center gap-2">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4 text-slate-400"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"
+                        />
+                      </svg>
+                      <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                        Recepción Camiones (Ingreso del día)
+                      </span>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="flex flex-wrap items-center gap-4 sm:gap-6">
                       {/* Recepción Petróleo */}
-                      <div className="bg-white p-3 rounded-lg border border-emerald-200 shadow-2xs flex items-center justify-between gap-3">
-                        <label className="flex items-center gap-2 text-sm font-semibold text-emerald-900 shrink-0">
-                          <span className="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
-                          Recepción Petróleo:
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+                        <label className="text-xs sm:text-sm font-medium text-slate-600 shrink-0">
+                          Petróleo:
                         </label>
-                        <div className="relative flex-1 max-w-[180px]">
+                        <div className="relative w-28 sm:w-32">
                           <input
                             type="number"
                             min="0"
@@ -1479,21 +1468,21 @@ function App() {
                               if (e.target.value.trim() === "") setIngresoPetroleo("0");
                             }}
                             placeholder="0"
-                            className="w-full text-right font-bold text-slate-800 pr-7 py-1.5 px-3 border border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-500 text-base"
+                            className="w-full text-right font-semibold text-slate-800 pr-6 py-1 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
                           />
-                          <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-emerald-700 pointer-events-none">
+                          <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 pointer-events-none">
                             L
                           </span>
                         </div>
                       </div>
 
                       {/* Recepción Aceite */}
-                      <div className="bg-white p-3 rounded-lg border border-amber-200 shadow-2xs flex items-center justify-between gap-3">
-                        <label className="flex items-center gap-2 text-sm font-semibold text-amber-900 shrink-0">
-                          <span className="w-2.5 h-2.5 rounded-full bg-amber-600"></span>
-                          Recepción Aceite:
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span>
+                        <label className="text-xs sm:text-sm font-medium text-slate-600 shrink-0">
+                          Aceite:
                         </label>
-                        <div className="relative flex-1 max-w-[180px]">
+                        <div className="relative w-28 sm:w-32">
                           <input
                             type="number"
                             min="0"
@@ -1506,9 +1495,9 @@ function App() {
                               if (e.target.value.trim() === "") setIngresoAceite("0");
                             }}
                             placeholder="0"
-                            className="w-full text-right font-bold text-slate-800 pr-7 py-1.5 px-3 border border-amber-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-200 focus:border-amber-500 text-base"
+                            className="w-full text-right font-semibold text-slate-800 pr-6 py-1 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:bg-white focus:outline-none focus:ring-1 focus:ring-amber-500 focus:border-amber-500 transition-colors"
                           />
-                          <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-amber-700 pointer-events-none">
+                          <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 pointer-events-none">
                             L
                           </span>
                         </div>
