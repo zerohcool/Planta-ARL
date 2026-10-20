@@ -1539,15 +1539,6 @@ function App() {
                   parametrosMatriz={parametrosMatriz}
                   parametrosNitrato={parametrosNitrato}
                 />
-
-                <SilosResumen
-                  medicionesSilos={medicionesSilos}
-                  estadosSilos={estadosSilos}
-                  parametrosMatriz={parametrosMatriz}
-                  parametrosNitrato={parametrosNitrato}
-                  flotaCamionesFabrica={flotaCamionesFabrica}
-                  cargasCamionesFabrica={cargasCamionesFabrica}
-                />
               </div>
 
               {/* Control de Camiones Fábrica y Estadías de Materias Primas */}
@@ -1560,6 +1551,17 @@ function App() {
                 onAgregarCamionEstadia={agregarCamionEstadia}
                 onActualizarCamionEstadia={actualizarCamionEstadia}
                 onEliminarCamionEstadia={eliminarCamionEstadia}
+              />
+
+              {/* Resúmenes Consolidados: Silos, Camiones y Estadías, y Requerimiento para Llenar */}
+              <SilosResumen
+                medicionesSilos={medicionesSilos}
+                estadosSilos={estadosSilos}
+                parametrosMatriz={parametrosMatriz}
+                parametrosNitrato={parametrosNitrato}
+                flotaCamionesFabrica={flotaCamionesFabrica}
+                cargasCamionesFabrica={cargasCamionesFabrica}
+                camionesEstadia={camionesEstadia}
               />
 
               {/* Tarjeta unificada: Stock Planta ARL, Recepción, Registro de Fabricación y Resumen */}

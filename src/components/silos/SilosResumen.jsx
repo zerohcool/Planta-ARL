@@ -5,19 +5,26 @@ import { calcularSiloMatriz } from "../../utils/silos/matriz";
 import { calcularSiloNitrato } from "../../utils/silos/nitrato";
 import { silosConfigResumen } from "../../config/silos";
 import { formatearCamionesFraccion } from "../../utils/camionesFraccion";
+import { MAX_TON_ESTADIA } from "../../data/camiones";
 
 // ========================================
-// COMPONENTE RESUMEN GENERAL
+// COMPONENTE RESÚMENES CONSOLIDADOS:
+// 1. Resumen General de Silos
+// 2. Resumen General de Camiones y Estadías
+// 3. Requerimiento para Llenar (Camiones 25 ton)
 // ========================================
 function SilosResumen({
-  medicionesSilos,
+  medicionesSilos = {},
   estadosSilos = {},
   parametrosMatriz,
   parametrosNitrato,
   flotaCamionesFabrica = [],
   cargasCamionesFabrica = {},
+  camionesEstadia = [],
 }) {
-  // Totales acumulados de silos
+  // ========================================
+  // 1. CÁLCULOS: SILOS DE MATRIZ Y NITRATO
+  // ========================================
   let stockTotalMatriz = 0;
   let capacidadDisponibleMatrizSilos = 0;
   let cantMatrizOperativos = 0;
@@ -28,7 +35,6 @@ function SilosResumen({
   let cantNitratoOperativos = 0;
   let totalNitratoSilos = 0;
 
-  // Recorremos todos los silos configurados
   Object.entries(silosConfigResumen).forEach(([siloId, tipo]) => {
     if (tipo === "blank") return;
 
@@ -53,7 +59,7 @@ function SilosResumen({
 
         if (medicion <= datos.Htot) {
           stockTotalMatriz += datos.stockTon;
-          // Solo los silos OPERATIVOS suman capacidad disponible para llenado
+          // Solo silos OPERATIVOS suman capacidad disponible para llenado
           if (esOperativo) {
             capacidadDisponibleMatrizSilos += (datos.Vvac * datos.densidad) / 1000;
           }
@@ -91,7 +97,7 @@ function SilosResumen({
 
         if (medicion <= datos.Htot) {
           stockTotalNitrato += datos.stockTon;
-          // Solo los silos OPERATIVOS suman capacidad disponible para llenado
+          // Solo silos OPERATIVOS suman capacidad disponible para llenado
           if (esOperativo) {
             capacidadDisponibleNitratoSilos += (datos.Vvac * datos.densidad) / 1000;
           }
@@ -103,28 +109,64 @@ function SilosResumen({
   const stockTotalPlanta = stockTotalMatriz + stockTotalNitrato;
 
   // ========================================
-  // CAPACIDADES DISPONIBLES EN CAMIONES FÁBRICA OPERATIVOS (DISPONIBLES)
+  // 2. CÁLCULOS: CAMIONES FÁBRICA EN FAENA
   // ========================================
+  let totalNitratoCF = 0;
+  let totalMatrizCF = 0;
+  let capTotalNitratoCF = 0;
+  let capTotalMatrizCF = 0;
   let capDisponibleNitratoCF = 0;
   let capDisponibleMatrizCF = 0;
-  const camionesCFOperativos = flotaCamionesFabrica.filter((c) => c.estado === "disponible");
 
-  camionesCFOperativos.forEach((camion) => {
+  const camionesCFEnFaena = flotaCamionesFabrica.filter(
+    (c) => c.estado === "disponible" || c.estado === "no operativo"
+  );
+  const camionesCFDisponibles = camionesCFEnFaena.filter((c) => c.estado === "disponible");
+  const cantCFNoOperativos = camionesCFEnFaena.length - camionesCFDisponibles.length;
+
+  camionesCFEnFaena.forEach((camion) => {
     const carga = cargasCamionesFabrica[camion.id] || { nitrato: "0", matriz: "0" };
-    const nitCarga = Math.min(camion.capacidadNitrato, Math.max(0, Number(carga.nitrato) || 0));
-    const matCarga = Math.min(camion.capacidadMatriz, Math.max(0, Number(carga.matriz) || 0));
+    const nit = Math.min(camion.capacidadNitrato, Math.max(0, Number(carga.nitrato) || 0));
+    const mat = Math.min(camion.capacidadMatriz, Math.max(0, Number(carga.matriz) || 0));
 
-    capDisponibleNitratoCF += Math.max(0, camion.capacidadNitrato - nitCarga);
-    capDisponibleMatrizCF += Math.max(0, camion.capacidadMatriz - matCarga);
+    totalNitratoCF += nit;
+    totalMatrizCF += mat;
+    capTotalNitratoCF += camion.capacidadNitrato;
+    capTotalMatrizCF += camion.capacidadMatriz;
+
+    // Solo los camiones disponibles (operativos) tienen capacidad disponible para cargar
+    if (camion.estado === "disponible") {
+      capDisponibleNitratoCF += Math.max(0, camion.capacidadNitrato - nit);
+      capDisponibleMatrizCF += Math.max(0, camion.capacidadMatriz - mat);
+    }
   });
 
   // ========================================
-  // TOTALES CONSOLIDADOS PARA LLENAR (SILOS + CAMIONES FÁBRICA)
+  // 3. CÁLCULOS: CAMIONES CON ESTADÍA
+  // ========================================
+  let totalNitratoEstadia = 0;
+  let totalMatrizEstadia = 0;
+
+  camionesEstadia.forEach((camion) => {
+    const ton = Math.min(MAX_TON_ESTADIA, Math.max(0, Number(camion.toneladas) || 0));
+    if (camion.tipo === "nitrato") {
+      totalNitratoEstadia += ton;
+    } else {
+      totalMatrizEstadia += ton;
+    }
+  });
+
+  const totalNitratoTransito = totalNitratoCF + totalNitratoEstadia;
+  const totalMatrizTransito = totalMatrizCF + totalMatrizEstadia;
+  const granTotalMaterialCamiones = totalNitratoTransito + totalMatrizTransito;
+
+  // ========================================
+  // 4. TOTALES CONSOLIDADOS PARA LLENAR (SILOS + CAMIONES FÁBRICA)
   // ========================================
   const totalCapDisponibleNitrato = capacidadDisponibleNitratoSilos + capDisponibleNitratoCF;
   const totalCapDisponibleMatriz = capacidadDisponibleMatrizSilos + capDisponibleMatrizCF;
 
-  // Cálculo de camiones de materias primas (media 25 ton)
+  // Conversión a camiones de materias primas (media 25 ton)
   const camionesNitratoSilos = formatearCamionesFraccion(capacidadDisponibleNitratoSilos);
   const camionesNitratoCF = formatearCamionesFraccion(capDisponibleNitratoCF);
   const camionesNitratoTotal = formatearCamionesFraccion(totalCapDisponibleNitrato);
@@ -134,136 +176,257 @@ function SilosResumen({
   const camionesMatrizTotal = formatearCamionesFraccion(totalCapDisponibleMatriz);
 
   return (
-    <div className="mt-8 bg-white rounded-2xl shadow border border-slate-200 p-6 space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-        <h4 className="text-xl font-bold text-slate-800">
-          Resumen General de Silos
-        </h4>
-        <div className="flex items-center gap-3 text-xs font-semibold text-slate-500">
-          <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-            Operativos: {cantMatrizOperativos + cantNitratoOperativos}
-          </span>
-          {(totalMatrizSilos + totalNitratoSilos - cantMatrizOperativos - cantNitratoOperativos) > 0 && (
-            <span className="flex items-center gap-1.5 text-red-600">
-              <span className="w-2 h-2 rounded-full bg-red-500"></span>
-              No operativos: {totalMatrizSilos + totalNitratoSilos - cantMatrizOperativos - cantNitratoOperativos}
+    <div className="bg-white rounded-2xl shadow border border-slate-200 p-6 space-y-8">
+      {/* ========================================================
+          1. RESUMEN GENERAL DE SILOS
+      ======================================================== */}
+      <div>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+          <h4 className="text-xl font-bold text-slate-800">
+            Resumen General de Silos
+          </h4>
+          <div className="flex items-center gap-3 text-xs font-semibold text-slate-500">
+            <span className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+              Operativos: {cantMatrizOperativos + cantNitratoOperativos}
             </span>
-          )}
-        </div>
-      </div>
-
-      {/* 5 Tarjetas principales de métricas de silos */}
-      <div className="grid md:grid-cols-2 xl:grid-cols-5 gap-4">
-        {/* Stock Matriz - Oscuro */}
-        <div
-          className="rounded-xl p-4 shadow-sm border border-sky-400/30 text-white min-w-0"
-          style={{ backgroundColor: "rgb(75, 162, 227)" }}
-        >
-          <p className="text-sm font-medium text-white/90 whitespace-nowrap truncate" title="Stock total matriz">
-            Stock total matriz
-          </p>
-          <p className="text-2xl font-bold text-white mt-1">
-            {stockTotalMatriz.toLocaleString("es-CL", {
-              maximumFractionDigits: 2,
-            })}{" "}
-            ton
-          </p>
-          <p className="text-[11px] text-white/80 mt-1">
-            En silos de Matriz
-          </p>
-        </div>
-
-        {/* Capacidad Disponible Matriz (Solo Silos Operativos) - Claro */}
-        <div
-          className="rounded-xl p-4 shadow-sm border border-sky-200 min-w-0 flex flex-col justify-between"
-          style={{ backgroundColor: "rgb(227, 241, 253)" }}
-        >
-          <div>
-            <p className="text-sm font-medium text-sky-800 whitespace-nowrap truncate" title="Capacidad disponible matriz (silos operativos)">
-              Capacidad disp. matriz
-            </p>
-            <p className="text-2xl font-bold text-sky-900 mt-1">
-              {capacidadDisponibleMatrizSilos.toLocaleString("es-CL", {
-                maximumFractionDigits: 2,
-              })}{" "}
-              ton
-            </p>
+            {(totalMatrizSilos + totalNitratoSilos - cantMatrizOperativos - cantNitratoOperativos) > 0 && (
+              <span className="flex items-center gap-1.5 text-red-600">
+                <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                No operativos: {totalMatrizSilos + totalNitratoSilos - cantMatrizOperativos - cantNitratoOperativos}
+              </span>
+            )}
           </div>
-          <p className="text-xs font-bold text-sky-800 mt-2 bg-sky-200/70 py-1 px-2 rounded-lg inline-block self-start">
-            🚚 {camionesMatrizSilos} camiones (25t)
-          </p>
         </div>
 
-        {/* Stock Nitrato - Oscuro */}
-        <div
-          className="rounded-xl p-4 shadow-sm border border-amber-600/30 text-white min-w-0"
-          style={{ backgroundColor: "rgb(245, 158, 11)" }}
-        >
-          <p className="text-sm font-medium text-white/90 whitespace-nowrap truncate" title="Stock total nitrato">
-            Stock total nitrato
-          </p>
-          <p className="text-2xl font-bold text-white mt-1">
-            {stockTotalNitrato.toLocaleString("es-CL", {
-              maximumFractionDigits: 2,
-            })}{" "}
-            ton
-          </p>
-          <p className="text-[11px] text-white/80 mt-1">
-            En silos de Nitrato
-          </p>
-        </div>
-
-        {/* Capacidad Disponible Nitrato (Solo Silos Operativos) - Claro */}
-        <div
-          className="rounded-xl p-4 shadow-sm border border-amber-200 min-w-0 flex flex-col justify-between"
-          style={{ backgroundColor: "rgb(254, 243, 199)" }}
-        >
-          <div>
-            <p className="text-sm font-medium text-amber-800 whitespace-nowrap truncate" title="Capacidad disponible nitrato (silos operativos)">
-              Capacidad disp. nitrato
-            </p>
-            <p className="text-2xl font-bold text-amber-900 mt-1">
-              {capacidadDisponibleNitratoSilos.toLocaleString("es-CL", {
-                maximumFractionDigits: 2,
-              })}{" "}
-              ton
-            </p>
-          </div>
-          <p className="text-xs font-bold text-amber-900 mt-2 bg-amber-200/70 py-1 px-2 rounded-lg inline-block self-start">
-            🚚 {camionesNitratoSilos} camiones (25t)
-          </p>
-        </div>
-
-        {/* Stock Total Planta - Oscuro Neutral */}
-        <div className="bg-slate-800 border border-slate-700 text-white rounded-xl p-4 shadow-sm min-w-0 flex flex-col justify-between">
-          <div>
-            <p className="text-sm font-medium text-slate-300 whitespace-nowrap truncate" title="Stock total planta">
-              Stock total planta
+        {/* 5 Tarjetas principales de métricas de silos */}
+        <div className="grid md:grid-cols-2 xl:grid-cols-5 gap-4">
+          {/* Stock Matriz - Oscuro */}
+          <div
+            className="rounded-xl p-4 shadow-sm border border-sky-400/30 text-white min-w-0"
+            style={{ backgroundColor: "rgb(75, 162, 227)" }}
+          >
+            <p className="text-sm font-medium text-white/90 whitespace-nowrap truncate" title="Stock total matriz">
+              Stock total matriz
             </p>
             <p className="text-2xl font-bold text-white mt-1">
-              {stockTotalPlanta.toLocaleString("es-CL", {
+              {stockTotalMatriz.toLocaleString("es-CL", {
                 maximumFractionDigits: 2,
               })}{" "}
               ton
             </p>
+            <p className="text-[11px] text-white/80 mt-1">
+              En silos de Matriz
+            </p>
           </div>
-          <p className="text-[11px] text-slate-300 mt-1">
-            N: {stockTotalNitrato.toFixed(1)}t | M: {stockTotalMatriz.toFixed(1)}t
-          </p>
+
+          {/* Capacidad Disponible Matriz (Solo Silos Operativos) - Claro */}
+          <div
+            className="rounded-xl p-4 shadow-sm border border-sky-200 min-w-0 flex flex-col justify-between"
+            style={{ backgroundColor: "rgb(227, 241, 253)" }}
+          >
+            <div>
+              <p className="text-sm font-medium text-sky-800 whitespace-nowrap truncate" title="Capacidad disponible matriz (silos operativos)">
+                Capacidad disp. matriz
+              </p>
+              <p className="text-2xl font-bold text-sky-900 mt-1">
+                {capacidadDisponibleMatrizSilos.toLocaleString("es-CL", {
+                  maximumFractionDigits: 2,
+                })}{" "}
+                ton
+              </p>
+            </div>
+            <p className="text-xs font-bold text-sky-800 mt-2 bg-sky-200/70 py-1 px-2 rounded-lg inline-block self-start">
+              🚚 {camionesMatrizSilos} camiones (25t)
+            </p>
+          </div>
+
+          {/* Stock Nitrato - Oscuro */}
+          <div
+            className="rounded-xl p-4 shadow-sm border border-amber-600/30 text-white min-w-0"
+            style={{ backgroundColor: "rgb(245, 158, 11)" }}
+          >
+            <p className="text-sm font-medium text-white/90 whitespace-nowrap truncate" title="Stock total nitrato">
+              Stock total nitrato
+            </p>
+            <p className="text-2xl font-bold text-white mt-1">
+              {stockTotalNitrato.toLocaleString("es-CL", {
+                maximumFractionDigits: 2,
+              })}{" "}
+              ton
+            </p>
+            <p className="text-[11px] text-white/80 mt-1">
+              En silos de Nitrato
+            </p>
+          </div>
+
+          {/* Capacidad Disponible Nitrato (Solo Silos Operativos) - Claro */}
+          <div
+            className="rounded-xl p-4 shadow-sm border border-amber-200 min-w-0 flex flex-col justify-between"
+            style={{ backgroundColor: "rgb(254, 243, 199)" }}
+          >
+            <div>
+              <p className="text-sm font-medium text-amber-800 whitespace-nowrap truncate" title="Capacidad disponible nitrato (silos operativos)">
+                Capacidad disp. nitrato
+              </p>
+              <p className="text-2xl font-bold text-amber-900 mt-1">
+                {capacidadDisponibleNitratoSilos.toLocaleString("es-CL", {
+                  maximumFractionDigits: 2,
+                })}{" "}
+                ton
+              </p>
+            </div>
+            <p className="text-xs font-bold text-amber-900 mt-2 bg-amber-200/70 py-1 px-2 rounded-lg inline-block self-start">
+              🚚 {camionesNitratoSilos} camiones (25t)
+            </p>
+          </div>
+
+          {/* Stock Total Planta - Oscuro Neutral */}
+          <div className="bg-slate-800 border border-slate-700 text-white rounded-xl p-4 shadow-sm min-w-0 flex flex-col justify-between">
+            <div>
+              <p className="text-sm font-medium text-slate-300 whitespace-nowrap truncate" title="Stock total planta">
+                Stock total planta
+              </p>
+              <p className="text-2xl font-bold text-white mt-1">
+                {stockTotalPlanta.toLocaleString("es-CL", {
+                  maximumFractionDigits: 2,
+                })}{" "}
+                ton
+              </p>
+            </div>
+            <p className="text-[11px] text-slate-300 mt-1">
+              N: {stockTotalNitrato.toFixed(1)}t | M: {stockTotalMatriz.toFixed(1)}t
+            </p>
+          </div>
         </div>
       </div>
 
       {/* ========================================================
-          SECCIÓN: REQUERIMIENTO PARA LLENAR (CAMIONES 25 TONELADAS)
+          2. RESUMEN GENERAL DE CAMIONES Y ESTADÍAS
       ======================================================== */}
-      <div className="pt-4 border-t border-slate-200">
+      <div className="pt-6 border-t border-slate-200">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+          <h4 className="text-xl font-bold text-slate-800">
+            Resumen General de Camiones y Estadías
+          </h4>
+          <div className="flex items-center gap-3 text-xs font-semibold text-slate-500">
+            <span className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+              Disponibles: {camionesCFDisponibles.length}
+            </span>
+            {cantCFNoOperativos > 0 && (
+              <span className="flex items-center gap-1.5 text-red-600">
+                <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                No operativos: {cantCFNoOperativos}
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3.5 sm:gap-4">
+          {/* Nitrato en Camiones Fábrica */}
+          <div
+            className="p-3.5 sm:p-4 rounded-xl shadow-sm border border-amber-600/30 text-white min-w-0 flex flex-col justify-between"
+            style={{ backgroundColor: "rgb(245, 158, 11)" }}
+          >
+            <div>
+              <p className="text-xs font-medium text-white/90 truncate">
+                Nitrato Camiones Fábrica
+              </p>
+              <p className="text-xl sm:text-2xl font-bold text-white mt-1 truncate">
+                {totalNitratoCF.toLocaleString("es-CL", { maximumFractionDigits: 2 })} ton
+              </p>
+            </div>
+            <div className="mt-2 pt-1 border-t border-white/20">
+              <p className="text-[11px] text-white/80 truncate">
+                Cap. Total: {capTotalNitratoCF.toLocaleString("es-CL")}t ({camionesCFDisponibles.length} disp.)
+              </p>
+              <p className="text-[11px] font-bold text-white mt-0.5 truncate">
+                Disp: {capDisponibleNitratoCF.toFixed(1)}t ({camionesNitratoCF} cam. 25t)
+              </p>
+            </div>
+          </div>
+
+          {/* Matriz en Camiones Fábrica */}
+          <div
+            className="p-3.5 sm:p-4 rounded-xl shadow-sm border border-sky-400/30 text-white min-w-0 flex flex-col justify-between"
+            style={{ backgroundColor: "rgb(75, 162, 227)" }}
+          >
+            <div>
+              <p className="text-xs font-medium text-white/90 truncate">
+                Matriz Camiones Fábrica
+              </p>
+              <p className="text-xl sm:text-2xl font-bold text-white mt-1 truncate">
+                {totalMatrizCF.toLocaleString("es-CL", { maximumFractionDigits: 2 })} ton
+              </p>
+            </div>
+            <div className="mt-2 pt-1 border-t border-white/20">
+              <p className="text-[11px] text-white/80 truncate">
+                Cap. Total: {capTotalMatrizCF.toLocaleString("es-CL")}t ({camionesCFDisponibles.length} disp.)
+              </p>
+              <p className="text-[11px] font-bold text-white mt-0.5 truncate">
+                Disp: {capDisponibleMatrizCF.toFixed(1)}t ({camionesMatrizCF} cam. 25t)
+              </p>
+            </div>
+          </div>
+
+          {/* Nitrato en Estadía */}
+          <div
+            className="p-3.5 sm:p-4 rounded-xl shadow-sm border border-amber-200 min-w-0"
+            style={{ backgroundColor: "rgb(254, 243, 199)" }}
+          >
+            <p className="text-xs font-medium text-amber-900 truncate">
+              Nitrato en Estadía
+            </p>
+            <p className="text-xl sm:text-2xl font-bold text-amber-900 mt-1 truncate">
+              {totalNitratoEstadia.toLocaleString("es-CL", { maximumFractionDigits: 2 })} ton
+            </p>
+            <p className="text-[11px] text-amber-700 mt-1 truncate">
+              {camionesEstadia.filter((c) => c.tipo === "nitrato").length} camión(es)
+            </p>
+          </div>
+
+          {/* Matriz en Estadía */}
+          <div
+            className="p-3.5 sm:p-4 rounded-xl shadow-sm border border-sky-200 min-w-0"
+            style={{ backgroundColor: "rgb(227, 241, 253)" }}
+          >
+            <p className="text-xs font-medium text-sky-900 truncate">
+              Matriz en Estadía
+            </p>
+            <p className="text-xl sm:text-2xl font-bold text-sky-900 mt-1 truncate">
+              {totalMatrizEstadia.toLocaleString("es-CL", { maximumFractionDigits: 2 })} ton
+            </p>
+            <p className="text-[11px] text-sky-700 mt-1 truncate">
+              {camionesEstadia.filter((c) => c.tipo === "matriz").length} camión(es)
+            </p>
+          </div>
+
+          {/* Gran Total Camiones */}
+          <div className="p-3.5 sm:p-4 rounded-xl shadow-sm border border-slate-300 bg-slate-800 text-white min-w-0 col-span-2 md:col-span-4 lg:col-span-1">
+            <p className="text-xs font-medium text-slate-300 truncate">
+              Total Tránsito Camiones
+            </p>
+            <p className="text-xl sm:text-2xl font-bold text-white mt-1 truncate">
+              {granTotalMaterialCamiones.toLocaleString("es-CL", { maximumFractionDigits: 2 })} ton
+            </p>
+            <p className="text-[11px] text-slate-300 mt-1 truncate">
+              N: {totalNitratoTransito.toFixed(1)}t | M: {totalMatrizTransito.toFixed(1)}t
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* ========================================================
+          3. REQUERIMIENTO PARA LLENAR (CAMIONES 25 TONELADAS)
+      ======================================================== */}
+      <div className="pt-6 border-t border-slate-200">
         <div className="mb-4">
-          <h5 className="text-base font-bold text-slate-800 flex items-center gap-2">
+          <h4 className="text-xl font-bold text-slate-800 flex items-center gap-2">
             <span>🚚</span> Requerimiento para Llenar (Camiones de Materias Primas - Media 25 ton)
-          </h5>
+          </h4>
           <p className="text-xs text-slate-500 mt-0.5">
-            Cálculo de camiones de materia prima necesarios según la capacidad disponible en silos operativos y camiones fábrica disponibles.
+            Cálculo consolidado de camiones de materia prima necesarios para llenar silos operativos y camiones fábrica disponibles.
           </p>
         </div>
 
@@ -303,7 +466,7 @@ function SilosResumen({
                 </span>
               </div>
               <div className="flex justify-between">
-                <span>• Camiones Fábrica ({camionesCFOperativos.length} disp.):</span>
+                <span>• Camiones Fábrica ({camionesCFDisponibles.length} disp.):</span>
                 <span className="font-bold">
                   {capDisponibleNitratoCF.toFixed(1)} ton ({camionesNitratoCF} cam.)
                 </span>
@@ -346,7 +509,7 @@ function SilosResumen({
                 </span>
               </div>
               <div className="flex justify-between">
-                <span>• Camiones Fábrica ({camionesCFOperativos.length} disp.):</span>
+                <span>• Camiones Fábrica ({camionesCFDisponibles.length} disp.):</span>
                 <span className="font-bold">
                   {capDisponibleMatrizCF.toFixed(1)} ton ({camionesMatrizCF} cam.)
                 </span>

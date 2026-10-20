@@ -2,7 +2,6 @@ import React from "react";
 import { IconoLleno, IconoVacio } from "../silos/SiloGaugeIcons";
 import { IconoCamionLleno } from "./CamionIcons";
 import { MAX_TON_ESTADIA } from "../../data/camiones";
-import { formatearCamionesFraccion } from "../../utils/camionesFraccion";
 
 function ControlCamionesSilos({
   flota,
@@ -28,51 +27,7 @@ function ControlCamionesSilos({
     }
   };
 
-  // ========================================
-  // CÁLCULOS DEL RESUMEN
-  // ========================================
-  // 1. Camiones Fábrica en faena
-  let totalNitratoCF = 0;
-  let totalMatrizCF = 0;
-  let capTotalNitratoCF = 0;
-  let capTotalMatrizCF = 0;
-  let capDisponibleNitratoCF = 0;
-  let capDisponibleMatrizCF = 0;
 
-  camionesEnFaena.forEach((camion) => {
-    const carga = cargasCamiones[camion.id] || { nitrato: "0", matriz: "0" };
-    const nit = Math.min(camion.capacidadNitrato, Math.max(0, Number(carga.nitrato) || 0));
-    const mat = Math.min(camion.capacidadMatriz, Math.max(0, Number(carga.matriz) || 0));
-
-    totalNitratoCF += nit;
-    totalMatrizCF += mat;
-    capTotalNitratoCF += camion.capacidadNitrato;
-    capTotalMatrizCF += camion.capacidadMatriz;
-
-    // Solo los camiones disponibles (operativos) tienen capacidad disponible para ser cargados
-    if (camion.estado === "disponible") {
-      capDisponibleNitratoCF += Math.max(0, camion.capacidadNitrato - nit);
-      capDisponibleMatrizCF += Math.max(0, camion.capacidadMatriz - mat);
-    }
-  });
-
-  // 2. Camiones con Estadía
-  let totalNitratoEstadia = 0;
-  let totalMatrizEstadia = 0;
-
-  camionesEstadia.forEach((camion) => {
-    const ton = Math.min(MAX_TON_ESTADIA, Math.max(0, Number(camion.toneladas) || 0));
-    if (camion.tipo === "nitrato") {
-      totalNitratoEstadia += ton;
-    } else {
-      totalMatrizEstadia += ton;
-    }
-  });
-
-  // 3. Totales combinados
-  const totalNitratoTransito = totalNitratoCF + totalNitratoEstadia;
-  const totalMatrizTransito = totalMatrizCF + totalMatrizEstadia;
-  const granTotalMaterialCamiones = totalNitratoTransito + totalMatrizTransito;
 
   return (
     <div className="bg-white rounded-2xl shadow border border-slate-200 p-6 space-y-8">
@@ -648,107 +603,6 @@ function ControlCamionesSilos({
         )}
       </div>
 
-      {/* ========================================================
-          SECCIÓN 3: RESUMEN GENERAL DE CAMIONES Y ESTADÍAS
-      ======================================================== */}
-      <div className="pt-6 border-t border-slate-200">
-        <h4 className="text-xl font-bold text-slate-800 mb-4">
-          Resumen General de Camiones y Estadías
-        </h4>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3.5 sm:gap-4">
-          {/* Nitrato en Camiones Fábrica */}
-          <div
-            className="p-3.5 sm:p-4 rounded-xl shadow-sm border border-amber-600/30 text-white min-w-0 flex flex-col justify-between"
-            style={{ backgroundColor: "rgb(245, 158, 11)" }}
-          >
-            <div>
-              <p className="text-xs font-medium text-white/90 truncate">
-                Nitrato Camiones Fábrica
-              </p>
-              <p className="text-xl sm:text-2xl font-bold text-white mt-1 truncate">
-                {totalNitratoCF.toLocaleString("es-CL", { maximumFractionDigits: 2 })} ton
-              </p>
-            </div>
-            <div className="mt-2 pt-1 border-t border-white/20">
-              <p className="text-[11px] text-white/80 truncate">
-                Cap. Total: {capTotalNitratoCF.toLocaleString("es-CL")}t ({cantDisponibles} disp.)
-              </p>
-              <p className="text-[11px] font-bold text-white mt-0.5 truncate">
-                Disp: {capDisponibleNitratoCF.toFixed(1)}t ({formatearCamionesFraccion(capDisponibleNitratoCF)} cam. 25t)
-              </p>
-            </div>
-          </div>
-
-          {/* Matriz en Camiones Fábrica */}
-          <div
-            className="p-3.5 sm:p-4 rounded-xl shadow-sm border border-sky-400/30 text-white min-w-0 flex flex-col justify-between"
-            style={{ backgroundColor: "rgb(75, 162, 227)" }}
-          >
-            <div>
-              <p className="text-xs font-medium text-white/90 truncate">
-                Matriz Camiones Fábrica
-              </p>
-              <p className="text-xl sm:text-2xl font-bold text-white mt-1 truncate">
-                {totalMatrizCF.toLocaleString("es-CL", { maximumFractionDigits: 2 })} ton
-              </p>
-            </div>
-            <div className="mt-2 pt-1 border-t border-white/20">
-              <p className="text-[11px] text-white/80 truncate">
-                Cap. Total: {capTotalMatrizCF.toLocaleString("es-CL")}t ({cantDisponibles} disp.)
-              </p>
-              <p className="text-[11px] font-bold text-white mt-0.5 truncate">
-                Disp: {capDisponibleMatrizCF.toFixed(1)}t ({formatearCamionesFraccion(capDisponibleMatrizCF)} cam. 25t)
-              </p>
-            </div>
-          </div>
-
-          {/* Nitrato en Estadía */}
-          <div
-            className="p-3.5 sm:p-4 rounded-xl shadow-sm border border-amber-200 min-w-0"
-            style={{ backgroundColor: "rgb(254, 243, 199)" }}
-          >
-            <p className="text-xs font-medium text-amber-900 truncate">
-              Nitrato en Estadía
-            </p>
-            <p className="text-xl sm:text-2xl font-bold text-amber-900 mt-1 truncate">
-              {totalNitratoEstadia.toLocaleString("es-CL", { maximumFractionDigits: 2 })} ton
-            </p>
-            <p className="text-[11px] text-amber-700 mt-1 truncate">
-              {camionesEstadia.filter((c) => c.tipo === "nitrato").length} camión(es)
-            </p>
-          </div>
-
-          {/* Matriz en Estadía */}
-          <div
-            className="p-3.5 sm:p-4 rounded-xl shadow-sm border border-sky-200 min-w-0"
-            style={{ backgroundColor: "rgb(227, 241, 253)" }}
-          >
-            <p className="text-xs font-medium text-sky-900 truncate">
-              Matriz en Estadía
-            </p>
-            <p className="text-xl sm:text-2xl font-bold text-sky-900 mt-1 truncate">
-              {totalMatrizEstadia.toLocaleString("es-CL", { maximumFractionDigits: 2 })} ton
-            </p>
-            <p className="text-[11px] text-sky-700 mt-1 truncate">
-              {camionesEstadia.filter((c) => c.tipo === "matriz").length} camión(es)
-            </p>
-          </div>
-
-          {/* Gran Total Camiones */}
-          <div className="p-3.5 sm:p-4 rounded-xl shadow-sm border border-slate-300 bg-slate-800 text-white min-w-0 col-span-2 md:col-span-4 lg:col-span-1">
-            <p className="text-xs font-medium text-slate-300 truncate">
-              Total Tránsito Camiones
-            </p>
-            <p className="text-xl sm:text-2xl font-bold text-white mt-1 truncate">
-              {granTotalMaterialCamiones.toLocaleString("es-CL", { maximumFractionDigits: 2 })} ton
-            </p>
-            <p className="text-[11px] text-slate-300 mt-1 truncate">
-              N: {totalNitratoTransito.toFixed(1)}t | M: {totalMatrizTransito.toFixed(1)}t
-            </p>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
