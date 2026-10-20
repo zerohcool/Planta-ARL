@@ -20,6 +20,13 @@ function ControlCamionesSilos({
   const cantDisponibles = camionesEnFaena.filter((c) => c.estado === "disponible").length;
   const cantNoOperativos = camionesEnFaena.filter((c) => c.estado === "no operativo").length;
 
+  // Previene teclas no deseadas en inputs numéricos (+, -, e, E)
+  const prevenirCaracteresInvalidos = (e) => {
+    if (e.key === "-" || e.key === "e" || e.key === "E" || e.key === "+") {
+      e.preventDefault();
+    }
+  };
+
   // ========================================
   // CÁLCULOS DEL RESUMEN
   // ========================================
@@ -139,39 +146,22 @@ function ControlCamionesSilos({
                 >
                   {/* Fila Horizontal: ID | Tarjeta Nitrato | Tarjeta Matriz | Estado */}
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 items-center">
-                    {/* 1. ID Y DATOS BÁSICOS */}
-                    <div className="lg:col-span-3 flex items-center gap-3">
+                    {/* 1. SOLO ID */}
+                    <div className="lg:col-span-2 flex items-center justify-start">
                       <div
-                        className={`w-12 h-12 rounded-xl flex items-center justify-center font-black text-sm shrink-0 border ${
+                        className={`w-full py-2.5 px-3 rounded-xl flex items-center justify-center font-black text-sm tracking-wider border shadow-2xs ${
                           esNoOperativo
-                            ? "bg-red-100 text-red-700 border-red-200"
-                            : "bg-blue-100 text-blue-700 border-blue-200"
+                            ? "bg-red-100 text-red-800 border-red-200"
+                            : "bg-blue-100 text-blue-800 border-blue-200"
                         }`}
+                        title={camion.id}
                       >
-                        {camion.id}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <h5 className="font-bold text-slate-800 text-base leading-tight">
-                            Camión {camion.id}
-                          </h5>
-                          {esNoOperativo && (
-                            <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-700 border border-red-200">
-                              No Op.
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-xs font-bold text-slate-500 uppercase tracking-wide mt-0.5">
-                          Patente: {camion.patente}
-                        </p>
-                        <p className="text-[11px] text-slate-400 mt-0.5">
-                          Petróleo: {camion.capacidadPetroleo} L
-                        </p>
+                        <span className="truncate">{camion.id}</span>
                       </div>
                     </div>
 
                     {/* 2. TARJETA NITRATO */}
-                    <div className="lg:col-span-3 p-3 bg-amber-50/80 rounded-xl border border-amber-200">
+                    <div className="lg:col-span-4 p-3 bg-amber-50/80 rounded-xl border border-amber-200">
                       <div className="flex items-center justify-between mb-1.5">
                         <label className="text-xs font-bold text-amber-900 flex items-center gap-1.5">
                           <span className="w-2 h-2 rounded-full bg-amber-500"></span>
@@ -190,9 +180,32 @@ function ControlCamionesSilos({
                             min="0"
                             max={camion.capacidadNitrato}
                             value={carga.nitrato}
-                            onChange={(e) =>
-                              onActualizarCargaCamion(camion.id, "nitrato", e.target.value)
-                            }
+                            onKeyDown={prevenirCaracteresInvalidos}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              if (val === "") {
+                                onActualizarCargaCamion(camion.id, "nitrato", "");
+                                return;
+                              }
+                              const num = parseFloat(val);
+                              if (isNaN(num)) return;
+                              if (num < 0) {
+                                onActualizarCargaCamion(camion.id, "nitrato", "0");
+                              } else if (num > camion.capacidadNitrato) {
+                                onActualizarCargaCamion(camion.id, "nitrato", String(camion.capacidadNitrato));
+                              } else {
+                                onActualizarCargaCamion(camion.id, "nitrato", val);
+                              }
+                            }}
+                            onBlur={(e) => {
+                              const val = e.target.value;
+                              if (val === "" || isNaN(Number(val))) {
+                                onActualizarCargaCamion(camion.id, "nitrato", "0");
+                              } else {
+                                const num = Math.min(camion.capacidadNitrato, Math.max(0, Number(val)));
+                                onActualizarCargaCamion(camion.id, "nitrato", String(num));
+                              }
+                            }}
                             placeholder="0"
                             className="w-full border border-amber-300 rounded-lg py-1.5 px-2.5 pr-8 bg-white text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-200 focus:border-amber-500"
                           />
@@ -233,7 +246,7 @@ function ControlCamionesSilos({
                     </div>
 
                     {/* 3. TARJETA MATRIZ */}
-                    <div className="lg:col-span-3 p-3 bg-sky-50/80 rounded-xl border border-sky-200">
+                    <div className="lg:col-span-4 p-3 bg-sky-50/80 rounded-xl border border-sky-200">
                       <div className="flex items-center justify-between mb-1.5">
                         <label className="text-xs font-bold text-sky-900 flex items-center gap-1.5">
                           <span className="w-2 h-2 rounded-full bg-sky-500"></span>
@@ -252,9 +265,32 @@ function ControlCamionesSilos({
                             min="0"
                             max={camion.capacidadMatriz}
                             value={carga.matriz}
-                            onChange={(e) =>
-                              onActualizarCargaCamion(camion.id, "matriz", e.target.value)
-                            }
+                            onKeyDown={prevenirCaracteresInvalidos}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              if (val === "") {
+                                onActualizarCargaCamion(camion.id, "matriz", "");
+                                return;
+                              }
+                              const num = parseFloat(val);
+                              if (isNaN(num)) return;
+                              if (num < 0) {
+                                onActualizarCargaCamion(camion.id, "matriz", "0");
+                              } else if (num > camion.capacidadMatriz) {
+                                onActualizarCargaCamion(camion.id, "matriz", String(camion.capacidadMatriz));
+                              } else {
+                                onActualizarCargaCamion(camion.id, "matriz", val);
+                              }
+                            }}
+                            onBlur={(e) => {
+                              const val = e.target.value;
+                              if (val === "" || isNaN(Number(val))) {
+                                onActualizarCargaCamion(camion.id, "matriz", "0");
+                              } else {
+                                const num = Math.min(camion.capacidadMatriz, Math.max(0, Number(val)));
+                                onActualizarCargaCamion(camion.id, "matriz", String(num));
+                              }
+                            }}
                             placeholder="0"
                             className="w-full border border-sky-300 rounded-lg py-1.5 px-2.5 pr-8 bg-white text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-200 focus:border-sky-500"
                           />
@@ -295,7 +331,7 @@ function ControlCamionesSilos({
                     </div>
 
                     {/* 4. ESTADO */}
-                    <div className="lg:col-span-3 flex flex-col justify-center">
+                    <div className="lg:col-span-2 flex flex-col justify-center">
                       <label className="text-[11px] font-semibold text-slate-500 uppercase mb-1">
                         Estado del Camión
                       </label>
@@ -514,13 +550,32 @@ function ControlCamionesSilos({
                             min="0"
                             max={MAX_TON_ESTADIA}
                             value={camion.toneladas}
-                            onChange={(e) =>
-                              onActualizarCamionEstadia(
-                                camion.id,
-                                "toneladas",
-                                e.target.value,
-                              )
-                            }
+                            onKeyDown={prevenirCaracteresInvalidos}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              if (val === "") {
+                                onActualizarCamionEstadia(camion.id, "toneladas", "");
+                                return;
+                              }
+                              const num = parseFloat(val);
+                              if (isNaN(num)) return;
+                              if (num < 0) {
+                                onActualizarCamionEstadia(camion.id, "toneladas", "0");
+                              } else if (num > MAX_TON_ESTADIA) {
+                                onActualizarCamionEstadia(camion.id, "toneladas", String(MAX_TON_ESTADIA));
+                              } else {
+                                onActualizarCamionEstadia(camion.id, "toneladas", val);
+                              }
+                            }}
+                            onBlur={(e) => {
+                              const val = e.target.value;
+                              if (val === "" || isNaN(Number(val))) {
+                                onActualizarCamionEstadia(camion.id, "toneladas", "0");
+                              } else {
+                                const num = Math.min(MAX_TON_ESTADIA, Math.max(0, Number(val)));
+                                onActualizarCamionEstadia(camion.id, "toneladas", String(num));
+                              }
+                            }}
                             placeholder="0"
                             className="w-full bg-white border border-slate-300 rounded-lg py-1.5 px-2.5 pr-8 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-200"
                           />

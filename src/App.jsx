@@ -38,7 +38,7 @@ import { crearFilaVaciaMMPP } from "./utils/materiasPrimas";
 // Componentes Camiones Fábrica y Estadías
 import RegistroCamionesFabrica from "./components/camiones/RegistroCamionesFabrica";
 import ControlCamionesSilos from "./components/camiones/ControlCamionesSilos";
-import { camionesFabricaIniciales } from "./data/camiones";
+import { camionesFabricaIniciales, MAX_TON_ESTADIA } from "./data/camiones";
 
 function App() {
   // ========================================
@@ -363,11 +363,27 @@ function App() {
 
   // Handler para actualizar la carga de un camión fábrica
   const actualizarCargaCamionFabrica = (camionId, campo, valor) => {
+    let valorFinal = valor;
+    if (valor !== "") {
+      const num = Number(valor);
+      if (!isNaN(num)) {
+        const camion = flotaCamionesFabrica.find((c) => c.id === camionId);
+        if (camion) {
+          const maxVal =
+            campo === "nitrato"
+              ? camion.capacidadNitrato
+              : camion.capacidadMatriz;
+          if (num < 0) valorFinal = "0";
+          else if (num > maxVal) valorFinal = String(maxVal);
+        }
+      }
+    }
+
     setCargasCamionesFabrica((prev) => ({
       ...prev,
       [camionId]: {
         ...(prev[camionId] || { nitrato: "0", matriz: "0" }),
-        [campo]: valor,
+        [campo]: valorFinal,
       },
     }));
   };
@@ -384,8 +400,17 @@ function App() {
   };
 
   const actualizarCamionEstadia = (id, campo, valor) => {
+    let valorFinal = valor;
+    if (campo === "toneladas" && valor !== "") {
+      const num = Number(valor);
+      if (!isNaN(num)) {
+        if (num < 0) valorFinal = "0";
+        else if (num > MAX_TON_ESTADIA) valorFinal = String(MAX_TON_ESTADIA);
+      }
+    }
+
     setCamionesEstadia((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, [campo]: valor } : c)),
+      prev.map((c) => (c.id === id ? { ...c, [campo]: valorFinal } : c)),
     );
   };
 
