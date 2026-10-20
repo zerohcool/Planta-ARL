@@ -35,13 +35,14 @@ function SiloNitratoCard({
     B4: Number(parametros.B4) || 0,
     a4: Number(parametros.a4) || 0,
     b4: Number(parametros.b4) || 0,
+    medicionLleno: 0.4,
   });
 
   // Altura máxima del silo
   const alturaMaxima = datos.Htot;
 
-  // Límite mínimo operativo: nunca menos de 0.5 m debido a la pirámide de llenado y ubicación de escotilla
-  const medicionMinima = 0.5;
+  // Límite mínimo operativo: nunca menos de 0.4 m debido a la pirámide de llenado y ubicación de escotilla
+  const medicionMinima = 0.4;
 
   // Validaciones
   const errorMedicion =
@@ -58,10 +59,10 @@ function SiloNitratoCard({
   // Capacidad disponible en toneladas
   const capacidadDisponibleTon = (datos.Vvac * datos.densidad) / 1000;
 
-  // Determinar si el silo se encuentra lleno (medición en el mínimo físico permitido: 0.5 m)
+  // Determinar si el silo se encuentra lleno (medición en el mínimo físico permitido: 0.4 m)
   const estaLleno = medicion !== "" && Number(medicion) <= medicionMinima;
 
-  // Alternar entre medición mínima (0.5 m, lleno) y medición máxima (alturaMaxima, vacío)
+  // Alternar entre medición mínima (0.4 m, lleno) y medición máxima (alturaMaxima, vacío)
   const toggleMinMax = () => {
     if (estaLleno) {
       setMedicion(alturaMaxima.toFixed(2));

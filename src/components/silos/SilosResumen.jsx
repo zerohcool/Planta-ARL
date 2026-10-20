@@ -46,12 +46,13 @@ function SilosResumen({
     }
 
     if (tipo === "nitrato") {
-      // Restricción operativa: mediciones menores a 0.5 m no son válidas por pirámide de llenado
-      if (medicion < 0.5) return;
+      // Restricción operativa: mediciones menores a 0.4 m no son válidas por pirámide de llenado
+      if (medicion < 0.4) return;
 
       const datos = calcularSiloNitrato({
         distanciaVacia: medicion,
         densidad: Number(parametrosNitrato.densidad) || 0,
+        medicionLleno: 0.4,
         h1: Number(parametrosNitrato.h1) || 0,
         A1: Number(parametrosNitrato.A1) || 0,
         B1: Number(parametrosNitrato.B1) || 0,

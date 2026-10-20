@@ -404,7 +404,7 @@ function App() {
   const validarFormularioAntesDeExportar = () => {
     if (errorSilosNitrato) {
       alert(
-        "Hay mediciones inválidas en los silos de Nitrato. La medición no puede ser inferior a 0.5 m por la pirámide de llenado y ubicación de la escotilla.",
+        "Hay mediciones inválidas en los silos de Nitrato. La medición no puede ser inferior a 0.4 m por la pirámide de llenado y ubicación de la escotilla.",
       );
       return false;
     }
@@ -1034,13 +1034,13 @@ function App() {
         ? `No puede superar ${capAceite.toLocaleString("es-CL")} L.`
         : "";
 
-  // Validación de silos Nitrato: la medición no puede ser inferior a 0.5 m
+  // Validación de silos Nitrato: la medición no puede ser inferior a 0.4 m
   const errorSilosNitrato = Object.entries(medicionesSilos).some(
     ([id, val]) => {
       if (val === "" || val === null || val === undefined) return false;
       const num = Number(val);
       const tipo = silosConfigResumen[id];
-      return tipo === "nitrato" && !isNaN(num) && num < 0.5;
+      return tipo === "nitrato" && !isNaN(num) && num < 0.4;
     },
   );
 

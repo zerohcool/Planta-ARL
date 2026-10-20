@@ -26,8 +26,11 @@ export function calcularSiloNitrato({
   // Densidad del material en kg/m³
   densidad = 770,
 
+  // Distancia vacía cuando el silo está al 100% de capacidad operativa (cono de nitrato bajo escotilla)
+  medicionLleno = 0.4,
+
   // Alturas de cada sección
-  h1 = 0.5, // pirámide superior
+  h1 = 0.5, // pirámide superior (distancia vacía cuando esta sección se vacía completamente)
   h2 = 5.8, // prisma rectangular
   h3 = 0.8, // pirámide truncada invertida
   h4 = 1.3, // pirámide truncada invertida doble
@@ -51,42 +54,83 @@ export function calcularSiloNitrato({
   // ========================================
   // ALTURAS TOTALES
   // ========================================
+  // Altura total de secciones inferiores (prisma y pirámides inferiores)
+  const Hinf = h2 + h3 + h4;
   // Altura total del silo
-  const Htot = h1 + h2 + h3 + h4;
+  const Htot = h1 + Hinf;
 
-  // Altura ocupada por material, medida desde abajo hacia arriba
-  const Hoc = Math.max(0, Htot - Number(distanciaVacia || 0));
+  // Medición numérica de distancia vacía
+  const dist = Number(distanciaVacia || 0);
 
   // ========================================
-  // ALTURAS OCUPADAS POR CADA SECCIÓN
+  // VOLÚMENES MÁXIMOS POR SECCIÓN
   // ========================================
-  // Se reparte la altura ocupada total en las distintas secciones
-  // desde abajo hacia arriba.
-  //
-  // hoc1 = material dentro de la pirámide superior
-  // hoc2 = material dentro del prisma rectangular
-  // hoc3 = material dentro de la pirámide truncada invertida
-  // hoc4 = material dentro de la pirámide truncada invertida doble
+  // Se calculan las capacidades máximas de cada sección
+  // usando la misma lógica geométrica completa.
 
-  const hoc1 = Math.min(Math.max(Hoc - h4 - h3 - h2, 0), h1);
-  const hoc2 = Math.min(Math.max(Hoc - h4 - h3, 0), h2);
-  const hoc3 = Math.min(Math.max(Hoc - h4, 0), h3);
-  const hoc4 = Math.min(Hoc, h4);
+  const areaBase1 = A1 * B1;
+  const V1max = (1 / 3) * areaBase1 * h1;
+
+  const areaBase2 = A1 * B1;
+  const V2max = areaBase2 * h2;
+
+  const areaSuperior3Max = A1 * B1;
+  const areaInferior3Max = a3 * b3;
+  const V3max =
+    (h3 / 3) *
+    (areaSuperior3Max +
+      areaInferior3Max +
+      Math.sqrt(areaSuperior3Max * areaInferior3Max));
+
+  const areaSuperior4Max = A4 * B4;
+  const areaInferior4Max = a4 * b4;
+  const V4max =
+    2 *
+    ((h4 / 3) *
+      (areaSuperior4Max +
+        areaInferior4Max +
+        Math.sqrt(areaSuperior4Max * areaInferior4Max)));
+
+  // Volumen máximo total del silo
+  const Vmax = V1max + V2max + V3max + V4max;
 
   // ========================================
   // SECCIÓN 1: PIRÁMIDE SUPERIOR
   // ========================================
-  // Fórmula:
-  // V = (1/3) * A_base * h
-  const areaBase1 = A1 * B1;
-  const V1 = (1 / 3) * areaBase1 * hoc1;
+  // El nitrato forma un cono/pirámide natural de apilamiento bajo el punto central de llenado.
+  // Por la posición descentrada de la escotilla de medición:
+  // - A dist <= medicionLleno (0.40 m): el silo está al 100% de su capacidad.
+  // - A dist >= h1 (0.50 m): la pirámide superior se ha vaciado (material a ras de sección 2).
+  // - Entre 0.40 m y 0.50 m: la pirámide se vacía de forma proporcional.
+  let fraccion1 = 0;
+  if (dist <= medicionLleno) {
+    fraccion1 = 1;
+  } else if (dist < h1) {
+    fraccion1 = (h1 - dist) / (h1 - medicionLleno);
+  } else {
+    fraccion1 = 0;
+  }
+
+  const V1 = V1max * fraccion1;
+  const hoc1 = h1 * fraccion1;
+
+  // ========================================
+  // SECCIONES INFERIORES: 2, 3 Y 4
+  // ========================================
+  // La distancia vacía dentro de las secciones inferiores se mide a partir de la base de h1 hacia abajo
+  const distanciaInf = Math.max(0, dist - h1);
+  const HocInf = Math.max(0, Hinf - distanciaInf);
+
+  const hoc2 = Math.min(Math.max(HocInf - h4 - h3, 0), h2);
+  const hoc3 = Math.min(Math.max(HocInf - h4, 0), h3);
+  const hoc4 = Math.min(HocInf, h4);
+  const Hoc = hoc1 + HocInf;
 
   // ========================================
   // SECCIÓN 2: PRISMA RECTANGULAR
   // ========================================
   // Fórmula:
   // V = A_base * h
-  const areaBase2 = A1 * B1;
   const V2 = areaBase2 * hoc2;
 
   // ========================================
@@ -94,11 +138,6 @@ export function calcularSiloNitrato({
   // ========================================
   // Se usa interpolación lineal simple para obtener los lados
   // correspondientes a la altura ocupada hoc3.
-  //
-  // Fórmulas tipo Excel:
-  // a(h) = a + (A - a) * h/H
-  // b(h) = b + (B - b) * h/H
-
   const a3h = a3 + (A1 - a3) * (hoc3 / h3);
   const b3h = b3 + (B1 - b3) * (hoc3 / h3);
 
@@ -120,10 +159,8 @@ export function calcularSiloNitrato({
   // SECCIÓN 4: PIRÁMIDE TRUNCADA INVERTIDA DOBLE
   // ========================================
   // También se usa interpolación lineal simple, SIN usar h/2.
-  //
   // Se asume que el volumen total corresponde a dos cuerpos iguales,
   // por eso al final se multiplica por 2.
-
   const a4h = a4 + (A4 - a4) * (hoc4 / h4);
   const b4h = b4 + (B4 - b4) * (hoc4 / h4);
 
@@ -143,38 +180,8 @@ export function calcularSiloNitrato({
       : 0;
 
   // ========================================
-  // VOLÚMENES MÁXIMOS POR SECCIÓN
-  // ========================================
-  // Se calculan las capacidades máximas de cada sección
-  // usando la misma lógica geométrica completa.
-
-  const V1max = (1 / 3) * areaBase1 * h1;
-
-  const V2max = areaBase2 * h2;
-
-  const areaSuperior3Max = A1 * B1;
-  const areaInferior3Max = a3 * b3;
-  const V3max =
-    (h3 / 3) *
-    (areaSuperior3Max +
-      areaInferior3Max +
-      Math.sqrt(areaSuperior3Max * areaInferior3Max));
-
-  const areaSuperior4Max = A4 * B4;
-  const areaInferior4Max = a4 * b4;
-  const V4max =
-    2 *
-    ((h4 / 3) *
-      (areaSuperior4Max +
-        areaInferior4Max +
-        Math.sqrt(areaSuperior4Max * areaInferior4Max)));
-
-  // ========================================
   // TOTALES
   // ========================================
-  // Volumen máximo del silo
-  const Vmax = V1max + V2max + V3max + V4max;
-
   // Volumen ocupado por material
   const Voc = V1 + V2 + V3 + V4;
 
@@ -202,6 +209,7 @@ export function calcularSiloNitrato({
   return {
     distanciaVacia,
     densidad,
+    medicionLleno,
 
     // Parámetros geométricos
     h1,
@@ -228,6 +236,12 @@ export function calcularSiloNitrato({
     V2,
     V3,
     V4,
+
+    // Volúmenes máximos
+    V1max,
+    V2max,
+    V3max,
+    V4max,
 
     // Volúmenes totales
     Vmax,
