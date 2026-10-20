@@ -1337,125 +1337,129 @@ function App() {
                 />
               </div>
 
-              {/* Tarjetas de stock por estanque */}
+              {/* Tarjeta unificada: Stock Planta ARL, Recepción, Registro de Fabricación y Resumen */}
               <div>
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-                  <div>
-                    <h3 className="text-2xl font-bold text-slate-800">
-                      Stock Planta ARL
-                    </h3>
-                    <p className="text-sm text-slate-500 mt-0.5">
-                      {modoIngresoEstanques === "litros"
-                        ? "Ingreso directo en litros. El sistema estima la cota/altura correspondiente."
-                        : "Ingreso por medición de altura en cm según tablas de calibración."}
-                    </p>
-                  </div>
+                <div className="bg-white p-6 rounded-2xl shadow border border-slate-200 space-y-8">
+                  {/* Stock Planta ARL */}
+                  <div className="pb-6 border-b border-slate-200">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
+                      <div>
+                        <h3 className="text-2xl font-bold text-slate-800">
+                          Stock Planta ARL
+                        </h3>
+                        <p className="text-sm text-slate-500 mt-0.5">
+                          {modoIngresoEstanques === "litros"
+                            ? "Ingreso directo en litros. El sistema estima la cota/altura correspondiente."
+                            : "Ingreso por medición de altura en cm según tablas de calibración."}
+                        </p>
+                      </div>
 
-                  <button
-                    type="button"
-                    onClick={toggleModoIngresoEstanques}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 border border-slate-300 rounded-xl font-medium shadow-sm transition text-sm cursor-pointer self-start sm:self-auto"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4 text-blue-600"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"
-                      />
-                    </svg>
-                    <span>
-                      Modo:{" "}
-                      <strong className="text-blue-600">
-                        {modoIngresoEstanques === "litros"
-                          ? "Directo (Litros)"
-                          : "Medición (Altura cm)"}
-                      </strong>
-                    </span>
-                  </button>
-                </div>
-
-                <EstanquesGrid
-                  modoIngreso={modoIngresoEstanques}
-                  alturaPetroleo={alturaPetroleo}
-                  setAlturaPetroleo={setAlturaPetroleo}
-                  alturaMezcla={alturaMezcla}
-                  setAlturaMezcla={setAlturaMezcla}
-                  alturaAceite={alturaAceite}
-                  setAlturaAceite={setAlturaAceite}
-                  errorAlturaPetroleo={errorAlturaPetroleo}
-                  errorAlturaMezcla={errorAlturaMezcla}
-                  errorAlturaAceite={errorAlturaAceite}
-                  maxAlturaPetroleo={maxAlturaPetroleo}
-                  maxAlturaMezcla={maxAlturaMezcla}
-                  maxAlturaAceite={maxAlturaAceite}
-                  litrosPetroleo={litrosPetroleo}
-                  setLitrosPetroleo={setLitrosPetroleo}
-                  litrosMezcla={litrosMezcla}
-                  setLitrosMezcla={setLitrosMezcla}
-                  litrosAceite={litrosAceite}
-                  setLitrosAceite={setLitrosAceite}
-                  errorLitrosPetroleo={errorLitrosPetroleo}
-                  errorLitrosMezcla={errorLitrosMezcla}
-                  errorLitrosAceite={errorLitrosAceite}
-                  capPetroleo={capPetroleo}
-                  capMezcla={capMezcla}
-                  capAceite={capAceite}
-                  alturaEquivPetroleo={alturaEquivPetroleo}
-                  alturaEquivMezcla={alturaEquivMezcla}
-                  alturaEquivAceite={alturaEquivAceite}
-                  stockPetroleo={stockPetroleo}
-                  stockMezcla={stockMezcla}
-                  stockAceite={stockAceite}
-                  dispPetroleo={dispPetroleo}
-                  dispMezcla={dispMezcla}
-                  dispAceite={dispAceite}
-                  nivelPetroleo={nivelPetroleo}
-                  nivelMezcla={nivelMezcla}
-                  nivelAceite={nivelAceite}
-                  inputClass={inputClass}
-                />
-              </div>
-
-              {/* Registro real de fabricación a lo largo con botón de Calculadora de Mezcla y Resumen integrado */}
-              <div>
-                <div className="bg-white p-6 rounded-2xl shadow border border-slate-200">
-                  {/* Recepción de camiones / Ingreso del día (diseño minimalista antes del título) */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-5 border-b border-slate-100">
-                    <div className="flex items-center gap-2">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 text-slate-400"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
+                      <button
+                        type="button"
+                        onClick={toggleModoIngresoEstanques}
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 border border-slate-300 rounded-xl font-medium shadow-sm transition text-sm cursor-pointer self-start sm:self-auto"
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"
-                        />
-                      </svg>
-                      <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                        Recepción Camiones (Ingreso del día)
-                      </span>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4 text-blue-600"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"
+                          />
+                        </svg>
+                        <span>
+                          Modo:{" "}
+                          <strong className="text-blue-600">
+                            {modoIngresoEstanques === "litros"
+                              ? "Directo (Litros)"
+                              : "Medición (Altura cm)"}
+                          </strong>
+                        </span>
+                      </button>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+                    <EstanquesGrid
+                      modoIngreso={modoIngresoEstanques}
+                      alturaPetroleo={alturaPetroleo}
+                      setAlturaPetroleo={setAlturaPetroleo}
+                      alturaMezcla={alturaMezcla}
+                      setAlturaMezcla={setAlturaMezcla}
+                      alturaAceite={alturaAceite}
+                      setAlturaAceite={setAlturaAceite}
+                      errorAlturaPetroleo={errorAlturaPetroleo}
+                      errorAlturaMezcla={errorAlturaMezcla}
+                      errorAlturaAceite={errorAlturaAceite}
+                      maxAlturaPetroleo={maxAlturaPetroleo}
+                      maxAlturaMezcla={maxAlturaMezcla}
+                      maxAlturaAceite={maxAlturaAceite}
+                      litrosPetroleo={litrosPetroleo}
+                      setLitrosPetroleo={setLitrosPetroleo}
+                      litrosMezcla={litrosMezcla}
+                      setLitrosMezcla={setLitrosMezcla}
+                      litrosAceite={litrosAceite}
+                      setLitrosAceite={setLitrosAceite}
+                      errorLitrosPetroleo={errorLitrosPetroleo}
+                      errorLitrosMezcla={errorLitrosMezcla}
+                      errorLitrosAceite={errorLitrosAceite}
+                      capPetroleo={capPetroleo}
+                      capMezcla={capMezcla}
+                      capAceite={capAceite}
+                      alturaEquivPetroleo={alturaEquivPetroleo}
+                      alturaEquivMezcla={alturaEquivMezcla}
+                      alturaEquivAceite={alturaEquivAceite}
+                      stockPetroleo={stockPetroleo}
+                      stockMezcla={stockMezcla}
+                      stockAceite={stockAceite}
+                      dispPetroleo={dispPetroleo}
+                      dispMezcla={dispMezcla}
+                      dispAceite={dispAceite}
+                      nivelPetroleo={nivelPetroleo}
+                      nivelMezcla={nivelMezcla}
+                      nivelAceite={nivelAceite}
+                      inputClass={inputClass}
+                    />
+                  </div>
+
+                  {/* RECEPCIÓN CAMIONES (INGRESO DEL DÍA) */}
+                  <div className="pb-6 border-b border-slate-200">
+                    <div className="mb-4">
+                      <h4 className="text-lg font-bold text-slate-800 tracking-wide flex items-center gap-2">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-5 w-5 text-blue-600"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"
+                          />
+                        </svg>
+                        RECEPCIÓN CAMIONES (INGRESO DEL DÍA)
+                      </h4>
+                      <p className="text-xs text-slate-500 mt-1">
+                        Litros recepcionados si llega camión con petróleo y/o aceite durante el turno (por defecto 0 L).
+                      </p>
+                    </div>
+
+                    {/* Inputs en otra fila debajo del título */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl">
                       {/* Recepción Petróleo */}
-                      <div className="flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
-                        <label className="text-xs sm:text-sm font-medium text-slate-600 shrink-0">
+                      <div className="flex items-center justify-between gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                        <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+                          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0"></span>
                           Petróleo:
                         </label>
-                        <div className="relative w-28 sm:w-32">
+                        <div className="relative w-32 sm:w-36">
                           <input
                             type="number"
                             min="0"
@@ -1468,21 +1472,21 @@ function App() {
                               if (e.target.value.trim() === "") setIngresoPetroleo("0");
                             }}
                             placeholder="0"
-                            className="w-full text-right font-semibold text-slate-800 pr-6 py-1 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
+                            className="w-full text-right font-bold text-slate-800 pr-7 py-1.5 px-3 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-emerald-500 transition-colors shadow-2xs"
                           />
-                          <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 pointer-events-none">
+                          <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 pointer-events-none">
                             L
                           </span>
                         </div>
                       </div>
 
                       {/* Recepción Aceite */}
-                      <div className="flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span>
-                        <label className="text-xs sm:text-sm font-medium text-slate-600 shrink-0">
+                      <div className="flex items-center justify-between gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                        <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+                          <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shrink-0"></span>
                           Aceite:
                         </label>
-                        <div className="relative w-28 sm:w-32">
+                        <div className="relative w-32 sm:w-36">
                           <input
                             type="number"
                             min="0"
@@ -1495,9 +1499,9 @@ function App() {
                               if (e.target.value.trim() === "") setIngresoAceite("0");
                             }}
                             placeholder="0"
-                            className="w-full text-right font-semibold text-slate-800 pr-6 py-1 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:bg-white focus:outline-none focus:ring-1 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+                            className="w-full text-right font-bold text-slate-800 pr-7 py-1.5 px-3 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-500 transition-colors shadow-2xs"
                           />
-                          <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 pointer-events-none">
+                          <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 pointer-events-none">
                             L
                           </span>
                         </div>
