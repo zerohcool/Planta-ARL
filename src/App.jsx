@@ -1482,6 +1482,7 @@ function App() {
                 flota={flotaCamionesFabrica}
                 cargasCamiones={cargasCamionesFabrica}
                 onActualizarCargaCamion={actualizarCargaCamionFabrica}
+                onCambiarEstadoCamion={cambiarEstadoCamionFabrica}
                 camionesEstadia={camionesEstadia}
                 onAgregarCamionEstadia={agregarCamionEstadia}
                 onActualizarCamionEstadia={actualizarCamionEstadia}
