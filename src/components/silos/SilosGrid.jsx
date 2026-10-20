@@ -12,6 +12,8 @@ import { silosLayoutGrid } from "../../config/silos";
 function SilosGrid({
   medicionesSilos,
   actualizarMedicionSilo,
+  estadosSilos = {},
+  actualizarEstadoSilo,
   parametrosMatriz,
   parametrosNitrato,
 }) {
@@ -20,6 +22,8 @@ function SilosGrid({
       {silosLayoutGrid.map((fila, filaIndex) => (
         <div key={filaIndex} className="grid md:grid-cols-3 gap-6">
           {fila.map((silo) => {
+            const esOperativo = (estadosSilos[silo.id] ?? "operativo") === "operativo";
+
             if (silo.tipo === "matriz") {
               return (
                 <SiloMatrizCard
@@ -30,6 +34,10 @@ function SilosGrid({
                     actualizarMedicionSilo(silo.id, valor)
                   }
                   parametros={parametrosMatriz}
+                  esOperativo={esOperativo}
+                  onToggleOperativo={() =>
+                    actualizarEstadoSilo && actualizarEstadoSilo(silo.id)
+                  }
                 />
               );
             }
@@ -44,6 +52,10 @@ function SilosGrid({
                     actualizarMedicionSilo(silo.id, valor)
                   }
                   parametros={parametrosNitrato}
+                  esOperativo={esOperativo}
+                  onToggleOperativo={() =>
+                    actualizarEstadoSilo && actualizarEstadoSilo(silo.id)
+                  }
                 />
               );
             }

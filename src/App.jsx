@@ -193,6 +193,48 @@ function App() {
   };
 
   // ========================================
+  // ESTADO DE OPERATIVIDAD DE CADA SILO (OPERATIVO / NO OPERATIVO)
+  // ========================================
+  const [estadosSilos, setEstadosSilos] = useState(() => {
+    const guardados = localStorage.getItem("estadosSilosPlantaARL");
+    if (guardados) {
+      try {
+        return JSON.parse(guardados);
+      } catch (e) {
+        console.error("Error al leer estados de silos:", e);
+      }
+    }
+    return {
+      A1: "operativo",
+      A2: "operativo",
+      A3: "operativo",
+      B1: "operativo",
+      B2: "operativo",
+      B3: "operativo",
+      C1: "operativo",
+      C2: "operativo",
+      C3: "operativo",
+    };
+  });
+
+  // Guardar estados de silos en localStorage al cambiar
+  useEffect(() => {
+    localStorage.setItem("estadosSilosPlantaARL", JSON.stringify(estadosSilos));
+  }, [estadosSilos]);
+
+  const actualizarEstadoSilo = (siloId) => {
+    setEstadosSilos((prev) => {
+      const estadoActual = prev[siloId] || "operativo";
+      const nuevoEstado =
+        estadoActual === "operativo" ? "no operativo" : "operativo";
+      return {
+        ...prev,
+        [siloId]: nuevoEstado,
+      };
+    });
+  };
+
+  // ========================================
   // PARÁMETROS EDITABLES DE SILOS
   // ========================================
   // Estos parámetros permiten adaptar la app a silos
@@ -539,6 +581,7 @@ function App() {
       aceiteUsar,
       cargasCamionesFabrica: { ...cargasCamionesFabrica },
       camionesEstadia: [...camionesEstadia],
+      estadosSilos: { ...estadosSilos },
       guardadoEn: new Date().toISOString(),
     };
 
@@ -1491,14 +1534,19 @@ function App() {
                 <SilosGrid
                   medicionesSilos={medicionesSilos}
                   actualizarMedicionSilo={actualizarMedicionSilo}
+                  estadosSilos={estadosSilos}
+                  actualizarEstadoSilo={actualizarEstadoSilo}
                   parametrosMatriz={parametrosMatriz}
                   parametrosNitrato={parametrosNitrato}
                 />
 
                 <SilosResumen
                   medicionesSilos={medicionesSilos}
+                  estadosSilos={estadosSilos}
                   parametrosMatriz={parametrosMatriz}
                   parametrosNitrato={parametrosNitrato}
+                  flotaCamionesFabrica={flotaCamionesFabrica}
+                  cargasCamionesFabrica={cargasCamionesFabrica}
                 />
               </div>
 

@@ -2,6 +2,7 @@ import React from "react";
 import { IconoLleno, IconoVacio } from "../silos/SiloGaugeIcons";
 import { IconoCamionLleno } from "./CamionIcons";
 import { MAX_TON_ESTADIA } from "../../data/camiones";
+import { formatearCamionesFraccion } from "../../utils/camionesFraccion";
 
 function ControlCamionesSilos({
   flota,
@@ -35,6 +36,8 @@ function ControlCamionesSilos({
   let totalMatrizCF = 0;
   let capTotalNitratoCF = 0;
   let capTotalMatrizCF = 0;
+  let capDisponibleNitratoCF = 0;
+  let capDisponibleMatrizCF = 0;
 
   camionesEnFaena.forEach((camion) => {
     const carga = cargasCamiones[camion.id] || { nitrato: "0", matriz: "0" };
@@ -45,6 +48,12 @@ function ControlCamionesSilos({
     totalMatrizCF += mat;
     capTotalNitratoCF += camion.capacidadNitrato;
     capTotalMatrizCF += camion.capacidadMatriz;
+
+    // Solo los camiones disponibles (operativos) tienen capacidad disponible para ser cargados
+    if (camion.estado === "disponible") {
+      capDisponibleNitratoCF += Math.max(0, camion.capacidadNitrato - nit);
+      capDisponibleMatrizCF += Math.max(0, camion.capacidadMatriz - mat);
+    }
   });
 
   // 2. Camiones con Estadía
@@ -650,34 +659,48 @@ function ControlCamionesSilos({
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3.5 sm:gap-4">
           {/* Nitrato en Camiones Fábrica */}
           <div
-            className="p-3.5 sm:p-4 rounded-xl shadow-sm border border-amber-600/30 text-white min-w-0"
+            className="p-3.5 sm:p-4 rounded-xl shadow-sm border border-amber-600/30 text-white min-w-0 flex flex-col justify-between"
             style={{ backgroundColor: "rgb(245, 158, 11)" }}
           >
-            <p className="text-xs font-medium text-white/90 truncate">
-              Nitrato Camiones Fábrica
-            </p>
-            <p className="text-xl sm:text-2xl font-bold text-white mt-1 truncate">
-              {totalNitratoCF.toLocaleString("es-CL", { maximumFractionDigits: 2 })} ton
-            </p>
-            <p className="text-[11px] text-white/80 mt-1 truncate">
-              Cap: {capTotalNitratoCF.toLocaleString("es-CL")}t ({cantDisponibles} disp. / {cantNoOperativos} no op.)
-            </p>
+            <div>
+              <p className="text-xs font-medium text-white/90 truncate">
+                Nitrato Camiones Fábrica
+              </p>
+              <p className="text-xl sm:text-2xl font-bold text-white mt-1 truncate">
+                {totalNitratoCF.toLocaleString("es-CL", { maximumFractionDigits: 2 })} ton
+              </p>
+            </div>
+            <div className="mt-2 pt-1 border-t border-white/20">
+              <p className="text-[11px] text-white/80 truncate">
+                Cap. Total: {capTotalNitratoCF.toLocaleString("es-CL")}t ({cantDisponibles} disp.)
+              </p>
+              <p className="text-[11px] font-bold text-white mt-0.5 truncate">
+                Disp: {capDisponibleNitratoCF.toFixed(1)}t ({formatearCamionesFraccion(capDisponibleNitratoCF)} cam. 25t)
+              </p>
+            </div>
           </div>
 
           {/* Matriz en Camiones Fábrica */}
           <div
-            className="p-3.5 sm:p-4 rounded-xl shadow-sm border border-sky-400/30 text-white min-w-0"
+            className="p-3.5 sm:p-4 rounded-xl shadow-sm border border-sky-400/30 text-white min-w-0 flex flex-col justify-between"
             style={{ backgroundColor: "rgb(75, 162, 227)" }}
           >
-            <p className="text-xs font-medium text-white/90 truncate">
-              Matriz Camiones Fábrica
-            </p>
-            <p className="text-xl sm:text-2xl font-bold text-white mt-1 truncate">
-              {totalMatrizCF.toLocaleString("es-CL", { maximumFractionDigits: 2 })} ton
-            </p>
-            <p className="text-[11px] text-white/80 mt-1 truncate">
-              Cap: {capTotalMatrizCF.toLocaleString("es-CL")}t ({cantDisponibles} disp. / {cantNoOperativos} no op.)
-            </p>
+            <div>
+              <p className="text-xs font-medium text-white/90 truncate">
+                Matriz Camiones Fábrica
+              </p>
+              <p className="text-xl sm:text-2xl font-bold text-white mt-1 truncate">
+                {totalMatrizCF.toLocaleString("es-CL", { maximumFractionDigits: 2 })} ton
+              </p>
+            </div>
+            <div className="mt-2 pt-1 border-t border-white/20">
+              <p className="text-[11px] text-white/80 truncate">
+                Cap. Total: {capTotalMatrizCF.toLocaleString("es-CL")}t ({cantDisponibles} disp.)
+              </p>
+              <p className="text-[11px] font-bold text-white mt-0.5 truncate">
+                Disp: {capDisponibleMatrizCF.toFixed(1)}t ({formatearCamionesFraccion(capDisponibleMatrizCF)} cam. 25t)
+              </p>
+            </div>
           </div>
 
           {/* Nitrato en Estadía */}

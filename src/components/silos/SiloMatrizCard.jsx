@@ -7,11 +7,16 @@ import { calcularSiloMatriz } from "../../utils/silos/matriz";
 // Iconos vectoriales de estado Lleno / Vacío
 import { IconoLleno, IconoVacio } from "./SiloGaugeIcons";
 
+// Utilidad para formatear camiones de 25 ton en cuartos
+import { formatearCamionesFraccion } from "../../utils/camionesFraccion";
+
 function SiloMatrizCard({
   titulo = "Silo Matriz",
   medicion,
   setMedicion,
   parametros,
+  esOperativo = true,
+  onToggleOperativo,
 }) {
   // ========================================
   // CÁLCULO PRINCIPAL DEL SILO
@@ -41,8 +46,9 @@ function SiloMatrizCard({
 
   const medicionValida = !errorMedicion;
 
-  // Cálculo de capacidad disponible en toneladas
+  // Cálculo de capacidad disponible en toneladas (solo si es operativo)
   const capacidadDisponibleTon = (datos.Vvac * datos.densidad) / 1000;
+  const capacidadDisponibleEfectiva = esOperativo ? capacidadDisponibleTon : 0;
 
   // Determinar si el silo se encuentra lleno (medición en 0)
   const estaLleno = medicion !== "" && Number(medicion) === 0;
@@ -57,9 +63,43 @@ function SiloMatrizCard({
   };
 
   return (
-    <div className="bg-sky-50 p-6 rounded-2xl shadow border border-sky-200">
-      <h4 className="text-xl font-bold text-slate-800 mb-1">{titulo}</h4>
-      <p className="text-sm text-sky-700 font-medium mb-4">Tipo: Matriz</p>
+    <div
+      className={`p-6 rounded-2xl shadow border transition ${
+        esOperativo
+          ? "bg-sky-50 border-sky-200"
+          : "bg-slate-50 border-red-300 ring-1 ring-red-200"
+      }`}
+    >
+      {/* Cabecera del Silo: Título + Botón de Operatividad */}
+      <div className="flex items-start justify-between gap-2 mb-3">
+        <div>
+          <h4 className="text-xl font-bold text-slate-800 mb-0.5">{titulo}</h4>
+          <p className="text-sm text-sky-700 font-medium">Tipo: Matriz</p>
+        </div>
+
+        {/* Botón interactivo para cambiar entre Operativo y No Operativo */}
+        <button
+          type="button"
+          onClick={onToggleOperativo}
+          title={
+            esOperativo
+              ? "Silo Operativo. Clic para marcar como No Operativo"
+              : "Silo No Operativo. Clic para marcar como Operativo"
+          }
+          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold border transition cursor-pointer shadow-2xs ${
+            esOperativo
+              ? "bg-white text-emerald-700 border-emerald-300 hover:bg-emerald-50"
+              : "bg-red-100 text-red-800 border-red-300 hover:bg-red-200"
+          }`}
+        >
+          <span
+            className={`w-2.5 h-2.5 rounded-full ${
+              esOperativo ? "bg-emerald-500" : "bg-red-500"
+            }`}
+          />
+          {esOperativo ? "Operativo" : "No Operativo"}
+        </button>
+      </div>
 
       <p className="text-sm text-slate-600 mb-1">Distancia vacía medida (m)</p>
       <div className="flex gap-2 items-center">
@@ -103,6 +143,7 @@ function SiloMatrizCard({
       </p>
 
       <div className="mt-5 grid grid-cols-2 gap-3 sm:gap-4">
+        {/* Toneladas ocupadas */}
         <div
           className="p-3 sm:p-4 rounded-xl shadow-sm border border-sky-400/30 text-white min-w-0"
           style={{ backgroundColor: "rgb(75, 162, 227)" }}
@@ -120,20 +161,30 @@ function SiloMatrizCard({
           </p>
         </div>
 
+        {/* Capacidad disponible */}
         <div
-          className="p-3 sm:p-4 rounded-xl shadow-sm border border-sky-200 min-w-0"
-          style={{ backgroundColor: "rgb(227, 241, 253)" }}
+          className={`p-3 sm:p-4 rounded-xl shadow-sm border min-w-0 ${
+            esOperativo
+              ? "border-sky-200 text-sky-900"
+              : "border-red-200 text-red-900 bg-red-50/50"
+          }`}
+          style={esOperativo ? { backgroundColor: "rgb(227, 241, 253)" } : {}}
         >
-          <p className="text-xs sm:text-sm font-medium text-sky-800 whitespace-nowrap truncate">
+          <p className="text-xs sm:text-sm font-medium truncate">
             Capacidad disponible
           </p>
-          <p className="text-xl sm:text-2xl font-bold text-sky-900 whitespace-nowrap truncate mt-1">
+          <p className="text-xl sm:text-2xl font-bold whitespace-nowrap truncate mt-1">
             {medicionValida
-              ? capacidadDisponibleTon.toLocaleString("es-CL", {
+              ? capacidadDisponibleEfectiva.toLocaleString("es-CL", {
                   maximumFractionDigits: 2,
                 })
               : "0,00"}{" "}
             ton
+          </p>
+          <p className="text-[11px] font-bold mt-0.5 truncate">
+            {esOperativo && medicionValida
+              ? `${formatearCamionesFraccion(capacidadDisponibleEfectiva)} camiones (25t)`
+              : "No disponible (No operativo)"}
           </p>
         </div>
       </div>
