@@ -35,6 +35,11 @@ import { silosConfigResumen } from "./config/silos";
 import IngresoMateriasPrimas from "./components/materias-primas/IngresoMateriasPrimas";
 import { crearFilaVaciaMMPP } from "./utils/materiasPrimas";
 
+// Componentes Camiones Fábrica y Estadías
+import RegistroCamionesFabrica from "./components/camiones/RegistroCamionesFabrica";
+import ControlCamionesSilos from "./components/camiones/ControlCamionesSilos";
+import { camionesFabricaIniciales } from "./data/camiones";
+
 function App() {
   // ========================================
   // REFERENCIAS
@@ -263,6 +268,132 @@ function App() {
   }, [ingresosMMPP]);
 
   // ========================================
+  // ESTADOS Y HANDLERS: CAMIONES FÁBRICA Y ESTADÍAS
+  // ========================================
+  // Flota de camiones fábrica registrados
+  const [flotaCamionesFabrica, setFlotaCamionesFabrica] = useState(() => {
+    const guardados = localStorage.getItem("flotaCamionesFabricaPlantaARL");
+    if (guardados) {
+      try {
+        const parsed = JSON.parse(guardados);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      } catch (e) {
+        console.error("Error al leer flota de camiones fábrica guardada:", e);
+      }
+    }
+    return camionesFabricaIniciales;
+  });
+
+  // Guardar flota en localStorage al cambiar
+  useEffect(() => {
+    localStorage.setItem(
+      "flotaCamionesFabricaPlantaARL",
+      JSON.stringify(flotaCamionesFabrica),
+    );
+  }, [flotaCamionesFabrica]);
+
+  // Cargas diarias de camiones fábrica: { [camionId]: { nitrato: string, matriz: string } }
+  const [cargasCamionesFabrica, setCargasCamionesFabrica] = useState(() => {
+    const guardadas = localStorage.getItem("cargasCamionesFabricaPlantaARL");
+    if (guardadas) {
+      try {
+        return JSON.parse(guardadas);
+      } catch (e) {
+        console.error("Error al leer cargas de camiones fábrica:", e);
+      }
+    }
+    return {};
+  });
+
+  // Guardar cargas de camiones en localStorage al cambiar
+  useEffect(() => {
+    localStorage.setItem(
+      "cargasCamionesFabricaPlantaARL",
+      JSON.stringify(cargasCamionesFabrica),
+    );
+  }, [cargasCamionesFabrica]);
+
+  // Camiones de materia prima con estadía (máximo 28 toneladas por camión)
+  const [camionesEstadia, setCamionesEstadia] = useState(() => {
+    const guardados = localStorage.getItem("camionesEstadiaPlantaARL");
+    if (guardados) {
+      try {
+        const parsed = JSON.parse(guardados);
+        if (Array.isArray(parsed)) return parsed;
+      } catch (e) {
+        console.error("Error al leer camiones con estadía:", e);
+      }
+    }
+    return [];
+  });
+
+  // Guardar camiones con estadía en localStorage al cambiar
+  useEffect(() => {
+    localStorage.setItem(
+      "camionesEstadiaPlantaARL",
+      JSON.stringify(camionesEstadia),
+    );
+  }, [camionesEstadia]);
+
+  // Handlers para la gestión de flota de camiones fábrica
+  const agregarCamionFabrica = (nuevoCamion) => {
+    setFlotaCamionesFabrica((prev) => [...prev, nuevoCamion]);
+  };
+
+  const editarCamionFabrica = (id, datosActualizados) => {
+    setFlotaCamionesFabrica((prev) =>
+      prev.map((c) => (c.id === id ? { ...c, ...datosActualizados } : c)),
+    );
+  };
+
+  const eliminarCamionFabrica = (id) => {
+    setFlotaCamionesFabrica((prev) => prev.filter((c) => c.id !== id));
+    setCargasCamionesFabrica((prev) => {
+      const copia = { ...prev };
+      delete copia[id];
+      return copia;
+    });
+  };
+
+  const cambiarEstadoCamionFabrica = (id, nuevoEstado) => {
+    setFlotaCamionesFabrica((prev) =>
+      prev.map((c) => (c.id === id ? { ...c, estado: nuevoEstado } : c)),
+    );
+  };
+
+  // Handler para actualizar la carga de un camión fábrica
+  const actualizarCargaCamionFabrica = (camionId, campo, valor) => {
+    setCargasCamionesFabrica((prev) => ({
+      ...prev,
+      [camionId]: {
+        ...(prev[camionId] || { nitrato: "0", matriz: "0" }),
+        [campo]: valor,
+      },
+    }));
+  };
+
+  // Handlers para camiones de materia prima con estadía
+  const agregarCamionEstadia = () => {
+    const nuevo = {
+      id: "EST-" + Date.now().toString(36).toUpperCase(),
+      identificador: "",
+      tipo: "nitrato", // nitrato | matriz
+      toneladas: "28", // por defecto lleno al máximo
+    };
+    setCamionesEstadia((prev) => [...prev, nuevo]);
+  };
+
+  const actualizarCamionEstadia = (id, campo, valor) => {
+    setCamionesEstadia((prev) =>
+      prev.map((c) => (c.id === id ? { ...c, [campo]: valor } : c)),
+    );
+  };
+
+  const eliminarCamionEstadia = (id) => {
+    setCamionesEstadia((prev) => prev.filter((c) => c.id !== id));
+  };
+
+  // ========================================
   // FUNCIÓN AUXILIAR: FORMATEAR FECHA
   // ========================================
   // Convierte fecha YYYY-MM-DD a formato DD-MM-AAAA
@@ -381,6 +512,8 @@ function App() {
       ingresoAceite,
       petroleoUsar,
       aceiteUsar,
+      cargasCamionesFabrica: { ...cargasCamionesFabrica },
+      camionesEstadia: [...camionesEstadia],
       guardadoEn: new Date().toISOString(),
     };
 
@@ -1153,6 +1286,13 @@ function App() {
           </button>
 
           <button
+            onClick={() => setSeccionActiva("camiones-fabrica")}
+            className={navButtonClass("camiones-fabrica")}
+          >
+            Camiones Fábrica
+          </button>
+
+          <button
             onClick={() => setSeccionActiva("materias-primas")}
             className={navButtonClass("materias-primas")}
           >
@@ -1336,6 +1476,17 @@ function App() {
                   parametrosNitrato={parametrosNitrato}
                 />
               </div>
+
+              {/* Control de Camiones Fábrica y Estadías de Materias Primas */}
+              <ControlCamionesSilos
+                flota={flotaCamionesFabrica}
+                cargasCamiones={cargasCamionesFabrica}
+                onActualizarCargaCamion={actualizarCargaCamionFabrica}
+                camionesEstadia={camionesEstadia}
+                onAgregarCamionEstadia={agregarCamionEstadia}
+                onActualizarCamionEstadia={actualizarCamionEstadia}
+                onEliminarCamionEstadia={eliminarCamionEstadia}
+              />
 
               {/* Tarjeta unificada: Stock Planta ARL, Recepción, Registro de Fabricación y Resumen */}
               <div>
@@ -2329,6 +2480,16 @@ function App() {
             <IngresoMateriasPrimas
               ingresos={ingresosMMPP}
               setIngresos={setIngresosMMPP}
+            />
+          )}
+
+          {seccionActiva === "camiones-fabrica" && (
+            <RegistroCamionesFabrica
+              flota={flotaCamionesFabrica}
+              onAgregarCamion={agregarCamionFabrica}
+              onEditarCamion={editarCamionFabrica}
+              onEliminarCamion={eliminarCamionFabrica}
+              onCambiarEstado={cambiarEstadoCamionFabrica}
             />
           )}
         </div>
