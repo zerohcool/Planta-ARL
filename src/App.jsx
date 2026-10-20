@@ -103,8 +103,12 @@ function App() {
   const [mostrarModalCalculadora, setMostrarModalCalculadora] = useState(false);
 
   // ========================================
-  // ESTADOS DE REGISTRO DE FABRICACIÓN
+  // ESTADOS DE REGISTRO DE FABRICACIÓN E INGRESOS DEL DÍA
   // ========================================
+  // Litros recepcionados del día por camión (por defecto 0)
+  const [ingresoPetroleo, setIngresoPetroleo] = useState("0");
+  const [ingresoAceite, setIngresoAceite] = useState("0");
+
   // Litros realmente usados en la fabricación
   const [petroleoUsar, setPetroleoUsar] = useState("");
   const [aceiteUsar, setAceiteUsar] = useState("");
@@ -373,6 +377,10 @@ function App() {
       alturaPetroleo,
       alturaMezcla,
       alturaAceite,
+      ingresoPetroleo,
+      ingresoAceite,
+      petroleoUsar,
+      aceiteUsar,
       guardadoEn: new Date().toISOString(),
     };
 
@@ -701,11 +709,12 @@ function App() {
     pdf.setFontSize(9);
     pdf.setTextColor(51, 65, 85);
     pdf.text("Estanque", margin + 2, y + 5.5);
-    pdf.text("Altura", margin + 35, y + 5.5);
-    pdf.text("Stock", margin + 58, y + 5.5);
-    pdf.text("Utilizado", margin + 90, y + 5.5);
-    pdf.text("Fabricado", margin + 125, y + 5.5);
-    pdf.text("Disponible", margin + 160, y + 5.5);
+    pdf.text("Altura", margin + 28, y + 5.5);
+    pdf.text("Stock", margin + 48, y + 5.5);
+    pdf.text("Ingreso", margin + 74, y + 5.5);
+    pdf.text("Utilizado", margin + 102, y + 5.5);
+    pdf.text("Fabricado", margin + 132, y + 5.5);
+    pdf.text("Disponible", margin + 162, y + 5.5);
 
     y += 8;
 
@@ -714,6 +723,7 @@ function App() {
       nombre,
       altura,
       stock,
+      ingreso,
       utilizado,
       fabricado,
       disponible,
@@ -725,25 +735,29 @@ function App() {
       pdf.setFontSize(9);
       pdf.setTextColor(30, 41, 59);
       pdf.text(nombre, margin + 2, y + 5.5);
-      pdf.text(String(altura || 0), margin + 35, y + 5.5);
+      pdf.text(String(altura || 0), margin + 28, y + 5.5);
 
       pdf.setFont("helvetica", "bold");
       pdf.setTextColor(15, 23, 42);
       pdf.text(
         Number(stock || 0).toLocaleString("es-CL"),
-        margin + 58,
+        margin + 48,
         y + 5.5,
       );
 
+      pdf.setFont("helvetica", "bold");
+      pdf.setTextColor(22, 163, 74);
+      pdf.text(String(ingreso), margin + 74, y + 5.5);
+
       pdf.setFont("helvetica", "normal");
       pdf.setTextColor(220, 38, 38);
-      pdf.text(String(utilizado), margin + 90, y + 5.5);
+      pdf.text(String(utilizado), margin + 102, y + 5.5);
 
-      pdf.setTextColor(22, 163, 74);
-      pdf.text(String(fabricado), margin + 125, y + 5.5);
+      pdf.setTextColor(14, 165, 233);
+      pdf.text(String(fabricado), margin + 132, y + 5.5);
 
       pdf.setTextColor(37, 99, 235);
-      pdf.text(String(disponible), margin + 160, y + 5.5);
+      pdf.text(String(disponible), margin + 162, y + 5.5);
 
       pdf.setTextColor(0, 0, 0);
       y += 8;
@@ -754,6 +768,9 @@ function App() {
       "Petróleo",
       alturaReportePetroleo,
       stockPetroleo,
+      recepcionPetroleo > 0
+        ? `+${recepcionPetroleo.toLocaleString("es-CL")}`
+        : "0",
       Number(utilizadoPetroleo || 0).toLocaleString("es-CL", {
         maximumFractionDigits: 2,
       }),
@@ -766,6 +783,7 @@ function App() {
       alturaReporteMezcla,
       stockMezcla,
       "-",
+      "-",
       Number(mezclaFabricada || 0).toLocaleString("es-CL", {
         maximumFractionDigits: 2,
       }),
@@ -776,6 +794,9 @@ function App() {
       "Aceite",
       alturaReporteAceite,
       stockAceite,
+      recepcionAceite > 0
+        ? `+${recepcionAceite.toLocaleString("es-CL")}`
+        : "0",
       Number(utilizadoAceite || 0).toLocaleString("es-CL", {
         maximumFractionDigits: 2,
       }),
@@ -1052,9 +1073,11 @@ function App() {
     capAceite > 0 ? Math.min((stockAceite / capAceite) * 100, 100) : 0;
 
   // ========================================
-  // CÁLCULOS DE MEZCLA
+  // CÁLCULOS DE MEZCLA Y RECEPCIONES
   // ========================================
-  // Valores numéricos usados en la calculadora y en el registro
+  // Valores numéricos usados en la calculadora, recepciones y en el registro
+  const recepcionPetroleo = Number(ingresoPetroleo) || 0;
+  const recepcionAceite = Number(ingresoAceite) || 0;
   const objetivoLitros = Number(mezclaObjetivo) || 0;
   const utilizadoPetroleo = Number(petroleoUsar) || 0;
   const utilizadoAceite = Number(aceiteUsar) || 0;
@@ -1400,9 +1423,99 @@ function App() {
                 />
               </div>
 
-              {/* Registro real de fabricación a lo largo con botón de Calculadora de Mezcla */}
+              {/* Registro real de fabricación a lo largo con botón de Calculadora de Mezcla y Resumen integrado */}
               <div>
                 <div className="bg-white p-6 rounded-2xl shadow border border-slate-200">
+                  {/* Recepción de camiones / Ingreso del día (antes del título) */}
+                  <div className="bg-slate-50 p-4 sm:p-5 rounded-xl border border-slate-200 mb-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-3">
+                      <div>
+                        <h5 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4 text-blue-600"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"
+                            />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"
+                            />
+                          </svg>
+                          Recepción de Camiones (Ingreso del Día)
+                        </h5>
+                        <p className="text-xs text-slate-500">
+                          Litros recepcionados si llega camión con petróleo y/o aceite durante el turno (por defecto 0 L).
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {/* Recepción Petróleo */}
+                      <div className="bg-white p-3 rounded-lg border border-emerald-200 shadow-2xs flex items-center justify-between gap-3">
+                        <label className="flex items-center gap-2 text-sm font-semibold text-emerald-900 shrink-0">
+                          <span className="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
+                          Recepción Petróleo:
+                        </label>
+                        <div className="relative flex-1 max-w-[180px]">
+                          <input
+                            type="number"
+                            min="0"
+                            value={ingresoPetroleo}
+                            onChange={(e) => setIngresoPetroleo(e.target.value)}
+                            onFocus={(e) => {
+                              if (e.target.value === "0") setIngresoPetroleo("");
+                            }}
+                            onBlur={(e) => {
+                              if (e.target.value.trim() === "") setIngresoPetroleo("0");
+                            }}
+                            placeholder="0"
+                            className="w-full text-right font-bold text-slate-800 pr-7 py-1.5 px-3 border border-emerald-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-500 text-base"
+                          />
+                          <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-emerald-700 pointer-events-none">
+                            L
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Recepción Aceite */}
+                      <div className="bg-white p-3 rounded-lg border border-amber-200 shadow-2xs flex items-center justify-between gap-3">
+                        <label className="flex items-center gap-2 text-sm font-semibold text-amber-900 shrink-0">
+                          <span className="w-2.5 h-2.5 rounded-full bg-amber-600"></span>
+                          Recepción Aceite:
+                        </label>
+                        <div className="relative flex-1 max-w-[180px]">
+                          <input
+                            type="number"
+                            min="0"
+                            value={ingresoAceite}
+                            onChange={(e) => setIngresoAceite(e.target.value)}
+                            onFocus={(e) => {
+                              if (e.target.value === "0") setIngresoAceite("");
+                            }}
+                            onBlur={(e) => {
+                              if (e.target.value.trim() === "") setIngresoAceite("0");
+                            }}
+                            placeholder="0"
+                            className="w-full text-right font-bold text-slate-800 pr-7 py-1.5 px-3 border border-amber-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-200 focus:border-amber-500 text-base"
+                          />
+                          <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-amber-700 pointer-events-none">
+                            L
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 pb-4 border-b border-slate-100">
                     <div>
                       <h4 className="text-xl font-bold text-slate-800">
@@ -1523,102 +1636,125 @@ function App() {
                       </div>
                     </div>
                   </div>
-                </div>
-              </div>
 
-              {/* Tabla resumen */}
-              <div>
-                <h3 className="text-2xl font-bold text-slate-800 mb-4">
-                  Resumen
-                </h3>
+                  {/* Resumen con su tabla integrado dentro de la misma tarjeta */}
+                  <div className="mt-8 pt-6 border-t border-slate-200">
+                    <div className="mb-4">
+                      <h4 className="text-xl font-bold text-slate-800">
+                        Resumen
+                      </h4>
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        Balance general por estanque considerando mediciones, stock, ingresos recepcionados, consumo y mezcla fabricada.
+                      </p>
+                    </div>
 
-                <div className="bg-white p-6 rounded-2xl shadow border border-slate-200 overflow-x-auto">
-                  <table className="w-full min-w-[700px]">
-                    <thead>
-                      <tr className="border-b text-left text-slate-600">
-                        <th className="pb-3">Estanque</th>
-                        <th className="pb-3">Altura (cm)</th>
-                        <th className="pb-3">Stock (L)</th>
-                        <th className="pb-3">Utilizado (L)</th>
-                        <th className="pb-3">Fabricado (L)</th>
-                        <th className="pb-3">Disponible (L)</th>
-                      </tr>
-                    </thead>
+                    <div className="overflow-x-auto rounded-xl border border-slate-200">
+                      <table className="w-full min-w-[700px]">
+                        <thead className="bg-slate-50">
+                          <tr className="border-b border-slate-200 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                            <th className="py-3 px-4">Estanque</th>
+                            <th className="py-3 px-4">Altura (cm)</th>
+                            <th className="py-3 px-4">Stock (L)</th>
+                            <th className="py-3 px-4">Ingreso (L)</th>
+                            <th className="py-3 px-4">Utilizado (L)</th>
+                            <th className="py-3 px-4">Fabricado (L)</th>
+                            <th className="py-3 px-4">Disponible (L)</th>
+                          </tr>
+                        </thead>
 
-                    <tbody className="text-slate-800 divide-y divide-slate-100">
-                      <tr className="hover:bg-emerald-50/20 transition-colors">
-                        <td className="py-3.5">
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                            Petróleo
-                          </span>
-                        </td>
-                        <td className="text-slate-700 font-medium">
-                          {alturaReportePetroleo || 0}
-                        </td>
-                        <td className="font-bold text-slate-900">
-                          {stockPetroleo.toLocaleString("es-CL")}
-                        </td>
-                        <td className="text-red-600 font-medium">
-                          {utilizadoPetroleo.toLocaleString("es-CL", {
-                            maximumFractionDigits: 2,
-                          })}
-                        </td>
-                        <td className="text-slate-400 font-medium">-</td>
-                        <td className="text-emerald-700 font-bold">
-                          {dispPetroleo.toLocaleString("es-CL")}
-                        </td>
-                      </tr>
+                        <tbody className="text-slate-800 divide-y divide-slate-100 bg-white">
+                          <tr className="hover:bg-emerald-50/20 transition-colors">
+                            <td className="py-3.5 px-4">
+                              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                Petróleo
+                              </span>
+                            </td>
+                            <td className="py-3.5 px-4 text-slate-700 font-medium">
+                              {alturaReportePetroleo || 0}
+                            </td>
+                            <td className="py-3.5 px-4 font-bold text-slate-900">
+                              {stockPetroleo.toLocaleString("es-CL")}
+                            </td>
+                            <td className="py-3.5 px-4 font-bold text-emerald-700">
+                              {recepcionPetroleo > 0
+                                ? `+${recepcionPetroleo.toLocaleString("es-CL")}`
+                                : "0"}
+                            </td>
+                            <td className="py-3.5 px-4 text-red-600 font-medium">
+                              {utilizadoPetroleo > 0
+                                ? utilizadoPetroleo.toLocaleString("es-CL", {
+                                    maximumFractionDigits: 2,
+                                  })
+                                : "0"}
+                            </td>
+                            <td className="py-3.5 px-4 text-slate-400 font-medium">-</td>
+                            <td className="py-3.5 px-4 text-emerald-700 font-bold">
+                              {dispPetroleo.toLocaleString("es-CL")}
+                            </td>
+                          </tr>
 
-                      <tr className="hover:bg-sky-50/20 transition-colors">
-                        <td className="py-3.5">
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-sky-100 text-sky-800 border border-sky-200">
-                            <span className="w-2 h-2 rounded-full bg-sky-500"></span>
-                            Mezcla
-                          </span>
-                        </td>
-                        <td className="text-slate-700 font-medium">
-                          {alturaReporteMezcla || 0}
-                        </td>
-                        <td className="font-bold text-slate-900">
-                          {stockMezcla.toLocaleString("es-CL")}
-                        </td>
-                        <td className="text-slate-400 font-medium">-</td>
-                        <td className="text-sky-700 font-bold">
-                          {mezclaFabricada.toLocaleString("es-CL", {
-                            maximumFractionDigits: 2,
-                          })}
-                        </td>
-                        <td className="text-blue-700 font-bold">
-                          {dispMezcla.toLocaleString("es-CL")}
-                        </td>
-                      </tr>
+                          <tr className="hover:bg-sky-50/20 transition-colors">
+                            <td className="py-3.5 px-4">
+                              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-sky-100 text-sky-800 border border-sky-200">
+                                <span className="w-2 h-2 rounded-full bg-sky-500"></span>
+                                Mezcla
+                              </span>
+                            </td>
+                            <td className="py-3.5 px-4 text-slate-700 font-medium">
+                              {alturaReporteMezcla || 0}
+                            </td>
+                            <td className="py-3.5 px-4 font-bold text-slate-900">
+                              {stockMezcla.toLocaleString("es-CL")}
+                            </td>
+                            <td className="py-3.5 px-4 text-slate-400 font-medium">-</td>
+                            <td className="py-3.5 px-4 text-slate-400 font-medium">-</td>
+                            <td className="py-3.5 px-4 text-sky-700 font-bold">
+                              {mezclaFabricada > 0
+                                ? mezclaFabricada.toLocaleString("es-CL", {
+                                    maximumFractionDigits: 2,
+                                  })
+                                : "0"}
+                            </td>
+                            <td className="py-3.5 px-4 text-blue-700 font-bold">
+                              {dispMezcla.toLocaleString("es-CL")}
+                            </td>
+                          </tr>
 
-                      <tr className="hover:bg-amber-50/20 transition-colors">
-                        <td className="py-3.5">
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-200">
-                            <span className="w-2 h-2 rounded-full bg-amber-500"></span>
-                            Aceite
-                          </span>
-                        </td>
-                        <td className="text-slate-700 font-medium">
-                          {alturaReporteAceite || 0}
-                        </td>
-                        <td className="font-bold text-slate-900">
-                          {stockAceite.toLocaleString("es-CL")}
-                        </td>
-                        <td className="text-red-600 font-medium">
-                          {utilizadoAceite.toLocaleString("es-CL", {
-                            maximumFractionDigits: 2,
-                          })}
-                        </td>
-                        <td className="text-slate-400 font-medium">-</td>
-                        <td className="text-amber-700 font-bold">
-                          {dispAceite.toLocaleString("es-CL")}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
+                          <tr className="hover:bg-amber-50/20 transition-colors">
+                            <td className="py-3.5 px-4">
+                              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-200">
+                                <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                                Aceite
+                              </span>
+                            </td>
+                            <td className="py-3.5 px-4 text-slate-700 font-medium">
+                              {alturaReporteAceite || 0}
+                            </td>
+                            <td className="py-3.5 px-4 font-bold text-slate-900">
+                              {stockAceite.toLocaleString("es-CL")}
+                            </td>
+                            <td className="py-3.5 px-4 font-bold text-amber-700">
+                              {recepcionAceite > 0
+                                ? `+${recepcionAceite.toLocaleString("es-CL")}`
+                                : "0"}
+                            </td>
+                            <td className="py-3.5 px-4 text-red-600 font-medium">
+                              {utilizadoAceite > 0
+                                ? utilizadoAceite.toLocaleString("es-CL", {
+                                    maximumFractionDigits: 2,
+                                  })
+                                : "0"}
+                            </td>
+                            <td className="py-3.5 px-4 text-slate-400 font-medium">-</td>
+                            <td className="py-3.5 px-4 text-amber-700 font-bold">
+                              {dispAceite.toLocaleString("es-CL")}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
                 </div>
               </div>
 
