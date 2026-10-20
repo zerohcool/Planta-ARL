@@ -1436,67 +1436,91 @@ function App() {
                     </button>
                   </div>
 
-                  <div className="grid md:grid-cols-2 gap-6 mb-6">
-                    <div className="bg-emerald-50/40 p-4 rounded-xl border border-emerald-200">
-                      <label className="flex items-center gap-2 text-sm font-semibold mb-2 text-emerald-900">
-                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
-                        Petróleo utilizado (L)
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                    {/* Tarjeta 1: Petróleo utilizado */}
+                    <div className="bg-emerald-50/50 p-4 rounded-xl border border-emerald-200 shadow-xs flex flex-col justify-between min-w-0">
+                      <label className="flex items-center gap-1.5 text-xs uppercase tracking-wider font-semibold text-emerald-900 mb-2 truncate" title="Petróleo utilizado (L)">
+                        <span className="w-2 h-2 rounded-full bg-emerald-600 shrink-0"></span>
+                        <span className="truncate">Petróleo utilizado</span>
                       </label>
-                      <input
-                        type="number"
-                        min="0"
-                        placeholder="Litros de petróleo"
-                        value={petroleoUsar}
-                        onChange={(e) => setPetroleoUsar(e.target.value)}
-                        className="w-full bg-white border border-emerald-300 rounded-lg p-3 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-500"
-                      />
+                      <div className="relative mt-auto">
+                        <input
+                          type="number"
+                          min="0"
+                          placeholder="0"
+                          value={petroleoUsar}
+                          onChange={(e) => setPetroleoUsar(e.target.value)}
+                          className="w-full bg-white border border-emerald-300 rounded-lg p-2.5 pr-7 font-bold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-500 text-lg shadow-2xs"
+                        />
+                        <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-emerald-700 pointer-events-none">
+                          L
+                        </span>
+                      </div>
                     </div>
 
-                    <div className="bg-amber-50/40 p-4 rounded-xl border border-amber-200">
-                      <label className="flex items-center gap-2 text-sm font-semibold mb-2 text-amber-900">
-                        <span className="w-2.5 h-2.5 rounded-full bg-amber-600"></span>
-                        Aceite utilizado (L)
+                    {/* Tarjeta 2: Aceite utilizado */}
+                    <div className="bg-amber-50/50 p-4 rounded-xl border border-amber-200 shadow-xs flex flex-col justify-between min-w-0">
+                      <label className="flex items-center gap-1.5 text-xs uppercase tracking-wider font-semibold text-amber-900 mb-2 truncate" title="Aceite utilizado (L)">
+                        <span className="w-2 h-2 rounded-full bg-amber-600 shrink-0"></span>
+                        <span className="truncate">Aceite utilizado</span>
                       </label>
-                      <input
-                        type="number"
-                        min="0"
-                        placeholder="Litros de aceite"
-                        value={aceiteUsar}
-                        onChange={(e) => setAceiteUsar(e.target.value)}
-                        className="w-full bg-white border border-amber-300 rounded-lg p-3 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-200 focus:border-amber-500"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div className="p-4 rounded-xl bg-sky-50 border border-sky-200 shadow-sm">
-                      <p className="text-xs uppercase tracking-wider text-sky-700 font-semibold">
-                        Mezcla fabricada
-                      </p>
-                      <p className="text-2xl font-bold text-sky-950 mt-1">
-                        {mezclaFabricada.toLocaleString("es-CL", {
-                          maximumFractionDigits: 2,
-                        })}{" "}
-                        L
-                      </p>
+                      <div className="relative mt-auto">
+                        <input
+                          type="number"
+                          min="0"
+                          placeholder="0"
+                          value={aceiteUsar}
+                          onChange={(e) => setAceiteUsar(e.target.value)}
+                          className="w-full bg-white border border-amber-300 rounded-lg p-2.5 pr-7 font-bold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-200 focus:border-amber-500 text-lg shadow-2xs"
+                        />
+                        <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-amber-700 pointer-events-none">
+                          L
+                        </span>
+                      </div>
                     </div>
 
-                    <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 shadow-sm">
-                      <p className="text-xs uppercase tracking-wider text-emerald-700 font-semibold">
-                        % Petróleo
+                    {/* Tarjeta 3: Mezcla fabricada */}
+                    <div className="p-4 rounded-xl bg-sky-50 border border-sky-200 shadow-xs flex flex-col justify-between min-w-0">
+                      <p className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-sky-800 font-semibold mb-2 truncate" title="Mezcla fabricada">
+                        <span className="w-2 h-2 rounded-full bg-sky-500 shrink-0"></span>
+                        <span className="truncate">Mezcla fabricada</span>
                       </p>
-                      <p className="text-2xl font-bold text-emerald-950 mt-1">
-                        {porcPetroleoFabricado.toFixed(1)} %
-                      </p>
+                      <div className="mt-auto h-[46px] flex items-center">
+                        <p className="text-xl xl:text-2xl font-bold text-sky-950 truncate">
+                          {mezclaFabricada.toLocaleString("es-CL", {
+                            maximumFractionDigits: 2,
+                          })}{" "}
+                          <span className="text-sm font-semibold text-sky-700">L</span>
+                        </p>
+                      </div>
                     </div>
 
-                    <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 shadow-sm">
-                      <p className="text-xs uppercase tracking-wider text-amber-700 font-semibold">
-                        % Aceite
+                    {/* Tarjeta 4: % Petróleo */}
+                    <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 shadow-xs flex flex-col justify-between min-w-0">
+                      <p className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-emerald-800 font-semibold mb-2 truncate" title="% Petróleo">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+                        <span className="truncate">% Petróleo</span>
                       </p>
-                      <p className="text-2xl font-bold text-amber-950 mt-1">
-                        {porcAceiteFabricado.toFixed(1)} %
+                      <div className="mt-auto h-[46px] flex items-center">
+                        <p className="text-xl xl:text-2xl font-bold text-emerald-950 truncate">
+                          {porcPetroleoFabricado.toFixed(1)}{" "}
+                          <span className="text-sm font-semibold text-emerald-700">%</span>
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Tarjeta 5: % Aceite */}
+                    <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 shadow-xs flex flex-col justify-between min-w-0">
+                      <p className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-amber-800 font-semibold mb-2 truncate" title="% Aceite">
+                        <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span>
+                        <span className="truncate">% Aceite</span>
                       </p>
+                      <div className="mt-auto h-[46px] flex items-center">
+                        <p className="text-xl xl:text-2xl font-bold text-amber-950 truncate">
+                          {porcAceiteFabricado.toFixed(1)}{" "}
+                          <span className="text-sm font-semibold text-amber-700">%</span>
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
